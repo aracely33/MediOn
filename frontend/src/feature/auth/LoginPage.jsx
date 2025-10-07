@@ -59,7 +59,9 @@ function LoginPage() {
                   }) => (
                     <Form noValidate onSubmit={handleSubmit}>
                       <Form.Group className="mb-3" controlId="formBasicEmail">
-                        <Form.Label>Correo electrónico</Form.Label>
+                        <Form.Label className="fw-bold">
+                          Correo electrónico
+                        </Form.Label>
                         <Form.Control
                           type="email"
                           name="email"
@@ -77,7 +79,7 @@ function LoginPage() {
                         className="mb-3"
                         controlId="formBasicPassword"
                       >
-                        <Form.Label>Contraseña</Form.Label>
+                        <Form.Label className="fw-bold">Contraseña</Form.Label>
                         <Form.Control
                           type="password"
                           name="password"
