@@ -36,10 +36,10 @@ function LoginPage() {
             <Card className="shadow-sm border-0 rounded-4">
               <Card.Body className="p-4">
                 <Card.Title className="mb-3 fw-bold fs-4 text-dark text-center">
-                  Iniciar Sesión
+                  Bienvenido
                 </Card.Title>
                 <Card.Subtitle className="mb-4 text-muted text-center">
-                  Bienvenido al portal de coordinación de citas.
+                  Portal de coordinación de citas médicas.
                 </Card.Subtitle>
 
                 <Formik
