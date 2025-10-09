@@ -18,6 +18,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @Table(name = "users")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class UserModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

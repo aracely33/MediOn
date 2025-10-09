@@ -2,6 +2,7 @@ package clinica.medtech.users.controller;
 
 import clinica.medtech.auth.jwt.JwtUtils;
 import clinica.medtech.users.dtoRequest.AuthLoginRequestDto;
+import clinica.medtech.users.dtoRequest.PatientRequestDto;
 import clinica.medtech.users.dtoRequest.SuspendRequestDto;
 import clinica.medtech.users.dtoRequest.UserMeRequestDto;
 import clinica.medtech.users.dtoResponse.AuthResponseDto;
@@ -76,18 +77,18 @@ public class AuthController {
      * @param authCreateUserDto credenciales de registro
      * @return un ResponseEntity que contiene el token de autenticación
      */
-    /*@Operation(summary = "Registrar nuevo profesional", description = """
-            Registra un nuevo profesional y obtiene un token de autenticación.
+    @Operation(summary = "Registrar nuevo paciente", description = """
+            Registra un nuevo paciente y obtiene un token de autenticación.
             """)
-    @PostMapping(value = "/professional/register")
+    @PostMapping(value = "/patient/register")
     public ResponseEntity<AuthResponseRegisterDto> registerProfessional(
-            @RequestBody @Valid ProfessionalRequestDto authCreateUserDto,
+            @RequestBody @Valid PatientRequestDto authCreateUserDto,
             HttpServletResponse servletResponse) {
 
-        AuthResponseRegisterDto response = professionalService.createUser(authCreateUserDto);
+        AuthResponseRegisterDto response = this.userDetailsService.createUser(authCreateUserDto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }*/
+    }
 
 
     /**
