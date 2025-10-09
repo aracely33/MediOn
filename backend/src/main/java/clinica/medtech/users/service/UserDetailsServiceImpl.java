@@ -4,11 +4,15 @@ import clinica.medtech.auth.jwt.JwtUtils;
 import clinica.medtech.exceptions.EmailAlreadyExistsException;
 import clinica.medtech.users.Enum.EnumRole;
 import clinica.medtech.users.dtoRequest.AuthLoginRequestDto;
+import clinica.medtech.users.dtoRequest.PatientRequestDto;
 import clinica.medtech.users.dtoRequest.SuspendRequestDto;
 import clinica.medtech.users.dtoRequest.UserMeRequestDto;
 import clinica.medtech.users.dtoResponse.AuthResponseDto;
+import clinica.medtech.users.dtoResponse.AuthResponseRegisterDto;
 import clinica.medtech.users.dtoResponse.UserMeResponseDto;
 import clinica.medtech.users.dtoResponse.UserResponseDto;
+import clinica.medtech.users.modules.PatientModel;
+import clinica.medtech.users.modules.RoleModel;
 import clinica.medtech.users.modules.UserModel;
 import clinica.medtech.users.repository.RoleRepository;
 import clinica.medtech.users.repository.UserRepository;
@@ -29,9 +33,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -84,6 +88,65 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return new AuthResponseDto(id, email, "Autenticación exitosa", token, true);
 
 
+    }
+
+    /**
+     * Crea un nuevo usuario paciente, asociando un usuario en la base de datos.
+     * Valida que el email no estén registrados previamente.
+     *
+     * @param authCreateUserDto DTO con la información del profesional a registrar.
+     * @return DTO de respuesta con información del registro y token JWT.
+     * @throws EmailAlreadyExistsException si el correo ya está registrado.
+     */
+    @Transactional
+    public AuthResponseRegisterDto createUser(@Valid PatientRequestDto authCreateUserDto) {
+
+        String email = authCreateUserDto.getEmail();
+        String name = authCreateUserDto.getName();
+        String lastName = authCreateUserDto.getLastName();
+        String password = authCreateUserDto.getPassword();
+
+
+
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new EmailAlreadyExistsException("El correo " + email + " ya existe en la base de datos.");
+        }
+
+
+        RoleModel patientRole = roleRepository.findByEnumRole(EnumRole.PATIENT)
+                .orElseThrow(() -> new IllegalArgumentException("El rol especificado no está configurado en la base de datos."));
+        Set<RoleModel> roleEntities = Set.of(patientRole);
+
+
+        UserModel userEntity = UserModel.builder()
+                .email(email)
+                .name(name)
+                .lastName(lastName)
+                .password(passwordEncoder.encode(password))
+                .roles(roleEntities)
+                .build();
+
+        UserModel userCreated = userRepository.save(userEntity);
+
+        List<SimpleGrantedAuthority> authoritiesList = new ArrayList<>();
+        userCreated.getRoles().forEach(role -> {
+            authoritiesList.add(new SimpleGrantedAuthority("ROLE_" + role.getEnumRole().name()));
+            role.getPermissions().forEach(permission ->
+                    authoritiesList.add(new SimpleGrantedAuthority(permission.getName())));
+        });
+
+        UserDetails userDetails = loadUserByUsername(userCreated.getEmail());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                userDetails, userCreated.getPassword(), authoritiesList);
+        String accessToken = jwtUtils.generateJwtToken(authentication);
+
+        return new AuthResponseRegisterDto(
+                userCreated.getId(),
+                authCreateUserDto.getName(),
+                "Usuario registrado exitosamente",
+                accessToken,
+                true
+        );
     }
 
     public Authentication authenticate(String username, String password) {

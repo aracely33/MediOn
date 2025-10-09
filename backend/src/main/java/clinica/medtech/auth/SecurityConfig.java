@@ -91,7 +91,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST,"/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/auth/professional/register").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/auth/patient/register").permitAll()
                         .requestMatchers("/swagger-ui.html",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
@@ -99,7 +99,6 @@ public class SecurityConfig {
                                 "/swagger-resources",
                                 "/webjars/**"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.POST,"/auth/receptionist/register").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception
