@@ -1,4 +1,4 @@
-package clinica.medtech.users.modules;
+package clinica.medtech.users.entities;
 
 import clinica.medtech.users.Enum.EnumRole;
 import jakarta.persistence.*;

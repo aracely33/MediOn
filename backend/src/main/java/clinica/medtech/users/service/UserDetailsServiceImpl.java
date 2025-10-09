@@ -11,9 +11,8 @@ import clinica.medtech.users.dtoResponse.AuthResponseDto;
 import clinica.medtech.users.dtoResponse.AuthResponseRegisterDto;
 import clinica.medtech.users.dtoResponse.UserMeResponseDto;
 import clinica.medtech.users.dtoResponse.UserResponseDto;
-import clinica.medtech.users.modules.PatientModel;
-import clinica.medtech.users.modules.RoleModel;
-import clinica.medtech.users.modules.UserModel;
+import clinica.medtech.users.entities.RoleModel;
+import clinica.medtech.users.entities.UserModel;
 import clinica.medtech.users.repository.RoleRepository;
 import clinica.medtech.users.repository.UserRepository;
 import jakarta.validation.Valid;
@@ -33,7 +32,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
