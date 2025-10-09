@@ -1,11 +1,11 @@
-package clinica.medtech.users.modules;
+package clinica.medtech.users.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class PatientModel extends UserModel {
 
     @Column(name = "birth_date")
-    private LocalDateTime birthDate;
+    private LocalDate birthDate;
 
     private String gender;
     private String address;

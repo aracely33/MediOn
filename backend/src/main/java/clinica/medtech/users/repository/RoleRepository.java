@@ -3,7 +3,7 @@ package clinica.medtech.users.repository;
 
 
 import clinica.medtech.users.Enum.EnumRole;
-import clinica.medtech.users.modules.RoleModel;
+import clinica.medtech.users.entities.RoleModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

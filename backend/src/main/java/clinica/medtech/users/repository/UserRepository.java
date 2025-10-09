@@ -2,7 +2,7 @@ package clinica.medtech.users.repository;
 
 
 import clinica.medtech.users.Enum.EnumRole;
-import clinica.medtech.users.modules.UserModel;
+import clinica.medtech.users.entities.UserModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;

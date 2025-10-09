@@ -2,9 +2,9 @@ package clinica.medtech.config;
 
 import clinica.medtech.users.Enum.EnumPermission;
 import clinica.medtech.users.Enum.EnumRole;
-import clinica.medtech.users.modules.PermissionModel;
-import clinica.medtech.users.modules.RoleModel;
-import clinica.medtech.users.modules.UserModel;
+import clinica.medtech.users.entities.PermissionModel;
+import clinica.medtech.users.entities.RoleModel;
+import clinica.medtech.users.entities.UserModel;
 import clinica.medtech.users.repository.PermissionRepository;
 import clinica.medtech.users.repository.RoleRepository;
 import clinica.medtech.users.repository.UserRepository;
