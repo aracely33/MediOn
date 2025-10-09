@@ -1,4 +1,4 @@
-FROM openjdk:21-jdk-slim
+FROM mcr.microsoft.com/openjdk/jdk:21-ubuntu
 
 WORKDIR /app
 
