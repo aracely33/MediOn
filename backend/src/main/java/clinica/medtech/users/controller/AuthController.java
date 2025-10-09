@@ -114,7 +114,7 @@ public class AuthController {
      * @param userMeRequestDto los nuevos datos del usuario
      * @return un ResponseEntity que contiene los datos actualizados del usuario
      */
-    @Operation(summary = "Actualizar el usuario actual", description = """
+    /*@Operation(summary = "Actualizar el usuario actual", description = """
             Actualiza los datos del usuario autenticado.
             """)
     @PreAuthorize("isAuthenticated()")
@@ -122,7 +122,7 @@ public class AuthController {
     public ResponseEntity<UserMeResponseDto> updateCurrentUser(@PathVariable Long userId, @RequestBody @Valid UserMeRequestDto userMeRequestDto) {
         UserMeResponseDto userMeResponseDto = userDetailsService.updateCurrentUser(userId, userMeRequestDto);
         return ResponseEntity.ok(userMeResponseDto);
-    }
+    }*/
 
     /**
      * Cierra la sesión del usuario actual.
