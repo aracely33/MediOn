@@ -1,10 +1,11 @@
+import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Card from "react-bootstrap/Card";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import { Formik, Field, ErrorMessage } from "formik";
+import { Formik } from "formik";
 import * as Yup from "yup";
 import "./LoginPage.css";
 import { usePatient } from "../../context/PatientContext";
@@ -27,6 +28,8 @@ function LoginPage() {
   const { signIn: signInPatient } = usePatient();
   const [userType, setUserType] = useState("PATIENT");
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
 
   return (
     <div className="login-bg">
@@ -98,7 +101,7 @@ function LoginPage() {
                       >
                         <Form.Label className="fw-bold">Contraseña</Form.Label>
                         <Form.Control
-                          type="password"
+                          type={showPassword ? "text" : "password"}
                           name="password"
                           placeholder="Ingresa tu contraseña"
                           value={values.password}
@@ -108,8 +111,25 @@ function LoginPage() {
                         <Form.Control.Feedback type="invalid">
                           {errors.password}
                         </Form.Control.Feedback>
-                        <div className="text-end mt-1">
-                          <Card.Link href="#">
+
+                        <div className="d-flex justify-content-between mt-1">
+                          <Card.Link
+                            href="#"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              togglePasswordVisibility();
+                            }}
+                            className="text-decoration-none text-secondary"
+                          >
+                            {showPassword
+                              ? "Ocultar contraseña"
+                              : "Mostrar contraseña"}
+                          </Card.Link>
+
+                          <Card.Link
+                            href="#"
+                            className="text-decoration-none text-secondary"
+                          >
                             ¿Olvidaste tu contraseña?
                           </Card.Link>
                         </div>
