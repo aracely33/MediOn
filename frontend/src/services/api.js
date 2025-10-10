@@ -9,9 +9,9 @@ export const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const patientToken = localStorage.getItem("patient_token");
-    // const professionalToken = localStorage.getItem("professional_token");
+    const professionalToken = localStorage.getItem("professional_token");
 
-    const token = patientToken;
+    const token = patientToken || professionalToken;
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -32,7 +32,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       // Token expirado o inválido - limpiar localStorage
       localStorage.removeItem("patient_token");
-      // localStorage.removeItem("professional_token");
+      localStorage.removeItem("professional_token");
 
       // Redirigir al login
       window.location.href = "/login";
