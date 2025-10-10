@@ -7,6 +7,9 @@ import Col from "react-bootstrap/Col";
 import { Formik, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import "./LoginPage.css";
+import { usePatient } from "../../context/PatientContext";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 const validationSchema = Yup.object({
   email: Yup.string()
@@ -21,6 +24,10 @@ const validationSchema = Yup.object({
 });
 
 function LoginPage() {
+  const { signIn: signInPatient } = usePatient();
+  const [userType, setUserType] = useState("PATIENT");
+  const navigate = useNavigate();
+
   return (
     <div className="login-bg">
       <Container
@@ -46,8 +53,18 @@ function LoginPage() {
                   initialValues={{ email: "", password: "" }}
                   validationSchema={validationSchema}
                   // Aquí iría la solicitud a la api
-                  onSubmit={(values) => {
+                  onSubmit={async (values) => {
+                    console.log("Datos todavía no enviados");
                     console.log("Datos enviados:", values);
+                    try {
+                      if (userType === "PATIENT") {
+                        console.log("Se ingresa a PATIENT para signIn");
+                        await signInPatient(values);
+                        navigate("/dashboard");
+                      }
+                    } catch (error) {
+                      console.log("Error to do login: ", error);
+                    }
                   }}
                 >
                   {({
