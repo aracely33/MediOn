@@ -10,7 +10,6 @@ import * as Yup from "yup";
 import "./LoginPage.css";
 import { usePatient } from "../../context/PatientContext";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
 
 const validationSchema = Yup.object({
   email: Yup.string()
