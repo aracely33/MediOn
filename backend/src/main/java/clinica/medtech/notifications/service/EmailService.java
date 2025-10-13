@@ -1,4 +1,4 @@
-package notifications.service;
+package clinica.medtech.notifications.service;
 
 public interface EmailService {
 

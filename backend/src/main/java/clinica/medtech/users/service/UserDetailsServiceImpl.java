@@ -18,8 +18,8 @@ import clinica.medtech.users.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import notifications.service.EmailService;
 
+import clinica.medtech.notifications.service.EmailService;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -47,7 +47,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private final UserRepository userRepository;
     private final JwtUtils jwtUtils;
     private final RoleRepository roleRepository;
-    private final EmailService emailService; 
+    private final EmailService emailService;
     //private final ProfessionalRepository professionalRepository;
 
     @Override

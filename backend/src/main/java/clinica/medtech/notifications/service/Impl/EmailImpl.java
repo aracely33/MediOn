@@ -1,9 +1,9 @@
-package notifications.service.Impl;
+package clinica.medtech.notifications.service.Impl;
 
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import notifications.service.EmailService;
+import clinica.medtech.notifications.service.EmailService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
