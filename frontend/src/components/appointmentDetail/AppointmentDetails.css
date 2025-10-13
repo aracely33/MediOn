@@ -1,0 +1,99 @@
+.appointment-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 1.2rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 350px;
+  font-family: "Inter", sans-serif;
+}
+
+.appointment-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.appointment-user {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.appointment-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+}
+
+.appointment-name {
+  font-weight: 600;
+}
+
+.appointment-info {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.appointment-item {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.appointment-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 0.6rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  border: 1px solid #ddd;
+  background-color: white;
+  padding: 0.6rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.appointment-notes textarea {
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 0.5rem;
+  margin: 0.5rem 0;
+  resize: none;
+}
+
+.btn-save {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 0.5rem;
+  width: 100%;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.appointment-footer-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
