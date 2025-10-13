@@ -62,7 +62,7 @@ function LoginPage() {
                       if (userType === "PATIENT") {
                         console.log("Se ingresa a PATIENT para signIn");
                         await signInPatient(values);
-                        navigate("/dashboard");
+                        navigate("/patient-home");
                       }
                     } catch (error) {
                       console.log("Error to do login: ", error);

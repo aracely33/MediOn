@@ -1,7 +1,11 @@
 import { Button, Card } from "react-bootstrap";
 
-const CardAppointment = ({ dateTime, doctor, specialty, clinic }) => (
-  <Card className="mb-3 shadow-sm">
+const CardAppointment = ({ dateTime, doctor, specialty, clinic, onSelect }) => (
+  <Card
+    className="mb-3 shadow-sm"
+    onClick={onSelect}
+    style={{ cursor: "pointer" }}
+  >
     <Card.Body>
       <Card.Title>{dateTime}</Card.Title>
       <Card.Text>
