@@ -18,14 +18,10 @@ function App() {
           <Route path="/confirm-email" element={<ConfirmEmailPage />} />
 
           {/* Rutas privadas */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoutePatient>
-                <DashboardPage />
-              </ProtectedRoutePatient>
-            }
-          />
+          <Route element={<ProtectedRoutePatient />}>
+            {/*Se agregan las rutas que solo puede acceder el paciente*/}
+            <Route path="/dashboard" element={<DashboardPage />} />
+          </Route>
         </Routes>
       </PatientProvider>
     </BrowserRouter>
