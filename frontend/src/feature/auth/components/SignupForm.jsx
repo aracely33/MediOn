@@ -4,10 +4,15 @@ import { Formik } from "formik";
 import { Eye, EyeSlash, CheckCircleFill } from "react-bootstrap-icons";
 import { signupValidation } from "../utils/validationSchema";
 import PasswordRequirements from "./PasswordRequirements";
+import { registerPatient } from "../services/authService";
+import { useNavigate } from "react-router-dom";
+import { usePatient } from "../../../context/PatientContext"; //cual usePatient?
 
 const SignupForm = ({ onSuccess, onShowTerms, onShowPrivacy }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const navigate = useNavigate();
+  const { signUp } = usePatient();
 
   return (
     <Formik
@@ -19,15 +24,37 @@ const SignupForm = ({ onSuccess, onShowTerms, onShowPrivacy }) => {
         terms: false,
       }}
       validationSchema={signupValidation}
-      onSubmit={(values, { resetForm, setSubmitting }) => {
-        // Si las contraseñas no coinciden, no enviamos el formulario
+      onSubmit={async (values, { resetForm, setSubmitting, setErrors }) => {
         if (values.password !== values.confirmPassword) {
+          setErrors({ confirmPassword: "Las contraseñas no coinciden" });
           setSubmitting(false);
           return;
         }
-        console.log("Datos enviados:", values);
-        onSuccess();
-        resetForm();
+
+        try {
+          console.log("Intentando registro...", values);
+          const patient = await signUp({
+            name: values.firstName,
+            lastName: values.lastName,
+            email: values.email,
+            password: values.password,
+            confirmPassword: values.password,
+          });
+
+          console.log("Registro exitoso:", patient);
+          //onSuccess();
+          resetForm();
+          navigate("/confirm-email");
+        } catch (error) {
+          console.error("Error al registrar:", error.response?.data);
+          setErrors({
+            email:
+              error.response?.data?.message ||
+              "Hubo un problema al registrarte",
+          });
+        } finally {
+          setSubmitting(false);
+        }
       }}
     >
       {({

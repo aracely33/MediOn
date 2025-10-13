@@ -1,17 +1,19 @@
 // src/features/auth/SignupPage.jsx
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Container, Row, Col, Card } from "react-bootstrap";
 import SignupForm from "./components/SignupForm";
 import TermsModal from "./components/TermsModal";
 import PrivacyModal from "./components/PrivacyModal";
 import SuccessToast from "./components/SuccessToast";
+
 import "./auth.css";
 
 const SignupPage = () => {
   const [showTerms, setShowTerms] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showToast, setShowToast] = useState(false);
-
+  const navigate = useNavigate();
   return (
     <div className="auth-bg">
       <Container
