@@ -17,6 +17,9 @@ import clinica.medtech.users.repository.RoleRepository;
 import clinica.medtech.users.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import notifications.service.EmailService;
+
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -37,12 +40,14 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @Validated
 public class UserDetailsServiceImpl implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final JwtUtils jwtUtils;
     private final RoleRepository roleRepository;
+    private final EmailService emailService; 
     //private final ProfessionalRepository professionalRepository;
 
     @Override
@@ -125,6 +130,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .build();
 
         UserModel userCreated = userRepository.save(userEntity);
+        
+         try {
+            emailService.sendWelcomeEmail(userCreated.getEmail(), userCreated.getName());
+        } catch (Exception e) {
+            log.warn("No se pudo enviar el email de bienvenida a: {}", userCreated.getEmail(), e);
+        }
 
         List<SimpleGrantedAuthority> authoritiesList = new ArrayList<>();
         userCreated.getRoles().forEach(role -> {
