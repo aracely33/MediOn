@@ -5,12 +5,16 @@ import clinica.medtech.exceptions.EmailAlreadyExistsException;
 import clinica.medtech.users.Enum.EnumRole;
 import clinica.medtech.users.dtoRequest.AuthLoginRequestDto;
 import clinica.medtech.users.dtoRequest.PatientRequestDto;
+import clinica.medtech.users.dtoRequest.PatientUpdateRequestDto;
 import clinica.medtech.users.dtoRequest.SuspendRequestDto;
 import clinica.medtech.users.dtoRequest.UserMeRequestDto;
 import clinica.medtech.users.dtoResponse.AuthResponseDto;
 import clinica.medtech.users.dtoResponse.AuthResponseRegisterDto;
+import clinica.medtech.users.dtoResponse.PatientMeResponseDto;
+import clinica.medtech.users.dtoResponse.PatientMeResponseDto;
 import clinica.medtech.users.dtoResponse.UserMeResponseDto;
 import clinica.medtech.users.dtoResponse.UserResponseDto;
+import clinica.medtech.users.entities.PatientModel;
 import clinica.medtech.users.entities.RoleModel;
 import clinica.medtech.users.entities.UserModel;
 import clinica.medtech.users.repository.RoleRepository;
@@ -217,6 +221,70 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         userRepository.save(user);
         return getCurrentUser(user.getEmail());
+    }
+        /**
+     * Actualiza los datos de un usuario paciente en la base de datos.
+     * Valida que el nuevo email no esté registrado previamente en otro usuario.
+     * Actualiza tanto los campos comunes como los específicos de paciente.
+     *
+     * @param id ID del usuario paciente a actualizar.
+     * @param patientUpdateRequest DTO con la información actualizada del paciente.
+     * @return DTO de respuesta con los datos actualizados del usuario paciente.
+     
+     */
+
+    @Transactional
+    public PatientMeResponseDto updatePatientUser(Long id, PatientUpdateRequestDto patientUpdateRequest) {
+    UserModel user = userRepository.findById(id)
+            .orElseThrow(() -> new UsernameNotFoundException("Usuario con el id " + id + " no encontrado"));
+
+        if (!user.getEmail().equals(patientUpdateRequest.getEmail())) {
+            userRepository.findByEmail(patientUpdateRequest.getEmail()).ifPresent(existingUser -> {
+                throw new EmailAlreadyExistsException("El correo " + patientUpdateRequest.getEmail() + " ya existe en la base de datos.");
+            });
+            user.setEmail(patientUpdateRequest.getEmail());
+        }
+
+        user.setName(patientUpdateRequest.getName());
+        user.setLastName(patientUpdateRequest.getLastName());
+
+        // Si UserModel es padre de PatientModel se debe hacer un cast para obtener los campos específicos
+
+        if (user instanceof PatientModel patient) {
+            patient.setBirthDate(patientUpdateRequest.getBirthDate());
+            patient.setGender(patientUpdateRequest.getGender());
+            patient.setAddress(patientUpdateRequest.getAddress());
+            patient.setPhone(patientUpdateRequest.getPhone());
+            patient.setBloodType(patientUpdateRequest.getBloodType());
+            
+        }
+
+        userRepository.save(user);
+        return getCurrentPatient(user.getEmail());
+    }
+
+    public PatientMeResponseDto getCurrentPatient(String email) {
+    UserModel user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new UsernameNotFoundException("Usuario con el email " + email + " no encontrado"));
+
+        if (!(user instanceof PatientModel patient)) {
+            throw new IllegalArgumentException("El usuario con el email " + email + " no es un paciente.");
+        }
+
+        return PatientMeResponseDto.builder()
+                .id(patient.getId())
+                .email(patient.getEmail())
+                .name(patient.getName())
+                .lastName(patient.getLastName())
+                .roles(patient.getRoles().stream()
+                        .map(role -> role.getEnumRole().name())
+                        .toList())
+                .birthDate(patient.getBirthDate())
+                .gender(patient.getGender())
+                .address(patient.getAddress())
+                .phone(patient.getPhone())
+                .bloodType(patient.getBloodType())
+                .build();
     }
 
 
