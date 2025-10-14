@@ -5,12 +5,16 @@ import clinica.medtech.exceptions.EmailAlreadyExistsException;
 import clinica.medtech.users.Enum.EnumRole;
 import clinica.medtech.users.dtoRequest.AuthLoginRequestDto;
 import clinica.medtech.users.dtoRequest.PatientRequestDto;
+import clinica.medtech.users.dtoRequest.PatientUpdateRequestDto;
 import clinica.medtech.users.dtoRequest.SuspendRequestDto;
 import clinica.medtech.users.dtoRequest.UserMeRequestDto;
 import clinica.medtech.users.dtoResponse.AuthResponseDto;
 import clinica.medtech.users.dtoResponse.AuthResponseRegisterDto;
+import clinica.medtech.users.dtoResponse.PatientMeResponseDto;
+import clinica.medtech.users.dtoResponse.PatientMeResponseDto;
 import clinica.medtech.users.dtoResponse.UserMeResponseDto;
 import clinica.medtech.users.dtoResponse.UserResponseDto;
+import clinica.medtech.users.entities.PatientModel;
 import clinica.medtech.users.entities.RoleModel;
 import clinica.medtech.users.entities.UserModel;
 import clinica.medtech.users.repository.RoleRepository;
@@ -218,6 +222,20 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         userRepository.save(user);
         return getCurrentUser(user.getEmail());
     }
+        /**
+     * Actualiza los datos de un usuario paciente en la base de datos.
+     * Valida que el nuevo email no esté registrado previamente en otro usuario.
+     * Actualiza tanto los campos comunes como los específicos de paciente.
+     *
+     * @param id ID del usuario paciente a actualizar.
+     * @param patientUpdateRequest DTO con la información actualizada del paciente.
+     * @return DTO de respuesta con los datos actualizados del usuario paciente.
+     
+     */
+
+    
+
+    
 
 
 
