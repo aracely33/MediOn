@@ -69,7 +69,7 @@ const DoctorDashboard = () => {
 
   return (
     <div className="d-flex">
-      <Sidebar user={user} />
+      <Sidebar user={user} role="doctor" />
       <div className="flex-grow-1">
         <Header
           title="Portal Médico"

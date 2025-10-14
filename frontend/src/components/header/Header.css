@@ -2,7 +2,7 @@
 
 /* --- Contenedor principal del header --- */
 .header-container {
-  background-color: #f7fbfa !important;
+  background-color: #075a91 !important;
   border-bottom: 2px solid #eaf4fb;
   box-shadow: 0 2px 8px rgba(0, 140, 220, 0.1);
 }
@@ -15,7 +15,7 @@
 .header-title {
   font-family: "Nunito", sans-serif;
   font-weight: 600;
-  color: #0d6efd;
+  color: #eff1f3;
   letter-spacing: 0.5px;
 }
 

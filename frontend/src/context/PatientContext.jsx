@@ -61,10 +61,17 @@ export const PatientProvider = ({ children }) => {
     }
   };
 
-  const signOut = () => {
-    localStorage.removeItem("patient_token");
-    setPatient(null);
-    setIsAuthenticatedPatient(false);
+  const signOut = async () => {
+    try {
+      await logoutPatient(); // <-- llamada al backend
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+      // incluso si falla, limpiamos localStorage para evitar quedar autenticado
+    } finally {
+      localStorage.removeItem("patient_token");
+      setPatient(null);
+      setIsAuthenticatedPatient(false);
+    }
   };
 
   useEffect(() => {

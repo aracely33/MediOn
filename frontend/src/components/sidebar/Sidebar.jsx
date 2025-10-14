@@ -1,31 +1,11 @@
 import { Nav } from "react-bootstrap";
-import {
-  GridFill,
-  Calendar2Week,
-  FileMedical,
-  Bell,
-  Gear,
-  QuestionCircle,
-} from "react-bootstrap-icons";
+import { QuestionCircle } from "react-bootstrap-icons";
+import { sidebarLinks, iconMap } from "./sidebarLinks";
 import "./Sidebar.css";
 
-const iconMap = {
-  dashboard: GridFill,
-  calendar_month: Calendar2Week,
-  medical_information: FileMedical,
-  notifications: Bell,
-  settings: Gear,
-  help_outline: QuestionCircle,
-};
-
-const Sidebar = ({ user }) => {
-  const links = [
-    { label: "Panel de Control", href: "#", icon: "dashboard", active: true },
-    { label: "Agendar Citas", href: "#", icon: "calendar_month" },
-    { label: "Historial Médico", href: "#", icon: "medical_information" },
-    { label: "Mensajes y Alertas", href: "#", icon: "notifications" },
-    { label: "Configuración", href: "#", icon: "settings" },
-  ];
+const Sidebar = ({ user, role }) => {
+  // links según rol
+  const links = sidebarLinks[role]; // ya no hace falta el fallback
 
   return (
     <div className="sidebar-container d-flex flex-column justify-content-between p-3">
