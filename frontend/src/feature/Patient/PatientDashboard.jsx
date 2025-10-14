@@ -4,6 +4,7 @@ import Sidebar from "../../components/sidebar/Sidebar";
 import CardAppointment from "../../components/cardAppointment/CardAppointment";
 import AppointmentDetails from "../../components/appointmentDetail/AppointmentDetails";
 import { Container, Row, Col } from "react-bootstrap";
+import "./PatientDashboard.css";
 
 const PatientDashboard = () => {
   const user = {
@@ -16,7 +17,7 @@ const PatientDashboard = () => {
 
   const appointments = [
     {
-      dateTime: "15 de Mayo, 2024 - 10:30 AM",
+      dateTime: "15 de Mayo, 2025 - 10:30 AM",
       doctor: "Dr. Carlos Rivas",
       specialty: "Cardiología",
       clinic: "Clínica Corazón Sano",
@@ -24,7 +25,7 @@ const PatientDashboard = () => {
       isTeleconsultation: false,
     },
     {
-      dateTime: "22 de Mayo, 2024 - 09:00 AM",
+      dateTime: "22 de Mayo, 2026 - 09:00 AM",
       doctor: "Dra. Elena Gómez",
       specialty: "Dermatología",
       clinic: "Centro Médico Piel Bella",
@@ -36,11 +37,11 @@ const PatientDashboard = () => {
   const [selectedAppointment, setSelectedAppointment] = useState(null);
 
   return (
-    <div className="d-flex">
+    <div className="d-flex patient-dashboard">
       <Sidebar user={user} />
       <div className="flex-grow-1">
         <Header
-          title="Portal de Salud"
+          title="Tu portal de salud"
           avatarUrl={user.avatar}
           onLogout={() => alert("Logout")}
         />
