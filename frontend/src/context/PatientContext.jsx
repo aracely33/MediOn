@@ -24,12 +24,21 @@ export const PatientProvider = ({ children }) => {
   console.log("Ver paciente: ", patient);
 
   const signUp = async (patientData) => {
+    console.log("estas en en signup de PatientContext");
     try {
-      const response = await registerPatient(patientData);
-      setPatient(response.data);
-      setIsAuthenticatedPatient(true);
+      const response = await registerPatient({
+        name: patientData.name,
+        lastName: patientData.lastName,
+        email: patientData.email,
+        password: patientData.password,
+        confirmPassword: patientData.confirmPassword,
+      });
+      console.log("✅ Registro exitoso:", response.data);
+      return response.data;
+      //setPatient(response.data);
     } catch (error) {
-      console.log("Error to register patient: ", error);
+      console.error("Error al registrar paciente:", error.response?.data);
+      throw error; // para que SignupForm pueda mostrarlo
     }
   };
 
