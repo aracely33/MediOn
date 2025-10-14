@@ -674,6 +674,35 @@ public class GlobalExceptionController {
 //                .body(errorResponse);
 //    }
 
+    /**
+     * Manejador de excepciones para solicitudes con recursos no encontrados.
+     * Captura instancias de {@link ProfessionalNotFoundException} cuando se intenta acceder a un profesional que no existe.
+     *
+     * @param ex      la excepción lanzada cuando se intenta acceder a un profesional que no existe
+     * @param request el objeto {@link WebRequest} asociado a la solicitud HTTP que provocó la excepción
+     * @return una respuesta con código 404 (Not Found) que contiene detalles del error en un objeto {@link ErrorResponse}
+     */
+
+    @ExceptionHandler(ProfessionalNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleProfessionalNotFoundException(ProfessionalNotFoundException ex, WebRequest request) {
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .errorCode("PROFESSIONAL-404")
+                .message("El profesional solicitado no fue encontrado")
+                .details(List.of(sanitizeErrorMessage(ex.getMessage())))
+                .timestamp(Instant.now())
+                .path(getSanitizedPath(request))
+                .build();
+
+        log.warn("Profesional no se encuentra - Path: {} | IP: {} | Mensaje: {}",
+                errorResponse.getPath(),
+                request.getHeader("X-Forwarded-For"),
+                ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .header("X-Content-Type-Options", "nosniff")
+                .body(errorResponse);
+    }
 
 
     /**
