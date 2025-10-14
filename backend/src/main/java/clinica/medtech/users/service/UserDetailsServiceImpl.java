@@ -22,6 +22,7 @@ import clinica.medtech.users.repository.RoleRepository;
 import clinica.medtech.users.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -43,6 +44,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 @Validated
+@Slf4j
 public class UserDetailsServiceImpl implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
@@ -129,6 +131,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .roles(roleEntities)
                 .build();
 
+        log.info("Registrando paciente: {}", patientEntity.getRoles().stream().map(RoleModel::getEnumRole).toList());
         PatientModel patientCreated = patientRepository.save(patientEntity);
 
         // Generar authorities
