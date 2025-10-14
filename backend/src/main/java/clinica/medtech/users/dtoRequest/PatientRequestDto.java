@@ -27,8 +27,8 @@ public class PatientRequestDto {
 
     @Email(message = "Formato de email inválido")
     @Pattern(
-            regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\\\.[A-Za-z]{2,}|^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+$",
-            message = "El email debe tener un dominio válido, como .com o .com.ar"
+            regexp = "^(?:[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}|[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+)$",
+            message = "El email debe tener un formato válido (por ejemplo: usuario@dominio.com o usuario@localhost)"
     )
     @Schema(description = "Email del paciente", example = "9k6w5@example.com")
     private String email;
