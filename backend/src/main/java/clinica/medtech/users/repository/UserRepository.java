@@ -17,15 +17,5 @@ public interface UserRepository extends JpaRepository<UserModel, Long> {
 
     List<UserModel> findUsersByRolesEnumRole(EnumRole enumRole);
 
-    // Filtrar pacientes por nombre
-    List<PatientModel> findByNameAndRolesEnumRole(String name, EnumRole enumRole);
-
-    // Filtrar pacientes por ID
-    Optional<PatientModel> findByIdAndRolesEnumRole(Long id, EnumRole enumRole);
-
-    // Filtrar pacientes por email
-    Optional<PatientModel> findByEmailAndRolesEnumRole(String email, EnumRole enumRole);
-
-    // Filtrar pacientes por apellido
-    List<PatientModel> findByLastNameAndRolesEnumRole(String lastName, EnumRole enumRole);
+  
 }
