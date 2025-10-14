@@ -2,6 +2,10 @@ package clinica.medtech.users.service;
 
 import java.util.List;
 
+import clinica.medtech.common.dto.PaginatedResponse;
+import clinica.medtech.exceptions.PatientNotFoundException;
+import clinica.medtech.users.mapper.PatientMapper;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +31,7 @@ import org.springframework.data.domain.Pageable;
 public class PatientService {
 
     private final PatientRepository patientRepository;
+    private final PatientMapper patientMapper;
 
     /**
      * Limpia una cadena eliminando espacios extra y normalizando el formato.
@@ -38,108 +43,120 @@ public class PatientService {
         return value == null ? null : value.trim().replaceAll("\\s+", " ");
     }
 
+
     /**
-     * Actualiza los datos de un paciente en la base de datos.
-     * Valida que el nuevo email no esté registrado previamente.
-     * Actualiza tanto los campos comunes como los específicos de paciente.
+     * Actualiza los datos de un paciente existente en la base de datos.
+     * Valida que el nuevo correo no esté registrado por otro usuario.
      *
      * @param id ID del paciente a actualizar.
-     * @param patientUpdateRequest DTO con la información actualizada del paciente.
-     * @return DTO de respuesta con los datos actualizados del paciente.
-     * @throws EmailAlreadyExistsException si el correo ya está registrado.
-     * @throws UsernameNotFoundException si el paciente con el ID especificado no existe.
+     * @param updateRequest DTO con los datos nuevos.
+     * @return DTO con la información actualizada.
      */
     @Transactional
-    public PatientMeResponseDto updatePatientUser(Long id, PatientUpdateRequestDto patientUpdateRequest) {
+    public PatientMeResponseDto updatePatientUser(Long id, PatientUpdateRequestDto updateRequest) {
         PatientModel patient = patientRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("Paciente con el id " + id + " no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Paciente con id " + id + " no encontrado."));
 
-        if (!patient.getEmail().equals(patientUpdateRequest.getEmail())) {
-            patientRepository.findByEmail(patientUpdateRequest.getEmail()).ifPresent(existingUser -> {
-                throw new EmailAlreadyExistsException(
-                        "El correo " + patientUpdateRequest.getEmail() + " ya existe en la base de datos.");
+        // Si el email fue cambiado, validar duplicado
+        if (!patient.getEmail().equalsIgnoreCase(updateRequest.getEmail())) {
+            patientRepository.findByEmailIgnoreCase(updateRequest.getEmail()).ifPresent(existing -> {
+                throw new EmailAlreadyExistsException("El correo " + updateRequest.getEmail() + " ya está registrado.");
             });
-            patient.setEmail(cleanString(patientUpdateRequest.getEmail()));
+            patient.setEmail(cleanString(updateRequest.getEmail()));
         }
 
-        patient.setName(cleanString(patientUpdateRequest.getName()));
-        patient.setLastName(cleanString(patientUpdateRequest.getLastName()));
-        patient.setGender(cleanString(patientUpdateRequest.getGender()));
-        patient.setAddress(cleanString(patientUpdateRequest.getAddress()));
-        patient.setPhone(cleanString(patientUpdateRequest.getPhone()));
-        patient.setBloodType(cleanString(patientUpdateRequest.getBloodType()));
+        // Actualizar campos comunes
+        patient.setName(cleanString(updateRequest.getName()));
+        patient.setLastName(cleanString(updateRequest.getLastName()));
+        patient.setGender(cleanString(updateRequest.getGender()));
+        patient.setAddress(cleanString(updateRequest.getAddress()));
+        patient.setPhone(cleanString(updateRequest.getPhone()));
+        patient.setBloodType(cleanString(updateRequest.getBloodType()));
+        patient.setBirthDate(updateRequest.getBirthDate());
 
-        patient.setBirthDate(patientUpdateRequest.getBirthDate());
+        PatientModel updated = patientRepository.save(patient);
 
-        patientRepository.save(patient);
-        return getCurrentPatient(patient.getEmail());
+        return patientMapper.mapToDto(updated);
+    }
+    /**
+     * Obtener todos los pacientes de forma paginada.
+     */
+    public PaginatedResponse<PatientMeResponseDto> getAllPatients(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("lastName").ascending());
+        Page<PatientModel> patients = patientRepository.findAll(pageable);
+
+        List<PatientMeResponseDto> content = patientMapper.mapToDtoList(patients.getContent());
+
+        return new PaginatedResponse<>(
+                content,
+                patients.getNumber(),
+                patients.getSize(),
+                patients.getTotalPages(),
+                patients.getTotalElements()
+        );
     }
 
     /**
-     * Obtiene los datos del paciente actual por email.
-     *
-     * @param email Email del paciente.
-     * @return DTO con los datos del paciente.
-     * @throws UsernameNotFoundException si el paciente con el email especificado no existe.
+     * Obtener paciente por ID.
      */
-    public PatientMeResponseDto getCurrentPatient(String email) {
-        PatientModel patient = patientRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Paciente con el email " + email + " no encontrado"));
-
-        return PatientMeResponseDto.builder()
-                .id(patient.getId())
-                .email(patient.getEmail())
-                .name(patient.getName())
-                .lastName(patient.getLastName())
-                .roles(patient.getRoles().stream()
-                        .map(role -> role.getEnumRole().name())
-                        .toList())
-                .birthDate(patient.getBirthDate())
-                .gender(patient.getGender())
-                .address(patient.getAddress())
-                .phone(patient.getPhone())
-                .bloodType(patient.getBloodType())
-                .build();
+    public PatientMeResponseDto getPatient(Long id) {
+        PatientModel patient = patientRepository.findById(id)
+                .orElseThrow(() -> new PatientNotFoundException("Paciente con id " + id + " no encontrado"));
+        return patientMapper.mapToDto(patient);
     }
 
     /**
-     * Busca pacientes por nombre.
-     *
-     * @param name Nombre del paciente.
-     * @return Lista de pacientes que coinciden con el nombre.
+     * Obtener paciente por email.
      */
-    public List<PatientModel> findPatientsByName(String name) {
-        return patientRepository.findByName(cleanString(name));
+    public PatientMeResponseDto getByEmail(String email) {
+        PatientModel patient = patientRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new PatientNotFoundException("Paciente con email " + email + " no encontrado"));
+        return patientMapper.mapToDto(patient);
     }
 
     /**
-     * Busca pacientes por apellido.
-     *
-     * @param lastName Apellido del paciente.
-     * @return Lista de pacientes que coinciden con el apellido.
+     * Buscar pacientes por nombre (coincidencia parcial, sin mayúsculas/minúsculas).
      */
-    public List<PatientModel> findPatientsByLastName(String lastName) {
-        return patientRepository.findByLastName(cleanString(lastName));
+    public List<PatientMeResponseDto> searchByName(String name) {
+        List<PatientModel> patients = patientRepository.findByNameContainingIgnoreCase(name);
+
+        if (patients.isEmpty()) {
+            throw new PatientNotFoundException("No se encontraron pacientes con el nombre: " + name);
+        }
+
+        return patientMapper.mapToDtoList(patients);
     }
 
     /**
-     * Obtiene todos los pacientes registrados.
-     *
-     * @return Lista de todos los pacientes.
+     * Buscar pacientes por apellido (coincidencia parcial, sin mayúsculas/minúsculas).
      */
-    public List<PatientModel> getAllPatients() {
-        return patientRepository.findAll();
+    public List<PatientMeResponseDto> searchByLastName(String lastName) {
+        List<PatientModel> patients = patientRepository.findByLastNameContainingIgnoreCase(lastName);
+
+        if (patients.isEmpty()) {
+            throw new PatientNotFoundException("No se encontraron pacientes con el apellido: " + lastName);
+        }
+
+        return patientMapper.mapToDtoList(patients);
     }
 
     /**
-     * Obtiene una página de pacientes, con 20 pacientes por página.
-     *
-     * @param page Número de página (comienza en 0).
-     * @return Página de pacientes.
+     * Obtener pacientes por grupo sanguíneo con paginación.
      */
-    public Page<PatientModel> getPatientsPage(int page) {
-        Pageable pageable = PageRequest.of(page, 20);
-        return patientRepository.findAll(pageable);
+    public PaginatedResponse<PatientMeResponseDto> getByBloodType(String bloodType, int page, int size) {
+        Page<PatientModel> patients = patientRepository.findByBloodTypeContainingIgnoreCase(
+                bloodType, PageRequest.of(page, size)
+        );
+
+        List<PatientMeResponseDto> content = patientMapper.mapToDtoList(patients.getContent());
+
+        return new PaginatedResponse<>(
+                content,
+                patients.getNumber(),
+                patients.getSize(),
+                patients.getTotalPages(),
+                patients.getTotalElements()
+        );
     }
 
 }

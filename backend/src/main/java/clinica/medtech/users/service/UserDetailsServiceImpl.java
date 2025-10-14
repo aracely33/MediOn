@@ -17,6 +17,7 @@ import clinica.medtech.users.dtoResponse.UserResponseDto;
 import clinica.medtech.users.entities.PatientModel;
 import clinica.medtech.users.entities.RoleModel;
 import clinica.medtech.users.entities.UserModel;
+import clinica.medtech.users.repository.PatientRepository;
 import clinica.medtech.users.repository.RoleRepository;
 import clinica.medtech.users.repository.UserRepository;
 import jakarta.validation.Valid;
@@ -47,6 +48,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private final UserRepository userRepository;
     private final JwtUtils jwtUtils;
     private final RoleRepository roleRepository;
+    private final PatientRepository patientRepository;
     //private final ProfessionalRepository professionalRepository;
 
     @Override
@@ -74,23 +76,21 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     public AuthResponseDto loginUser(@Valid AuthLoginRequestDto authDto) {
-        String email = authDto.getEmail();
+        String email = authDto.getEmail().trim().toLowerCase();
         String password = authDto.getPassword();
 
         Long id = userRepository.findByEmail(email)
                 .map(UserModel::getId)
-                .orElseThrow(() -> new UsernameNotFoundException("El Id del usuario con el correo " + email + " no existe"));
-
+                .orElseThrow(() -> new UsernameNotFoundException("El usuario con el correo " + email + " no existe"));
 
         Authentication authentication = this.authenticate(email, password);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-
         String token = jwtUtils.generateJwtToken(authentication);
+
         return new AuthResponseDto(id, email, "Autenticación exitosa", token, true);
-
-
     }
+
 
     /**
      * Crea un nuevo usuario paciente, asociando un usuario en la base de datos.
@@ -103,24 +103,25 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Transactional
     public AuthResponseRegisterDto createUser(@Valid PatientRequestDto authCreateUserDto) {
 
-        String email = authCreateUserDto.getEmail();
-        String name = authCreateUserDto.getName();
-        String lastName = authCreateUserDto.getLastName();
+        // Normalizar el email
+        String email = authCreateUserDto.getEmail().trim().toLowerCase();
+        String name = authCreateUserDto.getName().trim();
+        String lastName = authCreateUserDto.getLastName().trim();
         String password = authCreateUserDto.getPassword();
 
-
-
+        //Verificar si ya existe (en minúsculas)
         if (userRepository.findByEmail(email).isPresent()) {
             throw new EmailAlreadyExistsException("El correo " + email + " ya existe en la base de datos.");
         }
 
-
+        // Buscar rol del paciente
         RoleModel patientRole = roleRepository.findByEnumRole(EnumRole.PATIENT)
                 .orElseThrow(() -> new IllegalArgumentException("El rol especificado no está configurado en la base de datos."));
+
         Set<RoleModel> roleEntities = Set.of(patientRole);
 
-
-        UserModel userEntity = UserModel.builder()
+        // Crear entidad con email normalizado
+        PatientModel patientEntity = PatientModel.builder()
                 .email(email)
                 .name(name)
                 .lastName(lastName)
@@ -128,28 +129,32 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .roles(roleEntities)
                 .build();
 
-        UserModel userCreated = userRepository.save(userEntity);
+        PatientModel patientCreated = patientRepository.save(patientEntity);
 
+        // Generar authorities
         List<SimpleGrantedAuthority> authoritiesList = new ArrayList<>();
-        userCreated.getRoles().forEach(role -> {
+        patientCreated.getRoles().forEach(role -> {
             authoritiesList.add(new SimpleGrantedAuthority("ROLE_" + role.getEnumRole().name()));
             role.getPermissions().forEach(permission ->
                     authoritiesList.add(new SimpleGrantedAuthority(permission.getName())));
         });
 
-        UserDetails userDetails = loadUserByUsername(userCreated.getEmail());
+        UserDetails userDetails = loadUserByUsername(patientCreated.getEmail());
         Authentication authentication = new UsernamePasswordAuthenticationToken(
-                userDetails, userCreated.getPassword(), authoritiesList);
+                userDetails, patientCreated.getPassword(), authoritiesList);
+
         String accessToken = jwtUtils.generateJwtToken(authentication);
 
         return new AuthResponseRegisterDto(
-                userCreated.getId(),
-                authCreateUserDto.getName(),
-                "Usuario registrado exitosamente",
+                patientCreated.getId(),
+                patientCreated.getName(),
+                "Paciente registrado exitosamente",
                 accessToken,
                 true
         );
     }
+
+
 
     public Authentication authenticate(String username, String password) {
         UserDetails userDetails = loadUserByUsername(username);
@@ -222,20 +227,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         userRepository.save(user);
         return getCurrentUser(user.getEmail());
     }
-        /**
-     * Actualiza los datos de un usuario paciente en la base de datos.
-     * Valida que el nuevo email no esté registrado previamente en otro usuario.
-     * Actualiza tanto los campos comunes como los específicos de paciente.
-     *
-     * @param id ID del usuario paciente a actualizar.
-     * @param patientUpdateRequest DTO con la información actualizada del paciente.
-     * @return DTO de respuesta con los datos actualizados del usuario paciente.
-     
-     */
-
-    
-
-    
 
 
 
