@@ -18,7 +18,7 @@ const SignupPage = () => {
     <div className="auth-bg">
       <Container
         fluid
-        className="vh-100 d-flex align-items-center justify-content-center"
+        className=" d-flex align-items-center justify-content-center"
       >
         <Row className="w-100 justify-content-center">
           <Col xs={11} sm={9} md={7} lg={5} xl={4}>

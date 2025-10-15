@@ -144,7 +144,7 @@ function LoginPage() {
 
                       <p className="register-text mt-3">
                         ¿No tienes una cuenta?
-                        <Card.Link href="#"> Regístrate aquí</Card.Link>
+                        <Card.Link href="/registro"> Regístrate aquí</Card.Link>
                       </p>
                     </Form>
                   )}

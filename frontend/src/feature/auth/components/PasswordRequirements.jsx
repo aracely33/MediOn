@@ -1,5 +1,6 @@
 // src/features/auth/components/PasswordRequirements.jsx
 import { CheckCircleFill, XCircleFill } from "react-bootstrap-icons";
+import { useState, useEffect } from "react";
 
 const PasswordRequirements = ({ password }) => {
   const rules = [
@@ -11,6 +12,19 @@ const PasswordRequirements = ({ password }) => {
       test: (v) => /[!@#$%^&*]/.test(v),
     },
   ];
+
+  const [touched, setTouched] = useState(false);
+
+  // Detect when the user starts typing
+  useEffect(() => {
+    if (password.length > 0) setTouched(true);
+    else setTouched(false);
+  }, [password]);
+
+  const allPassed = rules.every((rule) => rule.test(password));
+
+  // Hide everything if user hasn't typed or all rules pass
+  if (!touched || allPassed) return null;
 
   return (
     <ul className="list-unstyled mt-2">
