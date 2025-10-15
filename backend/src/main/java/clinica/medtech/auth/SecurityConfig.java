@@ -93,6 +93,8 @@ public class SecurityConfig {
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers(HttpMethod.POST,"/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST,"/auth/patient/register").permitAll()
+                        .requestMatchers("/auth/verify-email").permitAll()  //Para que security me permita poner el codigo
+                        .requestMatchers("/auth/resend-verification").permitAll() //Para que security me permita poner el codigo
                         .requestMatchers("/swagger-ui.html",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",

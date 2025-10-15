@@ -2,6 +2,8 @@ package clinica.medtech.users.service;
 
 import clinica.medtech.auth.jwt.JwtUtils;
 import clinica.medtech.exceptions.EmailAlreadyExistsException;
+import clinica.medtech.notifications.service.EmailService;
+import clinica.medtech.notifications.service.Impl.EmailVerificationService;
 import clinica.medtech.users.Enum.EnumRole;
 import clinica.medtech.users.dtoRequest.AuthLoginRequestDto;
 import clinica.medtech.users.dtoRequest.PatientRequestDto;
@@ -51,7 +53,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private final JwtUtils jwtUtils;
     private final RoleRepository roleRepository;
     private final PatientRepository patientRepository;
-    //private final ProfessionalRepository professionalRepository;
+    private final EmailVerificationService emailVerificationService;
+    private final EmailService emailService;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -129,10 +132,20 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .lastName(lastName)
                 .password(passwordEncoder.encode(password))
                 .roles(roleEntities)
+                .emailVerified(false)
                 .build();
 
         log.info("Registrando paciente: {}", patientEntity.getRoles().stream().map(RoleModel::getEnumRole).toList());
         PatientModel patientCreated = patientRepository.save(patientEntity);
+
+        try {
+            emailService.sendWelcomeEmail(patientCreated.getEmail(), patientCreated.getName());
+            // Agregar verificación por código (opcional por ahora)
+            emailVerificationService.createVerificationCode(patientCreated);
+        } catch (Exception e) {
+            log.warn("No se pudo enviar el email de bienvenida a: {}", patientCreated.getEmail(), e);
+            log.warn("No se pudo enviar emails a: {}", patientCreated.getEmail(), e);
+        }
 
         // Generar authorities
         List<SimpleGrantedAuthority> authoritiesList = new ArrayList<>();
@@ -152,7 +165,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 patientCreated.getId(),
                 patientCreated.getName(),
                 "Paciente registrado exitosamente",
-                accessToken,
+                null,
                 true
         );
     }
