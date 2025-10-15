@@ -7,6 +7,7 @@ import PasswordRequirements from "./PasswordRequirements";
 import { registerPatient } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 import { usePatient } from "../../../context/PatientContext"; //cual usePatient?
+import "./SignupForm.css";
 
 const SignupForm = ({ onSuccess, onShowTerms, onShowPrivacy }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -72,7 +73,7 @@ const SignupForm = ({ onSuccess, onShowTerms, onShowPrivacy }) => {
           <Form noValidate onSubmit={handleSubmit}>
             {/* Nombre */}
             <Form.Group className="mb-3">
-              <Form.Label className="fw-bold">Nombre completo</Form.Label>
+              <Form.Label className="fw-bold">Nombre(s)</Form.Label>
               <Form.Control
                 type="text"
                 name="firstName"
@@ -213,7 +214,7 @@ const SignupForm = ({ onSuccess, onShowTerms, onShowPrivacy }) => {
             <Button
               variant="primary"
               type="submit"
-              className="w-100 fw-bold"
+              className="signup-btn w-100 fw-bold"
               disabled={isSubmitting}
             >
               Registrarse
@@ -221,7 +222,7 @@ const SignupForm = ({ onSuccess, onShowTerms, onShowPrivacy }) => {
 
             <p className="register-text mt-3 text-center">
               ¿Ya tienes una cuenta?{" "}
-              <Card.Link href="#">Inicia sesión</Card.Link>
+              <Card.Link href="/login">Inicia sesión</Card.Link>
             </p>
           </Form>
         );
