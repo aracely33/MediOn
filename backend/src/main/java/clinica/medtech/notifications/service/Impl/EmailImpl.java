@@ -26,6 +26,9 @@ public class EmailImpl implements EmailService {
     @Value("${app.email.welcome.subject}")
     private String welcomeSubject;
 
+    @Value("${app.email.verification.subject}")
+    private String verificationSubject;
+
     @Override
     public void sendWelcomeEmail(String userEmail, String userName) {
         try {
@@ -60,5 +63,24 @@ public class EmailImpl implements EmailService {
         String template = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
 
         return template.replace("{userName}", userName);
+    }
+
+    @Override
+    public void sendVerificationEmail(String userEmail, String userName, String verificationCode) {
+        try {
+            String htmlContent = loadVerificationTemplate(userName, verificationCode);
+            sendEmail(userEmail, verificationSubject, htmlContent);
+            log.info("Código de verificación enviado exitosamente a: {}", userEmail);
+        } catch (Exception e) {
+            log.error("Error enviando código de verificación a: {}", userEmail, e);
+        }
+    }
+
+    private String loadVerificationTemplate(String userName, String verificationCode) throws IOException {
+        ClassPathResource resource = new ClassPathResource("templates/verification-email.html");
+        String template = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+
+        return template.replace("{userName}", userName)
+                .replace("{verificationCode}", verificationCode);
     }
 }

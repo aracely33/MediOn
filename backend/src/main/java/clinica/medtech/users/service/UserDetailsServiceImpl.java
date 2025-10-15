@@ -2,6 +2,7 @@ package clinica.medtech.users.service;
 
 import clinica.medtech.auth.jwt.JwtUtils;
 import clinica.medtech.exceptions.EmailAlreadyExistsException;
+import clinica.medtech.notifications.service.Impl.EmailVerificationService;
 import clinica.medtech.users.Enum.EnumRole;
 import clinica.medtech.users.dtoRequest.AuthLoginRequestDto;
 import clinica.medtech.users.dtoRequest.PatientRequestDto;
@@ -52,6 +53,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private final JwtUtils jwtUtils;
     private final RoleRepository roleRepository;
     private final EmailService emailService;
+    private final EmailVerificationService emailVerificationService;  // ✅ AGREGAR ESTA LÍNEA
     //private final ProfessionalRepository professionalRepository;
 
     @Override
@@ -134,11 +136,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .build();
 
         UserModel userCreated = userRepository.save(userEntity);
-        
-         try {
+
+        try {
             emailService.sendWelcomeEmail(userCreated.getEmail(), userCreated.getName());
+            // Agregar verificación por código (opcional por ahora)
+            emailVerificationService.createVerificationCode(userCreated);
         } catch (Exception e) {
-            log.warn("No se pudo enviar el email de bienvenida a: {}", userCreated.getEmail(), e);
+            log.warn("No se pudo enviar emails a: {}", userCreated.getEmail(), e);
         }
 
         List<SimpleGrantedAuthority> authoritiesList = new ArrayList<>();
@@ -233,7 +237,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         userRepository.save(user);
         return getCurrentUser(user.getEmail());
     }
-        /**
+    /**
      * Actualiza los datos de un usuario paciente en la base de datos.
      * Valida que el nuevo email no esté registrado previamente en otro usuario.
      * Actualiza tanto los campos comunes como los específicos de paciente.
@@ -241,12 +245,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
      * @param id ID del usuario paciente a actualizar.
      * @param patientUpdateRequest DTO con la información actualizada del paciente.
      * @return DTO de respuesta con los datos actualizados del usuario paciente.
-     
+
      */
 
-    
 
-    
+
+
 
 
 
