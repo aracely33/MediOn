@@ -6,6 +6,7 @@ import SignupForm from "./components/SignupForm";
 import TermsModal from "./components/TermsModal";
 import PrivacyModal from "./components/PrivacyModal";
 import SuccessToast from "./components/SuccessToast";
+import SignupFormSteps from "./components/SignupFormSteps";
 
 import "./auth.css";
 
@@ -15,26 +16,25 @@ const SignupPage = () => {
   const [showToast, setShowToast] = useState(false);
   const navigate = useNavigate();
   return (
-    <div className="auth-bg">
+    <div className="auth-bg ">
       <Container
         fluid
-        className="vh-100 d-flex align-items-center justify-content-center"
+        className=" d-flex  align-items-center justify-content-center "
       >
-        <Row className="w-100 justify-content-center">
-          <Col xs={11} sm={9} md={7} lg={5} xl={4}>
-            <div className="text-center mb-4">
+        <Row className="w-100  justify-content-center">
+          <Col xs={12} sm={10} md={8} lg={7} xl={6}>
+            <div className="text-center mb-3">
               <h1 className="brand-title">🩺 HealthConnect</h1>
             </div>
 
             <Card className="shadow-sm border-0 rounded-4">
-              <Card.Body className="p-4">
+              <Card.Body className="p-3">
                 <Card.Title className="mb-3 fw-bold fs-4 text-dark text-center">
                   Crear cuenta
                 </Card.Title>
-                <Card.Subtitle className="mb-4 text-muted text-center">
+                <Card.Subtitle className=" mb-1 text-muted text-center">
                   Únete a nuestra comunidad de pacientes y doctores.
                 </Card.Subtitle>
-
                 <SignupForm
                   onSuccess={() => setShowToast(true)}
                   onShowTerms={() => setShowTerms(true)}
@@ -43,7 +43,7 @@ const SignupPage = () => {
               </Card.Body>
             </Card>
 
-            <footer className="text-center mt-4 text-light small">
+            <footer className="text-center mb-2 text-light ">
               © 2025 HealthConnect. Todos los derechos reservados.{" "}
               <a href="#">Política de Privacidad</a>
             </footer>

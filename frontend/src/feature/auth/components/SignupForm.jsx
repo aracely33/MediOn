@@ -7,6 +7,7 @@ import PasswordRequirements from "./PasswordRequirements";
 import { registerPatient } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 import { usePatient } from "../../../context/PatientContext"; //cual usePatient?
+import "./signupForm.css";
 
 const SignupForm = ({ onSuccess, onShowTerms, onShowPrivacy }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -69,161 +70,189 @@ const SignupForm = ({ onSuccess, onShowTerms, onShowPrivacy }) => {
           values.password && values.password === values.confirmPassword;
 
         return (
-          <Form noValidate onSubmit={handleSubmit}>
-            {/* Nombre */}
-            <Form.Group className="mb-3">
-              <Form.Label className="fw-bold">Nombre completo</Form.Label>
-              <Form.Control
-                type="text"
-                name="firstName"
-                placeholder="Tu nombre"
-                value={values.firstName}
-                onChange={handleChange}
-                isInvalid={touched.firstName && !!errors.firstName}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.firstName}
-              </Form.Control.Feedback>
-            </Form.Group>
-            {/* Apellidos */}
-            <Form.Group className="mb-3">
-              <Form.Label className="fw-bold">Apellidos</Form.Label>
-              <Form.Control
-                type="text"
-                name="lastName"
-                placeholder="Tus apellidos"
-                value={values.lastName}
-                onChange={handleChange}
-                isInvalid={touched.lastName && !!errors.lastName}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.lastName}
-              </Form.Control.Feedback>
-            </Form.Group>
-
-            {/* Email */}
-            <Form.Group className="mb-3">
-              <Form.Label className="fw-bold">Correo electrónico</Form.Label>
-              <Form.Control
-                type="email"
-                name="email"
-                placeholder="usuario@correo.com"
-                value={values.email}
-                onChange={handleChange}
-                isInvalid={touched.email && !!errors.email}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.email}
-              </Form.Control.Feedback>
-            </Form.Group>
-
-            {/* Contraseña */}
-            <Form.Group className="mb-3 position-relative">
-              <Form.Label className="fw-bold">Contraseña</Form.Label>
-              <InputGroup>
-                <Form.Control
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  placeholder="Crea una contraseña segura"
-                  value={values.password}
-                  onChange={handleChange}
-                  isInvalid={touched.password && !!errors.password}
-                />
-                <Button
-                  variant="link"
-                  type="button"
-                  className="text-muted"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <EyeSlash /> : <Eye />}
-                </Button>
-              </InputGroup>
-              <PasswordRequirements password={values.password} />
-              {touched.password && errors.password && (
-                <div className="text-danger mt-1 small">{errors.password}</div>
-              )}
-            </Form.Group>
-
-            {/* Confirmar contraseña */}
-            <Form.Group className="mb-3 position-relative">
-              <Form.Label className="fw-bold">Confirmar contraseña</Form.Label>
-              <InputGroup>
-                <Form.Control
-                  type={showConfirm ? "text" : "password"}
-                  name="confirmPassword"
-                  placeholder="Repite tu contraseña"
-                  value={values.confirmPassword}
-                  onChange={handleChange}
-                  isInvalid={
-                    touched.confirmPassword &&
-                    (!!errors.confirmPassword || !passwordsMatch)
-                  }
-                />
-                <Button
-                  variant="link"
-                  type="button"
-                  className="text-muted"
-                  onClick={() => setShowConfirm(!showConfirm)}
-                >
-                  {showConfirm ? <EyeSlash /> : <Eye />}
-                </Button>
-                {passwordsMatch && (
-                  <CheckCircleFill
-                    className="text-success position-absolute end-0 me-5 top-50 translate-middle-y"
-                    size={20}
+          <div className="container   px-2 px-sm-2 py-2">
+            <Form noValidate onSubmit={handleSubmit} className="signup-form">
+              {/* Nombre */}
+              <div className="d-flex flex-column flex-md-row gap-3">
+                <Form.Group className="flex-fill ">
+                  <Form.Label className="fw-semibold small">Nombre</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="firstName"
+                    placeholder="Tu nombre"
+                    value={values.firstName}
+                    onChange={handleChange}
+                    isInvalid={touched.firstName && !!errors.firstName}
+                    className="py-1"
                   />
-                )}
-              </InputGroup>
+                  <Form.Control.Feedback
+                    className="text-danger mt-1 small"
+                    type="invalid"
+                  >
+                    {errors.firstName}
+                  </Form.Control.Feedback>
+                </Form.Group>
+                {/* Apellidos */}
+                <Form.Group className="flex-fill">
+                  <Form.Label className="fw-semibold small">
+                    Apellidos
+                  </Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="lastName"
+                    placeholder="Tus apellidos"
+                    value={values.lastName}
+                    onChange={handleChange}
+                    isInvalid={touched.lastName && !!errors.lastName}
+                    className="py-1"
+                  />
+                  <Form.Control.Feedback
+                    type="invalid"
+                    className="text-danger mt-1 small"
+                  >
+                    {errors.lastName}
+                  </Form.Control.Feedback>
+                </Form.Group>
 
-              {touched.confirmPassword && errors.confirmPassword && (
-                <div className="text-danger mt-1 small">
-                  {errors.confirmPassword}
-                </div>
-              )}
-            </Form.Group>
-
-            {/* Términos */}
-            <Form.Group className="mb-3">
-              <div className="d-flex align-items-center">
-                <Form.Check
-                  type="checkbox"
-                  name="terms"
-                  id="terms"
-                  checked={values.terms}
-                  onChange={handleChange}
-                  isInvalid={touched.terms && !!errors.terms}
-                />
-                <Form.Label htmlFor="terms" className="ms-2 mb-0">
-                  Acepto los{" "}
-                  <Card.Link href="#" onClick={onShowTerms}>
-                    Términos y Condiciones
-                  </Card.Link>{" "}
-                  y el{" "}
-                  <Card.Link href="#" onClick={onShowPrivacy}>
-                    Aviso de Privacidad
-                  </Card.Link>
-                </Form.Label>
+                {/* Email */}
+                <Form.Group className="flex-fill">
+                  <Form.Label className="fw-semibold small">
+                    Correo electrónico
+                  </Form.Label>
+                  <Form.Control
+                    type="email"
+                    name="email"
+                    placeholder="usuario@correo.com"
+                    value={values.email}
+                    onChange={handleChange}
+                    isInvalid={touched.email && !!errors.email}
+                    className="py-1 "
+                  />
+                  <Form.Control.Feedback
+                    type="invalid"
+                    className="text-danger mt-1 small"
+                  >
+                    {errors.email}
+                  </Form.Control.Feedback>
+                </Form.Group>
               </div>
-              {touched.terms && errors.terms && (
-                <div className="text-danger mt-1 small">{errors.terms}</div>
-              )}
-            </Form.Group>
+              <div className="d-flex flex-column flex-md-row gap-3 ">
+                {/* Contraseña */}
+                <Form.Group className="flex-fill">
+                  <Form.Label className="fw-semibold small">
+                    Contraseña
+                  </Form.Label>
+                  <InputGroup>
+                    <Form.Control
+                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      placeholder="Crea una contraseña segura"
+                      value={values.password}
+                      onChange={handleChange}
+                      isInvalid={touched.password && !!errors.password}
+                      className="py-1"
+                    />
+                    <Button
+                      variant="link"
+                      type="button"
+                      className="text-muted px-2"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeSlash /> : <Eye />}
+                    </Button>
+                  </InputGroup>
+                  <PasswordRequirements password={values.password} />
+                  {touched.password && errors.password && (
+                    <div className="text-danger mt-1 small">
+                      {errors.password}
+                    </div>
+                  )}
+                </Form.Group>
 
-            {/* Botón */}
-            <Button
-              variant="primary"
-              type="submit"
-              className="w-100 fw-bold"
-              disabled={isSubmitting}
-            >
-              Registrarse
-            </Button>
+                {/* Confirmar contraseña */}
+                <Form.Group className="flex-fill" style={{ minWidth: 0 }}>
+                  <Form.Label className="fw-semibold small">
+                    Confirmar contraseña
+                  </Form.Label>
+                  <InputGroup>
+                    <Form.Control
+                      type={showConfirm ? "text" : "password"}
+                      name="confirmPassword"
+                      placeholder="Repite tu contraseña"
+                      value={values.confirmPassword}
+                      onChange={handleChange}
+                      isInvalid={
+                        touched.confirmPassword &&
+                        (!!errors.confirmPassword || !passwordsMatch)
+                      }
+                    />
+                    <Button
+                      variant="link"
+                      type="button"
+                      className="text-muted px-2"
+                      onClick={() => setShowConfirm(!showConfirm)}
+                    >
+                      {showConfirm ? <EyeSlash /> : <Eye />}
+                    </Button>
+                    {passwordsMatch && (
+                      <CheckCircleFill
+                        className="text-success position-absolute end-0 me-5 top-50 translate-middle-y"
+                        size={18}
+                      />
+                    )}
+                  </InputGroup>
 
-            <p className="register-text mt-3 text-center">
-              ¿Ya tienes una cuenta?{" "}
-              <Card.Link href="#">Inicia sesión</Card.Link>
-            </p>
-          </Form>
+                  {touched.confirmPassword && errors.confirmPassword && (
+                    <div className="text-danger mt-1 small">
+                      {errors.confirmPassword}
+                    </div>
+                  )}
+                </Form.Group>
+              </div>
+
+              {/* Términos */}
+              <Form.Group className="mt-3">
+                <div className="d-flex align-items-center">
+                  <Form.Check
+                    type="checkbox"
+                    name="terms"
+                    id="terms"
+                    checked={values.terms}
+                    onChange={handleChange}
+                    isInvalid={touched.terms && !!errors.terms}
+                  />
+                  <Form.Label htmlFor="terms" className="ms-2 mb-0">
+                    Acepto los{" "}
+                    <Card.Link href="#" onClick={onShowTerms}>
+                      Términos y Condiciones
+                    </Card.Link>{" "}
+                    y el{" "}
+                    <Card.Link href="#" onClick={onShowPrivacy}>
+                      Aviso de Privacidad
+                    </Card.Link>
+                  </Form.Label>
+                </div>
+                {touched.terms && errors.terms && (
+                  <div className="text-danger mt-1 small">{errors.terms}</div>
+                )}
+              </Form.Group>
+
+              {/* Botón */}
+              <Button
+                variant="primary"
+                type="submit"
+                className="w-100 fw-bold"
+                disabled={isSubmitting}
+              >
+                Registrarse
+              </Button>
+
+              <p className="register-text mt-3 text-center">
+                ¿Ya tienes una cuenta?{" "}
+                <Card.Link href="/login">Inicia sesión</Card.Link>
+              </p>
+            </Form>
+          </div>
         );
       }}
     </Formik>

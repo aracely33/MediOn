@@ -13,20 +13,20 @@ const PasswordRequirements = ({ password }) => {
   ];
 
   return (
-    <ul className="list-unstyled mt-2">
+    <ul className="list-unstyled mt-1 password-inline small">
       {rules.map((rule, i) => {
         const passed = rule.test(password);
         return (
           <li
             key={i}
-            className={`d-flex align-items-center ${
+            className={`d-inline align-items-center me-3 ${
               passed ? "text-success" : "text-danger"
             }`}
           >
             {passed ? (
-              <CheckCircleFill className="me-2" />
+              <CheckCircleFill size={11} className="me-1" />
             ) : (
-              <XCircleFill className="me-2" />
+              <XCircleFill size={11} className="me-1" />
             )}
             <span>{rule.label}</span>
           </li>

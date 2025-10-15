@@ -7,6 +7,7 @@ import SignupPage from "./feature/auth/SignupPage";
 import ConfirmEmailPage from "./feature/auth/ConfirmEmailPage";
 import PatientDashboard from "./feature/Patient/PatientDashboard";
 import DoctorDashboard from "./feature/Doctor/DoctorDashboard";
+import SignupFormSteps from "./feature/auth/components/SignupFormSteps";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/registro" element={<SignupPage />} />
+          <Route path="/signup" element={<SignupFormSteps />} />
           <Route path="/confirm-email" element={<ConfirmEmailPage />} />
 
           {/*Lo pongo aquí provisionalmente para probar la vista*/}

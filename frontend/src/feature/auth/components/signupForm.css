@@ -1,0 +1,16 @@
+/* signupForm.css */
+.signup-form .form-control {
+  font-size: 0.7rem;
+  padding: 0.5rem 0.60rem;
+}
+
+.signup-form .form-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.signup-form .text-danger {
+  font-size: 0.70rem;
+}
+
+
