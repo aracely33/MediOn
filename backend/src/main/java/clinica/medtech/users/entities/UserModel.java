@@ -20,6 +20,7 @@ import java.util.Set;
 @SuperBuilder
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "user_type", discriminatorType = DiscriminatorType.STRING)
 public class UserModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -54,6 +55,14 @@ public class UserModel {
 
     @Column(name = "suspension_end")
     private LocalDateTime suspensionEnd;
+
+    @PrePersist
+    @PreUpdate
+    public void normalizeEmail() {
+        if (this.email != null) {
+            this.email = this.email.trim().toLowerCase();
+        }
+    }
 
     public boolean isEnabled() {
         return suspensionEnd == null || suspensionEnd.isBefore(LocalDateTime.now());

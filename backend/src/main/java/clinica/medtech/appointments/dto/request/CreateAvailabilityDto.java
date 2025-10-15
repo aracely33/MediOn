@@ -20,6 +20,6 @@ public class CreateAvailabilityDto {
     @NotNull(message = "La hora de fin es obligatoria")
     private LocalTime endTime;
 
-    private boolean isActive = true;
+    private Boolean isActive = true;
 
 }

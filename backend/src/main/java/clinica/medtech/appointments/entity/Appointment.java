@@ -15,45 +15,62 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
 @Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Table(name = "appointments")
 public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "appointment_date_time", nullable = false)
     private LocalDateTime appointmentDateTime;
-    
-    private Integer duration; // en minutos
-    
+
+    // <-- NUEVO campo persistido para facilitar consultas de solapamiento
+    @Column(name = "end_date_time", nullable = false)
+    private LocalDateTime endDateTime;
+
+    @Column(name = "duration", nullable = false)
+    private Integer duration = 30; // minutos, no nulo y default
+
     @Enumerated(EnumType.STRING)
+    @Column(name = "type")
     private AppointmentType type;
-    
+
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private AppointmentStatus status;
-    
-    @Column(length = 500)
+
+    @Column(name = "reason", length = 500)
     private String reason;
-    
-    @Column(columnDefinition = "TEXT")
+
+    @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
-    
+
+    @Column(name = "video_conference_url")
     private String videoConferenceUrl;
-    
-    // Relaciones (por ahora como IDs simples)
-    @Column(nullable = false)
+
+    @Column(name = "patient_id", nullable = false)
     private Long patientId;
-    
-    @Column(nullable = false)
+
+    @Column(name = "doctor_id", nullable = false)
     private Long doctorId;
 
     @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
-    
+
     @UpdateTimestamp
-    private LocalDateTime updatedAt;  
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 }

@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -46,28 +47,49 @@ public class GlobalExceptionController {
             MethodArgumentNotValidException ex,
             WebRequest request) {
 
-        List<String> sanitizedDetails = ex.getBindingResult().getFieldErrors().stream()
-                .map(error -> {
-                    String fieldName = sanitizeFieldName(error.getField());
-                    String message = Optional.ofNullable(error.getDefaultMessage())
-                            .orElse("Validation constraint violated");
-                    return String.format("%s: %s", fieldName, message);
-                })
+        List<String> sanitizedDetails = new ArrayList<>();
+
+        // ✅ Captura errores de campos individuales (FieldErrors)
+        List<String> finalSanitizedDetails = sanitizedDetails;
+        ex.getBindingResult().getFieldErrors().forEach(error -> {
+            String fieldName = sanitizeFieldName(error.getField());
+            String message = Optional.ofNullable(error.getDefaultMessage())
+                    .orElse("Restricción de validación incumplida");
+            finalSanitizedDetails.add(String.format("%s: %s", fieldName, message));
+        });
+
+        // ✅ Captura errores a nivel de clase (GlobalErrors, como @PasswordMatches)
+        List<String> finalSanitizedDetails1 = sanitizedDetails;
+        ex.getBindingResult().getGlobalErrors().forEach(error -> {
+            String objectName = sanitizeFieldName(error.getObjectName());
+            String message = Optional.ofNullable(error.getDefaultMessage())
+                    .orElse("Error de validación en el objeto");
+            finalSanitizedDetails1.add(String.format("%s: %s", objectName, message));
+        });
+
+        // Ordena por campo para consistencia
+        sanitizedDetails = sanitizedDetails.stream()
                 .sorted(Comparator.comparing(detail -> detail.split(":")[0]))
                 .toList();
+
+        // Si no hay mensajes, deja uno genérico
+        List<String> finalDetails = !sanitizedDetails.isEmpty()
+                ? sanitizedDetails
+                : List.of("Error de validación no especificado");
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .errorCode("VALIDATION-001")
                 .message("Errores de validación en la solicitud")
-                .details(!sanitizedDetails.isEmpty() ? sanitizedDetails : List.of("Error de validación no especificado"))
+                .details(finalDetails)
                 .timestamp(Instant.now())
                 .path(getSanitizedPath(request))
                 .build();
 
+        // 🧠 Logging claro y limpio
         log.warn("Validation Error - Path: {} | IP: {} | Errors: {}",
                 errorResponse.getPath(),
                 request.getHeader("X-Forwarded-For"),
-                sanitizedDetails.stream()
+                finalDetails.stream()
                         .map(detail -> detail.replaceAll("(\r\n|\n|\r)", ""))
                         .collect(Collectors.joining("; ")));
 
@@ -76,6 +98,7 @@ public class GlobalExceptionController {
                 .header("X-Validation-Error", "true")
                 .body(errorResponse);
     }
+
 
     /**
      * Manejador de excepciones para errores de lectura del cuerpo de la solicitud HTTP.
@@ -644,35 +667,35 @@ public class GlobalExceptionController {
                 .body(errorResponse);
     }
 //
-//    /**
-//     * Manejador de excepciones para solicitudes con recursos no encontrados.
-//     * Captura instancias de {@link PatientNotFoundException} cuando se intenta acceder a un paciente que no existe.
-//     *
-//     * @param ex      la excepción lanzada cuando se intenta acceder a un paciente que no existe
-//     * @param request el objeto {@link WebRequest} asociado a la solicitud HTTP que provocó la excepción
-//     * @return una respuesta con código 404 (Not Found) que contiene detalles del error en un objeto {@link ErrorResponse}
-//     */
-//
-//    @ExceptionHandler(PatientNotFoundException.class)
-//    public ResponseEntity<ErrorResponse> handlePatientNotFoundException(PatientNotFoundException ex, WebRequest request) {
-//
-//        ErrorResponse errorResponse = ErrorResponse.builder()
-//                .errorCode("PATIENT-404")
-//                .message("El paciente solicitado no fue encontrado")
-//                .details(List.of(sanitizeErrorMessage(ex.getMessage())))
-//                .timestamp(Instant.now())
-//                .path(getSanitizedPath(request))
-//                .build();
-//
-//        log.warn("Paciente no se encuentra - Path: {} | IP: {} | Mensaje: {}",
-//                errorResponse.getPath(),
-//                request.getHeader("X-Forwarded-For"),
-//                ex.getMessage());
-//
-//        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-//                .header("X-Content-Type-Options", "nosniff")
-//                .body(errorResponse);
-//    }
+    /**
+     * Manejador de excepciones para solicitudes con recursos no encontrados.
+     * Captura instancias de {@link PatientNotFoundException} cuando se intenta acceder a un paciente que no existe.
+     *
+     * @param ex      la excepción lanzada cuando se intenta acceder a un paciente que no existe
+     * @param request el objeto {@link WebRequest} asociado a la solicitud HTTP que provocó la excepción
+     * @return una respuesta con código 404 (Not Found) que contiene detalles del error en un objeto {@link ErrorResponse}
+     */
+
+    @ExceptionHandler(PatientNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handlePatientNotFoundException(PatientNotFoundException ex, WebRequest request) {
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .errorCode("PATIENT-404")
+                .message("El paciente solicitado no fue encontrado")
+                .details(List.of(sanitizeErrorMessage(ex.getMessage())))
+                .timestamp(Instant.now())
+                .path(getSanitizedPath(request))
+                .build();
+
+        log.warn("Paciente no se encuentra - Path: {} | IP: {} | Mensaje: {}",
+                errorResponse.getPath(),
+                request.getHeader("X-Forwarded-For"),
+                ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .header("X-Content-Type-Options", "nosniff")
+                .body(errorResponse);
+    }
 
     /**
      * Manejador de excepciones para solicitudes con recursos no encontrados.
@@ -987,7 +1010,7 @@ public class GlobalExceptionController {
             clinica.medtech.appointments.exception.InvalidAvailabilityException ex, WebRequest request) {
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .errorCode("AVAIL-400")
-                .message("Datos invalidos para disponibilidad")
+                .message("Datos inválidos para disponibilidad")
                 .details(List.of(sanitizeErrorMessage(ex.getMessage())))
                 .timestamp(Instant.now())
                 .path(getSanitizedPath(request))
@@ -996,6 +1019,6 @@ public class GlobalExceptionController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .header("X-Content-Type-Options", "nosniff")
                 .body(errorResponse);
-    }
+        }
 
 }

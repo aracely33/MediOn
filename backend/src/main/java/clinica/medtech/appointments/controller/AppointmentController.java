@@ -52,6 +52,7 @@ public class AppointmentController {
     public ResponseEntity<AppointmentResponseDto> update(
             @PathVariable Long id,
             @Valid @RequestBody UpdateAppointmentDto dto) {
+        // sincroniza id del path con dto
         dto.setId(id);
         AppointmentResponseDto updated = appointmentService.updateAppointment(dto);
         return ResponseEntity.ok(updated);
@@ -61,6 +62,7 @@ public class AppointmentController {
     public ResponseEntity<Void> confirm(
             @PathVariable Long id,
             @RequestBody(required = false) ConfirmAppointmentDto dto) {
+        // si el body es nulo, crear uno con el id
         if (dto == null) {
             dto = new ConfirmAppointmentDto();
         }
@@ -83,13 +85,11 @@ public class AppointmentController {
 
     @GetMapping("/patient/{patientId}")
     public ResponseEntity<List<AppointmentSummaryDto>> listByPatient(@PathVariable Long patientId) {
-        List<AppointmentSummaryDto> list = appointmentService.listByPatient(patientId);
-        return ResponseEntity.ok(list);
+        return ResponseEntity.ok(appointmentService.listByPatient(patientId));
     }
 
     @GetMapping("/doctor/{doctorId}")
     public ResponseEntity<List<AppointmentSummaryDto>> listByDoctor(@PathVariable Long doctorId) {
-        List<AppointmentSummaryDto> list = appointmentService.listByDoctor(doctorId);
-        return ResponseEntity.ok(list);
+        return ResponseEntity.ok(appointmentService.listByDoctor(doctorId));
     }
 }
