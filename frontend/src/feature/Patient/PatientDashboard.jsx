@@ -1,11 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "../../components/header/Header";
 import Sidebar from "../../components/sidebar/Sidebar";
 import CardAppointment from "../../components/cardAppointment/CardAppointment";
 import AppointmentDetails from "../../components/appointmentDetail/AppointmentDetails";
 import { Container, Row, Col } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import { usePatient } from "../../context/PatientContext";
+import "./PatientDashboard.css";
+import NotificationCard from "../../components/notificationCard/NotificationCard";
 
 const PatientDashboard = () => {
+  const { signOut } = usePatient();
+  const navigate = useNavigate();
+
   const user = {
     name: "Sofía Sánchez",
     age: 26,
@@ -16,7 +23,7 @@ const PatientDashboard = () => {
 
   const appointments = [
     {
-      dateTime: "15 de Mayo, 2024 - 10:30 AM",
+      dateTime: "15 de Mayo, 2025 - 10:30 AM",
       doctor: "Dr. Carlos Rivas",
       specialty: "Cardiología",
       clinic: "Clínica Corazón Sano",
@@ -24,7 +31,7 @@ const PatientDashboard = () => {
       isTeleconsultation: false,
     },
     {
-      dateTime: "22 de Mayo, 2024 - 09:00 AM",
+      dateTime: "22 de Mayo, 2026 - 09:00 AM",
       doctor: "Dra. Elena Gómez",
       specialty: "Dermatología",
       clinic: "Centro Médico Piel Bella",
@@ -33,16 +40,54 @@ const PatientDashboard = () => {
     },
   ];
 
+  const mensajes = [
+    {
+      title: "Recordatorio de cita",
+      description: "Se acerca su próxima cita.",
+    },
+    {
+      title: "Nuevo mensaje",
+      description:
+        "La especialidad de neumología ya tiene teleconsultas disponibles.",
+    },
+  ];
+
   const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [notification, setNotification] = useState(null);
+
+  // Simula la llegada de una notificación
+  useEffect(() => {
+    let index = 0;
+
+    const showNextMessage = () => {
+      setNotification(mensajes[index]);
+      index = (index + 1) % mensajes.length;
+    };
+
+    const timer = setTimeout(() => {
+      showNextMessage();
+
+      const interval = setInterval(showNextMessage, 5000);
+
+      return () => clearInterval(interval);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/login");
+  };
 
   return (
-    <div className="d-flex">
-      <Sidebar user={user} />
+    <div className="d-flex patient-dashboard">
+      <Sidebar user={user} role="patient" />
       <div className="flex-grow-1">
         <Header
-          title="Portal de Salud"
+          title="Tu portal de salud"
           avatarUrl={user.avatar}
-          onLogout={() => alert("Logout")}
+          onLogout={handleLogout}
         />
 
         <Container className="py-4">
@@ -83,6 +128,13 @@ const PatientDashboard = () => {
               )}
             </Col>
           </Row>
+          <h2>Notificaciones</h2>
+          {notification && (
+            <NotificationCard
+              title={notification.title}
+              description={notification.description}
+            />
+          )}
         </Container>
       </div>
     </div>
