@@ -53,7 +53,6 @@ function AppointmentDetails({
         >
           Iniciar Teleconsulta
         </button>
-        <button className="btn-secondary">Ver Historial Médico</button>
       </div>
 
       {role === "doctor" && (

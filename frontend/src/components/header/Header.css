@@ -1,0 +1,46 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@500;600&display=swap");
+
+/* --- Contenedor principal del header --- */
+.header-container {
+  background-color: #075a91 !important;
+  border-bottom: 2px solid #eaf4fb;
+  box-shadow: 0 2px 8px rgba(0, 140, 220, 0.1);
+}
+
+/* --- Marca / título --- */
+.header-brand svg {
+  filter: drop-shadow(0px 1px 2px rgba(0, 140, 220, 0.2));
+}
+
+.header-title {
+  font-family: "Nunito", sans-serif;
+  font-weight: 600;
+  color: #eff1f3;
+  letter-spacing: 0.5px;
+}
+
+/* --- Botón cerrar sesión --- */
+.logout-btn {
+  background: linear-gradient(90deg, #0cb1e0, #52e0c4);
+  border: none;
+  border-radius: 30px;
+  padding: 7px 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background: linear-gradient(90deg, #0994c4, #3ccfb4);
+  transform: translateY(-1px);
+}
+
+/* --- Avatar --- */
+.user-avatar {
+  border: 2px solid #0cb1e0;
+  box-shadow: 0 0 6px rgba(0, 175, 255, 0.15);
+  transition: transform 0.2s ease;
+}
+
+.user-avatar:hover {
+  transform: scale(1.05);
+}

@@ -1,0 +1,79 @@
+/* Estilo general de la card */
+.card-appointment {
+  background-color: #fff;
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.card-appointment:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+
+/* Título (fecha y hora) */
+.appointment-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #005f73; /* tono azul verdoso suave */
+  margin-bottom: 0.5rem;
+}
+
+/* Información del doctor, especialidad y clínica */
+.appointment-info {
+  font-size: 0.95rem;
+  color: #333;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+/* Contenedor de botones */
+.appointment-actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+/* Botón Cancelar */
+.btn-cancel {
+  background-color: #c0392b !important;
+  border-color: #c0392b !important;
+  color: #fff !important;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-cancel:hover {
+  background-color: #881407 !important;
+  border-color: #881407 !important;
+  transform: scale(1.03);
+}
+
+/* Botón Reprogramar */
+.btn-reschedule {
+  background-color: #0077b6 !important; /* azul más vivo */
+  border-color: #0077b6 !important;
+  color: #fff !important;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-reschedule:hover {
+  background-color: #005f8a !important;
+  border-color: #005f8a !important;
+  transform: scale(1.03);
+}
+
+/* Responsivo */
+@media (max-width: 576px) {
+  .appointment-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-cancel,
+  .btn-reschedule {
+    width: 100%;
+  }
+}
