@@ -1,6 +1,6 @@
 package clinica.medtech.appointments.entity;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -33,15 +33,14 @@ public class Appointment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "appointment_date_time", nullable = false)
-    private LocalDateTime appointmentDateTime;
+    @Column(name = "appointment_date_time", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime appointmentDateTime;
 
-    // <-- NUEVO campo persistido para facilitar consultas de solapamiento
-    @Column(name = "end_date_time", nullable = false)
-    private LocalDateTime endDateTime;
+    @Column(name = "end_date_time", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime endDateTime;
 
     @Column(name = "duration", nullable = false)
-    private Integer duration = 30; // minutos, no nulo y default
+    private Integer duration = 30;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
@@ -60,17 +59,17 @@ public class Appointment {
     @Column(name = "video_conference_url")
     private String videoConferenceUrl;
 
-    @Column(name = "patient_id", nullable = false)
+    @Column(name = "patient_id", nullable = true)
     private Long patientId;
 
     @Column(name = "doctor_id", nullable = false)
     private Long doctorId;
 
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "created_at", updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime updatedAt;
 }

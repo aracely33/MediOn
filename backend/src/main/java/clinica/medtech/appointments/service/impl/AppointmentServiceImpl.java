@@ -1,6 +1,7 @@
 package clinica.medtech.appointments.service.impl;
 
-import java.time.LocalDateTime;
+
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,7 @@ public class AppointmentServiceImpl implements AppointmentService{
 
     // estados que generan bloqueo/solapamiento
     private static final List<AppointmentStatus> CONFLICTING_STATUSES =
-            List.of(AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED, AppointmentStatus.IN_PROGRESS);
+            List.of(AppointmentStatus.PENDIENTE, AppointmentStatus.CONFIRMADA, AppointmentStatus.EN_CURSO);
 
     @Override
     @Transactional
@@ -41,7 +42,7 @@ public class AppointmentServiceImpl implements AppointmentService{
             entity.setDuration(30);
         }
 
-        entity.setStatus(AppointmentStatus.PENDING);
+        entity.setStatus(AppointmentStatus.PENDIENTE);
 
         // calcular endDateTime
         entity.setEndDateTime(entity.getAppointmentDateTime().plusMinutes(entity.getDuration()));
@@ -80,9 +81,9 @@ public class AppointmentServiceImpl implements AppointmentService{
             existing.setDuration(30);
         }
 
-        LocalDateTime newStart = existing.getAppointmentDateTime();
+        OffsetDateTime newStart = existing.getAppointmentDateTime();
         Integer newDuration = existing.getDuration();
-        LocalDateTime newEnd = newStart.plusMinutes(newDuration);
+        OffsetDateTime newEnd = newStart.plusMinutes(newDuration);
         existing.setEndDateTime(newEnd);
 
         boolean conflict = appointmentRepository.existsOverlapByDoctorAndTimeExcludingId(
@@ -118,7 +119,7 @@ public class AppointmentServiceImpl implements AppointmentService{
             throw new AppointmentConflictException("No es posible confirmar: existe conflicto con otra cita.");
         }
 
-        existing.setStatus(AppointmentStatus.CONFIRMED);
+        existing.setStatus(AppointmentStatus.CONFIRMADA);
         if (dto.getConfirmationNotes() != null) {
             existing.setNotes(dto.getConfirmationNotes());
         }
@@ -131,7 +132,7 @@ public class AppointmentServiceImpl implements AppointmentService{
         Appointment existing = appointmentRepository.findById(dto.getAppointmentId())
                 .orElseThrow(() -> new AppointmentNotFoundException("Cita no encontrada"));
 
-        existing.setStatus(AppointmentStatus.CANCELLED);
+        existing.setStatus(AppointmentStatus.CANCELADA);
         if (dto.getReason() != null) {
             existing.setReason(dto.getReason());
         }

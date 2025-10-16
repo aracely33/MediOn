@@ -1,7 +1,7 @@
 package clinica.medtech.appointments.entity;
 
 import java.time.DayOfWeek;
-import java.time.LocalTime;
+import java.time.OffsetTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -37,11 +37,11 @@ public class DoctorAvailability {
     @Column(name = "day_of_week",nullable = false)
     private DayOfWeek dayOfWeek;
     
-    @Column(name = "start_time",nullable = false)
-    private LocalTime startTime;
+    @Column(name = "start_time",nullable = false, columnDefinition = "TIME WITH TIME ZONE")
+    private OffsetTime startTime;
     
-    @Column(name = "end_time",nullable = false)
-    private LocalTime endTime;
+    @Column(name = "end_time",nullable = false, columnDefinition = "TIME WITH TIME ZONE")
+    private OffsetTime endTime;
     
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;

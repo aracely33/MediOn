@@ -1,6 +1,7 @@
 package clinica.medtech.appointments.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 import clinica.medtech.appointments.dto.request.CreateAppointmentDto;
@@ -12,7 +13,7 @@ import clinica.medtech.appointments.entity.Appointment;
 
 @Mapper(componentModel = "spring")
 public interface AppointmentMapper {
-
+    @Mapping(target = "patientId", ignore = true) 
     Appointment toEntity(CreateAppointmentDto dto);
 
     void updateFromDto(UpdateAppointmentDto dto, @MappingTarget Appointment entity);

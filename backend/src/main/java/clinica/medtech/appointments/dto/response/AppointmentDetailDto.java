@@ -1,6 +1,6 @@
 package clinica.medtech.appointments.dto.response;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 import clinica.medtech.appointments.enums.AppointmentStatus;
 import clinica.medtech.appointments.enums.AppointmentType;
@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class AppointmentDetailDto {
     private Long id;
-    private LocalDateTime appointmentDateTime;
+    private OffsetDateTime appointmentDateTime;
     private Integer duration;
     private AppointmentType type;
     private AppointmentStatus status;
@@ -20,5 +20,5 @@ public class AppointmentDetailDto {
     private Long patientId;
     private Long doctorId;
     private String videoConferenceUrl;
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
 }

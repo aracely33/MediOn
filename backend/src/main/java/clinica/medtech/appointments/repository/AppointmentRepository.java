@@ -1,6 +1,7 @@
 package clinica.medtech.appointments.repository;
 
-import java.time.LocalDateTime;
+
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,7 +17,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>{
      List<Appointment> findByPatientIdOrderByAppointmentDateTimeDesc(Long patientId);
 
     List<Appointment> findByPatientIdAndAppointmentDateTimeGreaterThanEqualOrderByAppointmentDateTimeAsc(
-            Long patientId, LocalDateTime fromDateTime);
+            Long patientId, OffsetDateTime fromDateTime);
 
     List<Appointment> findByDoctorIdOrderByAppointmentDateTimeAsc(Long doctorId);
 
@@ -30,8 +31,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>{
         """)
     boolean existsOverlapByDoctorAndTime(
             @Param("doctorId") Long doctorId,
-            @Param("start") LocalDateTime start,
-            @Param("end") LocalDateTime end,
+            @Param("start") OffsetDateTime start,
+            @Param("end") OffsetDateTime end,
             @Param("statuses") List<AppointmentStatus> statuses
     );
 
@@ -46,8 +47,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>{
         """)
     boolean existsOverlapByDoctorAndTimeExcludingId(
             @Param("doctorId") Long doctorId,
-            @Param("start") LocalDateTime start,
-            @Param("end") LocalDateTime end,
+            @Param("start") OffsetDateTime start,
+            @Param("end") OffsetDateTime end,
             @Param("statuses") List<AppointmentStatus> statuses,
             @Param("excludeId") Long excludeId
     );

@@ -1,7 +1,7 @@
 package clinica.medtech.appointments.repository;
 
 import java.time.DayOfWeek;
-import java.time.LocalTime;
+import java.time.OffsetTime;
 import java.util.List;
 
 
@@ -20,5 +20,5 @@ public interface DoctorAvailabilityRepository extends JpaRepository<DoctorAvaila
     List<DoctorAvailability> findByDoctorIdAndDayOfWeekAndIsActiveTrue(Long doctorId, DayOfWeek dayOfWeek);
 
     boolean existsByDoctorIdAndDayOfWeekAndStartTimeAndEndTime(
-        Long doctorId, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime);
+        Long doctorId, DayOfWeek dayOfWeek, OffsetTime startTime, OffsetTime endTime);
 }

@@ -1,6 +1,7 @@
 package clinica.medtech.appointments.service.impl;
 
-import java.time.LocalTime;
+
+import java.time.OffsetTime;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AvailabilityServiceImpl implements AvailabilityService{
         private final DoctorAvailabilityRepository availabilityRepository;
-    private final AvailabilityMapper availabilityMapper;
+        private final AvailabilityMapper availabilityMapper;
 
     @Override
     @Transactional
@@ -86,7 +87,7 @@ public class AvailabilityServiceImpl implements AvailabilityService{
             .stream().map(availabilityMapper::toDto).toList();
     }
 
-    private void validateTimes(LocalTime start, LocalTime end) {
+    private void validateTimes(OffsetTime start, OffsetTime end) {
         if (start == null || end == null) {
             throw new InvalidAvailabilityException("Hora de inicio y de fin son obligatorias");
         }
