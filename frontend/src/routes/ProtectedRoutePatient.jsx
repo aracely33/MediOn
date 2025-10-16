@@ -17,7 +17,7 @@ export const ProtectedRoutePatient = () => {
   }
 
   if (!isAuthenticatedPatient) {
-    return <Navigate to={"/"} replace />;
+    return <Navigate to={"/login"} replace />;
   }
 
   if (!patient || !patient.roles.includes("PATIENT")) {
