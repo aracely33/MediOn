@@ -14,7 +14,6 @@ public class PatientMeResponseDto {
     private String email;
     private String name;
     private String lastName;
-    private List<String> roles;
     private LocalDate birthDate;
     private String gender;
     private String address;

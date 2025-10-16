@@ -2,6 +2,7 @@ package clinica.medtech.users.entities;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -17,6 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
+@DiscriminatorValue("PROFESSIONAL")
 @Table(name = "professionals")
 public class ProfessionalModel extends UserModel {
 
