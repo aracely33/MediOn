@@ -18,7 +18,8 @@ const SignupForm = ({ onSuccess, onShowTerms, onShowPrivacy }) => {
   return (
     <Formik
       initialValues={{
-        name: "",
+        firstName: "",
+        lastName: "",
         email: "",
         password: "",
         confirmPassword: "",
@@ -57,6 +58,7 @@ const SignupForm = ({ onSuccess, onShowTerms, onShowPrivacy }) => {
           setSubmitting(false);
         }
       }}
+      validateOnMount={true}
     >
       {({
         handleSubmit,
@@ -65,6 +67,7 @@ const SignupForm = ({ onSuccess, onShowTerms, onShowPrivacy }) => {
         errors,
         touched,
         isSubmitting,
+        isValid,
       }) => {
         const passwordsMatch =
           values.password && values.password === values.confirmPassword;
@@ -80,7 +83,7 @@ const SignupForm = ({ onSuccess, onShowTerms, onShowPrivacy }) => {
                 placeholder="Tu nombre"
                 value={values.firstName}
                 onChange={handleChange}
-                isInvalid={touched.firstName && !!errors.firstName}
+                isInvalid={!!errors.firstName}
               />
               <Form.Control.Feedback type="invalid">
                 {errors.firstName}
@@ -95,7 +98,7 @@ const SignupForm = ({ onSuccess, onShowTerms, onShowPrivacy }) => {
                 placeholder="Tus apellidos"
                 value={values.lastName}
                 onChange={handleChange}
-                isInvalid={touched.lastName && !!errors.lastName}
+                isInvalid={!!errors.lastName}
               />
               <Form.Control.Feedback type="invalid">
                 {errors.lastName}
@@ -111,7 +114,7 @@ const SignupForm = ({ onSuccess, onShowTerms, onShowPrivacy }) => {
                 placeholder="usuario@correo.com"
                 value={values.email}
                 onChange={handleChange}
-                isInvalid={touched.email && !!errors.email}
+                isInvalid={!!errors.email}
               />
               <Form.Control.Feedback type="invalid">
                 {errors.email}
@@ -128,7 +131,7 @@ const SignupForm = ({ onSuccess, onShowTerms, onShowPrivacy }) => {
                   placeholder="Crea una contraseña segura"
                   value={values.password}
                   onChange={handleChange}
-                  isInvalid={touched.password && !!errors.password}
+                  isInvalid={!!errors.password}
                 />
                 <Button
                   variant="link"
@@ -194,12 +197,13 @@ const SignupForm = ({ onSuccess, onShowTerms, onShowPrivacy }) => {
                   onChange={handleChange}
                   isInvalid={touched.terms && !!errors.terms}
                 />
-                <Form.Label htmlFor="terms" className="ms-2 mb-0">
+
+                <Form.Label htmlFor="terms" className=" m-2 mb-0">
                   Acepto los{" "}
                   <Card.Link href="#" onClick={onShowTerms}>
                     Términos y Condiciones
                   </Card.Link>{" "}
-                  y el{" "}
+                  y el
                   <Card.Link href="#" onClick={onShowPrivacy}>
                     Aviso de Privacidad
                   </Card.Link>
@@ -215,7 +219,7 @@ const SignupForm = ({ onSuccess, onShowTerms, onShowPrivacy }) => {
               variant="primary"
               type="submit"
               className="signup-btn w-100 fw-bold"
-              disabled={isSubmitting}
+              disabled={!isValid || isSubmitting}
             >
               Registrarse
             </Button>

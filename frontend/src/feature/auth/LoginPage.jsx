@@ -15,12 +15,7 @@ const validationSchema = Yup.object({
   email: Yup.string()
     .email("Debe ser un correo válido")
     .required("El correo es obligatorio"),
-  password: Yup.string()
-    .min(8, "Debe tener al menos 8 caracteres")
-    .matches(/[A-Z]/, "Debe contener al menos una mayúscula")
-    .matches(/[0-9]/, "Debe contener al menos un número")
-    .matches(/[!@#$%^&*]/, "Debe contener al menos un carácter especial")
-    .required("La contraseña es obligatoria"),
+  password: Yup.string().required("La contraseña es obligatoria"),
 });
 
 function LoginPage() {
@@ -87,7 +82,7 @@ function LoginPage() {
                           placeholder="usuario@correo.com"
                           value={values.email}
                           onChange={handleChange}
-                          isInvalid={touched.email && !!errors.email}
+                          isInvalid={!errors.email}
                         />
                         <Form.Control.Feedback type="invalid">
                           {errors.email}
@@ -136,6 +131,11 @@ function LoginPage() {
 
                       <Button
                         variant="primary"
+                        disabled={
+                          !values.email ||
+                          !values.password ||
+                          Object.keys(errors).length > 0
+                        }
                         type="submit"
                         className="login-btn w-100"
                       >
