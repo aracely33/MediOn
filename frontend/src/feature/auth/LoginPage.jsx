@@ -39,7 +39,7 @@ function LoginPage() {
         <Row className="w-100 justify-content-center">
           <Col xs={11} sm={9} md={7} lg={5} xl={4}>
             <div className="text-center mb-4">
-              <h1 className="brand-title">🩺 Portal de Citas MediON</h1>
+              <h1 className="brand-title">🩺 Portal de Citas MedTech</h1>
             </div>
 
             <Card className="shadow-sm border-0 rounded-4">

@@ -1,6 +1,6 @@
 import { Navbar, Container, Button, Image } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./Header.css"; // archivo local del componente
+import "./Header.css";
 
 const Header = ({ title, avatarUrl, onLogout }) => (
   <Navbar bg="light" className="header-container px-4 py-2" expand="lg">
