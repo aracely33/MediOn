@@ -37,7 +37,7 @@ public class PatientController {
     @ApiResponse(responseCode = "200", description = "Paciente actualizado correctamente")
     @ApiResponse(responseCode = "404", description = "Paciente no encontrado")
     @ApiResponse(responseCode = "400", description = "Datos inválidos o correo duplicado")
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<PatientMeResponseDto> updatePatient(
             @Parameter(description = "ID del paciente a actualizar") @PathVariable Long id,
             @RequestBody @Valid PatientUpdateRequestDto updateRequest) {
