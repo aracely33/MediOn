@@ -8,20 +8,45 @@ import AppointmentDetails from "../../components/appointmentDetail/AppointmentDe
 import NotificationCard from "../../components/notificationCard/NotificationCard";
 import { useNavigate } from "react-router-dom";
 import { usePatient } from "../../context/PatientContext";
+import { getMe, getPatientById } from "./patientService";
 import "./PatientDashboard.css";
 
 const PatientDashboard = () => {
   const { signOut } = usePatient();
   const navigate = useNavigate();
   const [showSidebar, setShowSidebar] = useState(false);
+  const [user, setUser] = useState(null);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [notification, setNotification] = useState(null);
 
-  const user = {
-    name: "Sofía Sánchez",
-    age: 26,
-    id: 789123,
-    avatar:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDUYbpIPUHkmvCQgSP8TXDFj3_qFgcw7EkbNkIpKcguT2aaEougplE9ZVRo7AvkOudTs__NOpqWc3xr_P7qOuM0CN5NaKFgDGdcA_45P6EpScJ0m5mdv8ejKg3H_j7Icadd1zgeMPXFnUHKuBDKiOyAvsz-qE76pBkq2ehA5owS-Y00XxErSgJ7c4aj8_eEnKbftusSpRIm7hgaiEA6UHD3KdaLRzJQoY3Xb2L2wE0ZhlWCbRe_tTrNNhDw2sFxE_sFob6XuwGAt3M",
-  };
+  // Cargar usuario real desde backend
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const me = await getMe();
+        const patient = await getPatientById(me.id);
+
+        setUser({
+          id: patient.id,
+          name: patient.name,
+          lastName: patient.lastName,
+          email: patient.email,
+          age: patient.birthDate
+            ? Math.floor(
+                (new Date() - new Date(patient.birthDate)) /
+                  (1000 * 60 * 60 * 24 * 365)
+              )
+            : null,
+          gender: patient.gender || "No especificado",
+          avatar: "https://cdn-icons-png.flaticon.com/512/149/149071.png", // avatar genérico
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   const appointments = [
     {
@@ -54,9 +79,6 @@ const PatientDashboard = () => {
     },
   ];
 
-  const [selectedAppointment, setSelectedAppointment] = useState(null);
-  const [notification, setNotification] = useState(null);
-
   useEffect(() => {
     let index = 0;
     const showNextMessage = () => {
@@ -76,6 +98,8 @@ const PatientDashboard = () => {
     navigate("/login");
   };
 
+  if (!user) return <p>Cargando usuario...</p>;
+
   return (
     <div className="d-flex patient-dashboard">
       {/* Sidebar retráctil */}
@@ -88,7 +112,7 @@ const PatientDashboard = () => {
 
       <div className="flex-grow-1">
         <Header
-          title="Tu portal de salud"
+          title="MedTech: Tu portal de salud"
           avatarUrl={user.avatar}
           onLogout={handleLogout}
         />
@@ -104,7 +128,9 @@ const PatientDashboard = () => {
         </div>
 
         <Container className="py-4">
-          <h2>¡Bienvenida, {user.name}!</h2>
+          <h2>
+            ¡Bienvenid{user.gender === "Femenino" ? "a" : "o"}, {user.name}!
+          </h2>
           <Row>
             <Col md={7}>
               <h4 className="mt-3 mb-3">Próximas Citas</h4>

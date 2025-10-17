@@ -11,7 +11,6 @@ import { getProfessionalById } from "./doctorService";
 import "./DoctorDashboard.css";
 
 const DoctorDashboard = () => {
-  // Estado para el doctor
   const [doctor, setDoctor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
@@ -97,7 +96,7 @@ const DoctorDashboard = () => {
 
       <div className="flex-grow-1">
         <Header
-          title="Portal Médico"
+          title="MedTech: Portal Médico"
           avatarUrl={
             doctor.avatarUrl ||
             "https://cdn-icons-png.flaticon.com/512/387/387561.png"
