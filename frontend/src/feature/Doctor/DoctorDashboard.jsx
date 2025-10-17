@@ -6,6 +6,7 @@ import NotificationCard from "../../components/notificationCard/NotificationCard
 import CalendarView from "../../components/calendarView/calendarView";
 import AppointmentDetails from "../../components/appointmentDetail/AppointmentDetails";
 import { Container, Row, Col, Button } from "react-bootstrap";
+import "./DoctorDashboard.css";
 
 const DoctorDashboard = () => {
   const user = {
@@ -69,7 +70,7 @@ const DoctorDashboard = () => {
   const [showCalendar, setShowCalendar] = useState(false);
 
   return (
-    <div className="d-flex">
+    <div className="d-flex doctor-dashboard">
       <Sidebar user={user} role="doctor" />
       <div className="flex-grow-1">
         <Header
