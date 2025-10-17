@@ -1,11 +1,12 @@
 import { useState } from "react";
+import { Container, Row, Col, Button } from "react-bootstrap";
+import { List } from "react-bootstrap-icons"; // ícono hamburguesa
 import Header from "../../components/header/Header";
 import Sidebar from "../../components/sidebar/Sidebar";
 import DoctorScheduleCard from "../../components/doctorScheduleCard/DoctorScheduleCard";
 import NotificationCard from "../../components/notificationCard/NotificationCard";
 import CalendarView from "../../components/calendarView/calendarView";
 import AppointmentDetails from "../../components/appointmentDetail/AppointmentDetails";
-import { Container, Row, Col, Button } from "react-bootstrap";
 import "./DoctorDashboard.css";
 
 const DoctorDashboard = () => {
@@ -24,7 +25,7 @@ const DoctorDashboard = () => {
       gender: "Femenino",
       specialty: "Cardiología",
       status: "Confirmada",
-      dateTime: "2025-10-14T15:00:00", // ✅ formato válido
+      dateTime: "2025-10-14T15:00:00",
       motive: "Chequeo de presión arterial",
       isTeleconsultation: false,
       doctor: user.name,
@@ -36,7 +37,7 @@ const DoctorDashboard = () => {
       gender: "Masculino",
       specialty: "Dermatología",
       status: "Pendiente",
-      dateTime: "2025-10-14T17:30:00", // ✅ formato válido
+      dateTime: "2025-10-14T17:30:00",
       motive: "Revisión de lunares",
       isTeleconsultation: true,
       doctor: user.name,
@@ -48,7 +49,7 @@ const DoctorDashboard = () => {
       gender: "Femenino",
       specialty: "Nutrición",
       status: "Confirmada",
-      dateTime: "2025-10-14T18:00:00", // ✅ formato válido
+      dateTime: "2025-10-14T18:00:00",
       motive: "Consulta de dieta personalizada",
       isTeleconsultation: true,
       doctor: user.name,
@@ -68,16 +69,37 @@ const DoctorDashboard = () => {
 
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false); // estado del sidebar
+
+  const handleLogout = () => alert("Logout");
 
   return (
     <div className="d-flex doctor-dashboard">
-      <Sidebar user={user} role="doctor" />
+      {/* Sidebar retráctil */}
+      <Sidebar
+        user={user}
+        role="doctor"
+        show={showSidebar}
+        onHide={() => setShowSidebar(false)}
+      />
+
       <div className="flex-grow-1">
         <Header
           title="Portal Médico"
           avatarUrl={user.avatar}
-          onLogout={() => alert("Logout")}
+          onLogout={handleLogout}
         />
+
+        {/* Botón hamburguesa visible solo en móviles */}
+        <div className="d-lg-none p-2">
+          <Button
+            variant="outline-primary"
+            onClick={() => setShowSidebar(true)}
+          >
+            <List size={24} />
+          </Button>
+        </div>
+
         <Container className="py-4">
           <h2>¡Bienvenido, {user.name}!</h2>
 
@@ -123,10 +145,7 @@ const DoctorDashboard = () => {
                     gender={selectedAppointment.gender}
                     date={new Date(selectedAppointment.dateTime).toLocaleString(
                       "es-MX",
-                      {
-                        dateStyle: "long",
-                        timeStyle: "short",
-                      }
+                      { dateStyle: "long", timeStyle: "short" }
                     )}
                     motive={selectedAppointment.motive}
                     isTeleconsultation={selectedAppointment.isTeleconsultation}
