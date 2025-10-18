@@ -70,6 +70,7 @@ function LoginPage() {
                     values,
                     errors,
                     touched,
+                    handleBlur,
                   }) => (
                     <Form noValidate onSubmit={handleSubmit}>
                       <Form.Group className="mb-3" controlId="formBasicEmail">
@@ -82,7 +83,8 @@ function LoginPage() {
                           placeholder="usuario@correo.com"
                           value={values.email}
                           onChange={handleChange}
-                          isInvalid={!errors.email}
+                          onBlur={handleBlur}
+                          isInvalid={touched.email && !!errors.email}
                         />
                         <Form.Control.Feedback type="invalid">
                           {errors.email}
@@ -99,6 +101,7 @@ function LoginPage() {
                           name="password"
                           placeholder="Ingresa tu contraseña"
                           value={values.password}
+                          onBlur={handleBlur}
                           onChange={handleChange}
                           isInvalid={touched.password && !!errors.password}
                         />
