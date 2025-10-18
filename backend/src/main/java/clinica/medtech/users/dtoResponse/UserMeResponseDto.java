@@ -15,5 +15,10 @@ public class UserMeResponseDto {
     private String email;
     private String name;
     private String lastName;
+    private LocalDate birthDate;
+    private String gender;
+    private String address;
+    private String phone;
+    private String bloodType;
     private List<String> roles;
 }

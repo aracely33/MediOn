@@ -2,6 +2,7 @@ package clinica.medtech.users.service;
 
 import clinica.medtech.auth.jwt.JwtUtils;
 import clinica.medtech.exceptions.EmailAlreadyExistsException;
+import clinica.medtech.exceptions.PatientNotFoundException;
 import clinica.medtech.notifications.service.EmailService;
 import clinica.medtech.notifications.service.Impl.EmailVerificationService;
 import clinica.medtech.users.Enum.EnumRole;
@@ -212,12 +213,19 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserMeResponseDto getCurrentUser(String email) {
         UserModel user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario con el email " + email + " no encontrado"));
+        PatientModel patient = patientRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new PatientNotFoundException("Paciente con email " + email + " no encontrado"));
 
         return UserMeResponseDto.builder()
                 .id(user.getId())
                 .email(user.getEmail())
                 .name(user.getName())
                 .lastName(user.getLastName())
+                .birthDate(patient.getBirthDate())
+                .gender(patient.getGender())
+                .phone(patient.getPhone())
+                .address(patient.getAddress())
+                .bloodType(patient.getBloodType())
                 .roles(user.getRoles().stream()
                         .map(role -> role.getEnumRole().name())
                         .toList())
