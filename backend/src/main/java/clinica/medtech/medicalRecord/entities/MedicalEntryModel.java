@@ -1,9 +1,11 @@
-package clinica.medtech.users.entities;
+package clinica.medtech.medicalRecord.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import clinica.medtech.users.entities.ProfessionalModel;
 
 /* class RegistroMedico {
     - id: String

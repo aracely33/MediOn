@@ -13,6 +13,8 @@ import lombok.experimental.SuperBuilder;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import clinica.medtech.medicalRecord.entities.MedicalRecordModel;
+
 @Entity
 @Getter
 @Setter
@@ -29,6 +31,8 @@ public class PatientModel extends UserModel {
     private String gender;
     private String address;
     private String phone;
+    @Column(name = "fhir_id", unique = true)
+    private String fhirId;
 
     @Column(name = "blood_type")
     private String bloodType;

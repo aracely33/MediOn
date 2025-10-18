@@ -1,4 +1,4 @@
-package clinica.medtech.users.entities;
+package clinica.medtech.medicalRecord.entities;
 
 import jakarta.persistence.*;
 import lombok.*;

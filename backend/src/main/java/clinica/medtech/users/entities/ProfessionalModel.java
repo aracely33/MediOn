@@ -12,6 +12,8 @@ import lombok.experimental.SuperBuilder;
 import java.math.BigDecimal;
 import java.util.List;
 
+import clinica.medtech.medicalRecord.entities.MedicalEntryModel;
+
 @Entity
 @Getter
 @Setter
