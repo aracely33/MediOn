@@ -1,7 +1,7 @@
-package clinica.medtech.appointments.dto.request;
+package clinica.medtech.doctoravailability.dtos.request;
 
 import java.time.DayOfWeek;
-import java.time.OffsetTime;
+import java.time.LocalTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -12,6 +12,7 @@ import lombok.Data;
 @Data
 @Schema(description = "Solicitud para registrar la disponibilidad de un médico en un día específico")
 public class CreateAvailabilityDto {
+
     @NotNull(message = "El ID del doctor es obligatorio")
     @Schema(example = "101", description = "ID del doctor que registra su disponibilidad")
     private Long doctorId;
@@ -21,16 +22,15 @@ public class CreateAvailabilityDto {
     private DayOfWeek dayOfWeek;
 
     @NotNull(message = "La hora de inicio es obligatoria")
-    @Schema(example = "08:00-05:00", description = "Hora de inicio con zona horaria (formato HH:mmXXX)")
-    @JsonFormat(pattern = "HH:mmXXX")
-    private OffsetTime startTime;
+    @Schema(example = "08:00", description = "Hora de inicio en formato HH:mm")
+    @JsonFormat(pattern = "HH:mm")
+    private LocalTime startTime;
 
     @NotNull(message = "La hora de fin es obligatoria")
-    @Schema(example = "16:00-05:00", description = "Hora de finalización con zona horaria (formato HH:mmXXX)")
-    @JsonFormat(pattern = "HH:mmXXX")
-    private OffsetTime endTime;
+    @Schema(example = "16:00", description = "Hora de finalización en formato HH:mm")
+    @JsonFormat(pattern = "HH:mm")
+    private LocalTime endTime;
 
     @Schema(example = "true", description = "Indica si la disponibilidad está activa")
     private Boolean isActive = true;
-
 }

@@ -1,7 +1,7 @@
 package clinica.medtech.appointments.repository;
 
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,14 +13,9 @@ import clinica.medtech.appointments.entity.Appointment;
 import clinica.medtech.appointments.enums.AppointmentStatus;
 
 @Repository
-public interface AppointmentRepository extends JpaRepository<Appointment, Long>{
-     List<Appointment> findByPatientIdOrderByAppointmentDateTimeDesc(Long patientId);
+public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
-    List<Appointment> findByPatientIdAndAppointmentDateTimeGreaterThanEqualOrderByAppointmentDateTimeAsc(
-            Long patientId, OffsetDateTime fromDateTime);
-
-    List<Appointment> findByDoctorIdOrderByAppointmentDateTimeAsc(Long doctorId);
-
+    // 🔹 Verifica si hay conflicto de horario para un doctor
     @Query("""
         SELECT CASE WHEN COUNT(a) > 0 THEN TRUE ELSE FALSE END
         FROM Appointment a
@@ -31,11 +26,12 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>{
         """)
     boolean existsOverlapByDoctorAndTime(
             @Param("doctorId") Long doctorId,
-            @Param("start") OffsetDateTime start,
-            @Param("end") OffsetDateTime end,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end,
             @Param("statuses") List<AppointmentStatus> statuses
     );
 
+    // 🔹 Verifica conflicto de horario al modificar una cita (excluyendo su propio ID)
     @Query("""
         SELECT CASE WHEN COUNT(a) > 0 THEN TRUE ELSE FALSE END
         FROM Appointment a
@@ -47,9 +43,12 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>{
         """)
     boolean existsOverlapByDoctorAndTimeExcludingId(
             @Param("doctorId") Long doctorId,
-            @Param("start") OffsetDateTime start,
-            @Param("end") OffsetDateTime end,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end,
             @Param("statuses") List<AppointmentStatus> statuses,
             @Param("excludeId") Long excludeId
     );
+
+    // 🔹 Obtener todas las citas de un doctor ordenadas por fecha (para calcular disponibilidad)
+    List<Appointment> findByDoctorIdOrderByAppointmentDateTimeAsc(Long doctorId);
 }

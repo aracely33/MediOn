@@ -38,6 +38,12 @@ public class UserModel {
     @Column(nullable = false)
     private String password;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean emailVerified = false;
+
+    @Column
+    private LocalDateTime emailVerifiedAt;
 
     @CreationTimestamp
     @Column(name = "register_date", updatable = false)

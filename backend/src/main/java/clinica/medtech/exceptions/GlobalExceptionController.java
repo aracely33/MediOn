@@ -989,9 +989,9 @@ public class GlobalExceptionController {
                 .body(errorResponse);
     }
 
-    @ExceptionHandler(clinica.medtech.appointments.exception.AvailabilityNotFoundException.class)
+    @ExceptionHandler(clinica.medtech.doctoravailability.exception.AvailabilityNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleAvailabilityNotFound(
-            clinica.medtech.appointments.exception.AvailabilityNotFoundException ex, WebRequest request) {
+            clinica.medtech.doctoravailability.exception.AvailabilityNotFoundException ex, WebRequest request) {
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .errorCode("AVAIL-404")
                 .message("Disponibilidad no encontrada")
@@ -1005,9 +1005,9 @@ public class GlobalExceptionController {
                 .body(errorResponse);
     }
 
-    @ExceptionHandler(clinica.medtech.appointments.exception.InvalidAvailabilityException.class)
+    @ExceptionHandler(clinica.medtech.doctoravailability.exception.InvalidAvailabilityException.class)
     public ResponseEntity<ErrorResponse> handleInvalidAvailability(
-            clinica.medtech.appointments.exception.InvalidAvailabilityException ex, WebRequest request) {
+            clinica.medtech.doctoravailability.exception.InvalidAvailabilityException ex, WebRequest request) {
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .errorCode("AVAIL-400")
                 .message("Datos inválidos para disponibilidad")

@@ -57,13 +57,13 @@ public class PatientService {
         PatientModel patient = patientRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Paciente con id " + id + " no encontrado."));
 
-        // Si el email fue cambiado, validar duplicado
+       /* // Si el email fue cambiado, validar duplicado
         if (!patient.getEmail().equalsIgnoreCase(updateRequest.getEmail())) {
             patientRepository.findByEmailIgnoreCase(updateRequest.getEmail()).ifPresent(existing -> {
                 throw new EmailAlreadyExistsException("El correo " + updateRequest.getEmail() + " ya está registrado.");
             });
             patient.setEmail(cleanString(updateRequest.getEmail()));
-        }
+        }*/
 
         // Actualizar campos comunes
         patient.setName(cleanString(updateRequest.getName()));

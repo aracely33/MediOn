@@ -1,29 +1,25 @@
 package clinica.medtech.appointments.service;
 
 
+import java.time.LocalDateTime;
 import java.util.List;
 
-import clinica.medtech.appointments.dto.request.CancelAppointmentDto;
-import clinica.medtech.appointments.dto.request.ConfirmAppointmentDto;
-import clinica.medtech.appointments.dto.request.CreateAppointmentDto;
-import clinica.medtech.appointments.dto.request.UpdateAppointmentDto;
-import clinica.medtech.appointments.dto.response.AppointmentDetailDto;
-import clinica.medtech.appointments.dto.response.AppointmentResponseDto;
-import clinica.medtech.appointments.dto.response.AppointmentSummaryDto;
+import clinica.medtech.appointments.dto.request.AppointmentCreateRequest;
+import clinica.medtech.appointments.dto.request.AppointmentUpdateRequest;
+
+import clinica.medtech.appointments.dto.response.AppointmentResponse;
+
 
 
 public interface AppointmentService {
-    AppointmentResponseDto createAppointment(CreateAppointmentDto dto);
 
-    AppointmentDetailDto getAppointmentById(Long id);
+    AppointmentResponse scheduleAppointment(AppointmentCreateRequest dto);
 
-    AppointmentResponseDto updateAppointment(UpdateAppointmentDto dto);
+    boolean updateAppointment(Long id, AppointmentUpdateRequest dto);
 
-    void confirmAppointment(ConfirmAppointmentDto dto);
+    boolean cancelAppointment(Long id, String reason);
 
-    void cancelAppointment(CancelAppointmentDto dto);
+    boolean confirmAppointment(Long id, String notes);
 
-    List<AppointmentSummaryDto> listByPatient(Long patientId);
-    
-    List<AppointmentSummaryDto> listByDoctor(Long doctorId);
+    List<LocalDateTime> getDoctorAvailability(Long doctorId);
 }

@@ -1,10 +1,12 @@
-package clinica.medtech.appointments.service;
+package clinica.medtech.doctoravailability.service;
 
 import java.util.List;
-import clinica.medtech.appointments.dto.request.CreateAvailabilityDto;
-import clinica.medtech.appointments.dto.response.AvailabilityResponseDto;
+
+import clinica.medtech.doctoravailability.dtos.request.CreateAvailabilityDto;
+import clinica.medtech.doctoravailability.dtos.response.AvailabilityResponseDto;
 
 public interface AvailabilityService {
+
     AvailabilityResponseDto createAvailability(CreateAvailabilityDto dto);
 
     AvailabilityResponseDto updateAvailability(Long id, CreateAvailabilityDto dto);

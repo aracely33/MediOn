@@ -1,4 +1,4 @@
-package clinica.medtech.appointments.dto.request;
+package clinica.medtech.doctoravailability.dtos.request;
 
 import java.time.LocalDate;
 
@@ -8,6 +8,7 @@ import lombok.Data;
 @Data
 @Schema(description = "Solicitud para consultar disponibilidad de un médico entre fechas específicas")
 public class AvailabilityRequestDto {
+
     @Schema(example = "101", description = "ID del médico a consultar")
     private Long doctorId;
 

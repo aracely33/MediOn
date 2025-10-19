@@ -1,18 +1,16 @@
 package clinica.medtech.appointments.service.impl;
 
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import clinica.medtech.appointments.dto.request.CancelAppointmentDto;
-import clinica.medtech.appointments.dto.request.ConfirmAppointmentDto;
-import clinica.medtech.appointments.dto.request.CreateAppointmentDto;
-import clinica.medtech.appointments.dto.request.UpdateAppointmentDto;
-import clinica.medtech.appointments.dto.response.AppointmentDetailDto;
-import clinica.medtech.appointments.dto.response.AppointmentResponseDto;
-import clinica.medtech.appointments.dto.response.AppointmentSummaryDto;
+
+import clinica.medtech.appointments.dto.request.AppointmentCreateRequest;
+import clinica.medtech.appointments.dto.request.AppointmentUpdateRequest;
+
+import clinica.medtech.appointments.dto.response.AppointmentResponse;
 import clinica.medtech.appointments.entity.Appointment;
 import clinica.medtech.appointments.enums.AppointmentStatus;
 import clinica.medtech.appointments.exception.AppointmentConflictException;
@@ -23,67 +21,60 @@ import clinica.medtech.appointments.service.AppointmentService;
 import lombok.RequiredArgsConstructor;
 
 
+
 @Service
 @RequiredArgsConstructor
-public class AppointmentServiceImpl implements AppointmentService{
+@Transactional
+public class AppointmentServiceImpl implements AppointmentService {
+
     private final AppointmentRepository appointmentRepository;
     private final AppointmentMapper appointmentMapper;
 
-    // estados que generan bloqueo/solapamiento
+    // Estados de cita que bloquean disponibilidad
     private static final List<AppointmentStatus> CONFLICTING_STATUSES =
             List.of(AppointmentStatus.PENDIENTE, AppointmentStatus.CONFIRMADA, AppointmentStatus.EN_CURSO);
 
     @Override
-    @Transactional
-    public AppointmentResponseDto createAppointment(CreateAppointmentDto dto) {
+    public AppointmentResponse scheduleAppointment(AppointmentCreateRequest dto) {
         Appointment entity = appointmentMapper.toEntity(dto);
-
-        if (entity.getDuration() == null) {
-            entity.setDuration(30);
-        }
-
-        entity.setStatus(AppointmentStatus.PENDIENTE);
-
-        // calcular endDateTime
-        entity.setEndDateTime(entity.getAppointmentDateTime().plusMinutes(entity.getDuration()));
 
         boolean conflict = appointmentRepository.existsOverlapByDoctorAndTime(
                 entity.getDoctorId(),
                 entity.getAppointmentDateTime(),
-                entity.getEndDateTime(),
+                entity.getAppointmentDateTime().plusMinutes(entity.getDuration()),
                 CONFLICTING_STATUSES
         );
+
         if (conflict) {
-            throw new AppointmentConflictException("Conflicto de horario con otra cita.");
+            throw new AppointmentConflictException("El doctor ya tiene otra cita en ese horario.");
         }
 
+        entity.setStatus(AppointmentStatus.PENDIENTE);
         Appointment saved = appointmentRepository.save(entity);
-        return appointmentMapper.toResponseDTO(saved);
+
+        return appointmentMapper.toResponse(saved);
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public AppointmentDetailDto getAppointmentById(Long id) {
+    public boolean updateAppointment(Long id, AppointmentUpdateRequest dto) {
         Appointment existing = appointmentRepository.findById(id)
-                .orElseThrow(() -> new AppointmentNotFoundException("Cita no encontrada"));
-        return appointmentMapper.toDetail(existing);
-    }
+                .orElseThrow(() -> new AppointmentNotFoundException(id));
 
-    @Override
-    @Transactional
-    public AppointmentResponseDto updateAppointment(UpdateAppointmentDto dto) {
-        Appointment existing = appointmentRepository.findById(dto.getId())
-                .orElseThrow(() -> new AppointmentNotFoundException("Cita no encontrada"));
-
+        // Aplicar cambios parciales (ignora nulos)
         appointmentMapper.updateFromDto(dto, existing);
 
+        // Si no se cambió la fecha u hora, no recalculamos
+        if (existing.getAppointmentDateTime() == null) {
+            return true;
+        }
+
+        // Asignar duración por defecto si es nula
         if (existing.getDuration() == null) {
             existing.setDuration(30);
         }
 
-        OffsetDateTime newStart = existing.getAppointmentDateTime();
-        Integer newDuration = existing.getDuration();
-        OffsetDateTime newEnd = newStart.plusMinutes(newDuration);
+        LocalDateTime newStart = existing.getAppointmentDateTime();
+        LocalDateTime newEnd = newStart.plusMinutes(existing.getDuration());
         existing.setEndDateTime(newEnd);
 
         boolean conflict = appointmentRepository.existsOverlapByDoctorAndTimeExcludingId(
@@ -93,21 +84,35 @@ public class AppointmentServiceImpl implements AppointmentService{
                 CONFLICTING_STATUSES,
                 existing.getId()
         );
+
         if (conflict) {
-            throw new AppointmentConflictException("Actualización genera conflicto con otra cita.");
+            throw new AppointmentConflictException("La nueva hora entra en conflicto con otra cita existente.");
         }
 
-        Appointment saved = appointmentRepository.save(existing);
-        return appointmentMapper.toResponseDTO(saved);
+        appointmentRepository.save(existing);
+        return true;
     }
 
     @Override
-    @Transactional
-    public void confirmAppointment(ConfirmAppointmentDto dto) {
-        Appointment existing = appointmentRepository.findById(dto.getAppointmentId())
-                .orElseThrow(() -> new AppointmentNotFoundException("Cita no encontrada"));
+    public boolean cancelAppointment(Long id, String reason) {
+        Appointment existing = appointmentRepository.findById(id)
+                .orElseThrow(() -> new AppointmentNotFoundException(id));
 
-        // comprobar solapamientos con otras citas antes de confirmar
+        existing.setStatus(AppointmentStatus.CANCELADA);
+
+        if (reason != null && !reason.isBlank()) {
+            existing.setReason(reason);
+        }
+
+        appointmentRepository.save(existing);
+        return true;
+    }
+
+    @Override
+    public boolean confirmAppointment(Long id, String notes) {
+        Appointment existing = appointmentRepository.findById(id)
+                .orElseThrow(() -> new AppointmentNotFoundException(id));
+
         boolean conflict = appointmentRepository.existsOverlapByDoctorAndTimeExcludingId(
                 existing.getDoctorId(),
                 existing.getAppointmentDateTime(),
@@ -115,41 +120,28 @@ public class AppointmentServiceImpl implements AppointmentService{
                 CONFLICTING_STATUSES,
                 existing.getId()
         );
+
         if (conflict) {
-            throw new AppointmentConflictException("No es posible confirmar: existe conflicto con otra cita.");
+            throw new AppointmentConflictException("No se puede confirmar la cita debido a un conflicto de horario.");
         }
 
         existing.setStatus(AppointmentStatus.CONFIRMADA);
-        if (dto.getConfirmationNotes() != null) {
-            existing.setNotes(dto.getConfirmationNotes());
+
+        if (notes != null && !notes.isBlank()) {
+            existing.setNotes(notes);
         }
+
         appointmentRepository.save(existing);
+        return true;
     }
 
-    @Override
-    @Transactional
-    public void cancelAppointment(CancelAppointmentDto dto) {
-        Appointment existing = appointmentRepository.findById(dto.getAppointmentId())
-                .orElseThrow(() -> new AppointmentNotFoundException("Cita no encontrada"));
-
-        existing.setStatus(AppointmentStatus.CANCELADA);
-        if (dto.getReason() != null) {
-            existing.setReason(dto.getReason());
-        }
-        appointmentRepository.save(existing);
-    }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<AppointmentSummaryDto> listByPatient(Long patientId) {
-        List<Appointment> list = appointmentRepository.findByPatientIdOrderByAppointmentDateTimeDesc(patientId);
-        return list.stream().map(appointmentMapper::toSummary).toList();
-    }
+    public List<LocalDateTime> getDoctorAvailability(Long doctorId) {
+        List<Appointment> appointments = appointmentRepository.findByDoctorIdOrderByAppointmentDateTimeAsc(doctorId);
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<AppointmentSummaryDto> listByDoctor(Long doctorId) {
-        List<Appointment> list = appointmentRepository.findByDoctorIdOrderByAppointmentDateTimeAsc(doctorId);
-        return list.stream().map(appointmentMapper::toSummary).collect(Collectors.toList());
+        return appointments.stream()
+                .map(Appointment::getAppointmentDateTime)
+                .collect(Collectors.toList());
     }
 }
