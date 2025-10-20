@@ -37,6 +37,15 @@ public class PatientModel extends UserModel {
     @Column(name = "blood_type")
     private String bloodType;
 
+    @Column(name = "city")
+    private String city;
+
+    @Column(name = "state")
+    private String state;
+
+    @Column(name = "zip")
+    private String zip;
+
     @OneToOne(mappedBy = "patient", cascade = CascadeType.ALL)
     private MedicalRecordModel medicalRecord;
 }

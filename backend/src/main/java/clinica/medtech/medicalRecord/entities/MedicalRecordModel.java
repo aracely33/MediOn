@@ -118,7 +118,7 @@ public class MedicalRecordModel {
     @JoinColumn(name = "patient_id", nullable = false)
     private PatientModel patient;
 
-    @OneToMany(mappedBy = "medical_record", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "medicalRecord", cascade = CascadeType.ALL)
     private List<MedicalEntryModel> medicalEntries;
 
     @Column(name = "observations")

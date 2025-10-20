@@ -1,4 +1,4 @@
-package clinica.medtech.medicalRecord.dtoResponse;
+package clinica.medtech.users.dtoResponse;
 
 import lombok.*;
 
