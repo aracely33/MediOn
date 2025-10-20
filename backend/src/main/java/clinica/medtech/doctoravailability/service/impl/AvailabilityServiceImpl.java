@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import clinica.medtech.doctoravailability.dtos.request.CreateAvailabilityDto;
+import clinica.medtech.doctoravailability.dtos.request.UpdateAvailabilityDto;
 import clinica.medtech.doctoravailability.dtos.response.AvailabilityResponseDto;
 import clinica.medtech.doctoravailability.entity.DoctorAvailability;
 import clinica.medtech.doctoravailability.exception.InvalidAvailabilityException;
@@ -36,19 +37,20 @@ public class AvailabilityServiceImpl implements AvailabilityService {
     }
 
     @Override
-    @Transactional
-    public AvailabilityResponseDto updateAvailability(Long id, CreateAvailabilityDto dto) {
-        DoctorAvailability existing = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Disponibilidad no encontrada con id: " + id));
+@Transactional
+public AvailabilityResponseDto updateAvailability(Long id, UpdateAvailabilityDto dto) {
+    DoctorAvailability existing = repository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Disponibilidad no encontrada con id: " + id));
 
+    if (dto.getStartTime() != null && dto.getEndTime() != null) {
         validateTimes(dto.getStartTime(), dto.getEndTime());
-
-        // Actualización parcial (PATCH)
-        mapper.updateFromDto(dto, existing);
-        DoctorAvailability updated = repository.save(existing);
-
-        return mapper.toDto(updated);
     }
+
+    mapper.updateFromDto(dto, existing);
+    DoctorAvailability updated = repository.save(existing);
+
+    return mapper.toDto(updated);
+}
 
     @Override
     @Transactional
@@ -61,13 +63,14 @@ public class AvailabilityServiceImpl implements AvailabilityService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public AvailabilityResponseDto getAvailability(Long id) {
-        DoctorAvailability availability = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Disponibilidad no encontrada con id: " + id));
+@Transactional(readOnly = true)
+public AvailabilityResponseDto getAvailability(Long id) {
+    DoctorAvailability availability = repository
+            .findByIdAndIsActiveTrue(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Disponibilidad no encontrada o inactiva con id: " + id));
 
-        return mapper.toDto(availability);
-    }
+    return mapper.toDto(availability);
+}
 
     @Override
     @Transactional(readOnly = true)
@@ -78,7 +81,6 @@ public class AvailabilityServiceImpl implements AvailabilityService {
                 .toList();
     }
 
-    // 🔒 Validación simple: hora de inicio < hora de fin
     private void validateTimes(LocalTime start, LocalTime end) {
         if (start == null || end == null) {
             throw new InvalidAvailabilityException("Las horas de inicio y fin son obligatorias.");

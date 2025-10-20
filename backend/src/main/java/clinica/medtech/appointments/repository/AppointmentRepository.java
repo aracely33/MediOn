@@ -15,7 +15,7 @@ import clinica.medtech.appointments.enums.AppointmentStatus;
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
-    // 🔹 Verifica si hay conflicto de horario para un doctor
+    //Verifica si hay conflicto de horario para un doctor
     @Query("""
         SELECT CASE WHEN COUNT(a) > 0 THEN TRUE ELSE FALSE END
         FROM Appointment a
@@ -31,7 +31,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             @Param("statuses") List<AppointmentStatus> statuses
     );
 
-    // 🔹 Verifica conflicto de horario al modificar una cita (excluyendo su propio ID)
+    //Verifica conflicto de horario al modificar una cita (excluyendo su propio ID)
     @Query("""
         SELECT CASE WHEN COUNT(a) > 0 THEN TRUE ELSE FALSE END
         FROM Appointment a
@@ -49,6 +49,16 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             @Param("excludeId") Long excludeId
     );
 
-    // 🔹 Obtener todas las citas de un doctor ordenadas por fecha (para calcular disponibilidad)
-    List<Appointment> findByDoctorIdOrderByAppointmentDateTimeAsc(Long doctorId);
+
+    @Query("""
+      SELECT a FROM Appointment a
+      WHERE a.doctorId = :doctorId
+        AND a.status IN :statuses
+      ORDER BY a.appointmentDateTime ASC
+      """)
+    List<Appointment> findActiveAppointmentsByDoctor(
+        @Param("doctorId") Long doctorId,
+        @Param("statuses") List<AppointmentStatus> statuses
+);
+
 }

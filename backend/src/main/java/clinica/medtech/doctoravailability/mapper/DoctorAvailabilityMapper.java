@@ -7,6 +7,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
 import clinica.medtech.doctoravailability.dtos.request.CreateAvailabilityDto;
+import clinica.medtech.doctoravailability.dtos.request.UpdateAvailabilityDto;
 import clinica.medtech.doctoravailability.dtos.response.AvailabilityResponseDto;
 import clinica.medtech.doctoravailability.entity.DoctorAvailability;
 
@@ -19,5 +20,5 @@ public interface DoctorAvailabilityMapper {
     AvailabilityResponseDto toDto(DoctorAvailability entity);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateFromDto(CreateAvailabilityDto dto, @MappingTarget DoctorAvailability entity);
+    void updateFromDto(UpdateAvailabilityDto dto, @MappingTarget DoctorAvailability entity);
 }

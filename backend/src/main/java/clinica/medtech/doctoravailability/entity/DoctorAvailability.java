@@ -11,7 +11,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,12 +25,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(
-    name = "doctor_availability",
-    indexes = {
-        @Index(name = "idx_doctor_day", columnList = "doctor_id, day_of_week")
-    }
-)
+@Table(name = "doctor_availability")
 public class DoctorAvailability {
 
     @Id

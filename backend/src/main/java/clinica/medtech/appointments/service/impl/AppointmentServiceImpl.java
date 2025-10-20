@@ -60,15 +60,12 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment existing = appointmentRepository.findById(id)
                 .orElseThrow(() -> new AppointmentNotFoundException(id));
 
-        // Aplicar cambios parciales (ignora nulos)
         appointmentMapper.updateFromDto(dto, existing);
 
-        // Si no se cambió la fecha u hora, no recalculamos
         if (existing.getAppointmentDateTime() == null) {
             return true;
         }
 
-        // Asignar duración por defecto si es nula
         if (existing.getDuration() == null) {
             existing.setDuration(30);
         }
@@ -138,10 +135,14 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public List<LocalDateTime> getDoctorAvailability(Long doctorId) {
-        List<Appointment> appointments = appointmentRepository.findByDoctorIdOrderByAppointmentDateTimeAsc(doctorId);
+        List<Appointment> activeAppointments = appointmentRepository.findActiveAppointmentsByDoctor(
+                doctorId,
+                CONFLICTING_STATUSES // PENDIENTE, CONFIRMADA, EN_CURSO
+        );
 
-        return appointments.stream()
+        return activeAppointments.stream()
                 .map(Appointment::getAppointmentDateTime)
                 .collect(Collectors.toList());
     }
+
 }
