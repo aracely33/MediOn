@@ -32,7 +32,7 @@ public class PatientMedicalRecordResponseMapper {
                 .gender(patient.getGender())
                 .address(patient.getAddress())
                 .city(patient.getCity())
-                .state(patient.getState())
+                .country(patient.getCountry())
                 .zip(patient.getZip())
                 .phone(patient.getPhone())
                 .bloodType(patient.getBloodType())

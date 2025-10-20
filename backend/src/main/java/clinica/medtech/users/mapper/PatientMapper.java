@@ -21,6 +21,9 @@ public class PatientMapper {
         dto.setPhone(patient.getPhone());
         dto.setBirthDate(patient.getBirthDate());
         dto.setBloodType(patient.getBloodType());
+        dto.setCity(patient.getCity());
+        dto.setCountry(patient.getCountry());
+        dto.setZip(patient.getZip());
         return dto;
     }
 

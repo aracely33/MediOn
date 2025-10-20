@@ -21,7 +21,7 @@ public class PatientMedicalRecordResponseDto {
     private String gender;
     private String address;
     private String city;
-    private String state;
+    private String country;
     private String zip;
     private String phone;
     private String bloodType;

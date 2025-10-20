@@ -226,31 +226,34 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .phone(patient.getPhone())
                 .address(patient.getAddress())
                 .bloodType(patient.getBloodType())
+                .city(patient.getCity())
+                .country(patient.getCountry())
+                .zip(patient.getZip())
                 .roles(user.getRoles().stream()
                         .map(role -> role.getEnumRole().name())
                         .toList())
                 .build();
     }
 
-    @Transactional
-    public UserMeResponseDto updateCurrentUser(Long id, UserMeRequestDto userMeRequest) {
-        UserModel user = userRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuario con el id " + id + " no encontrado"));
-
-        if (!user.getEmail().equals(userMeRequest.getEmail())) {
-            userRepository.findByEmail(userMeRequest.getEmail()).ifPresent(existingUser -> {
-                throw new EmailAlreadyExistsException("El correo " + userMeRequest.getEmail() + " ya existe en la base de datos.");
-            });
-            user.setEmail(userMeRequest.getEmail());
-        }
-
-
-        user.setName(userMeRequest.getName());
-        user.setLastName(userMeRequest.getLastName());
-
-        userRepository.save(user);
-        return getCurrentUser(user.getEmail());
-    }
+//    @Transactional
+//    public UserMeResponseDto updateCurrentUser(Long id, UserMeRequestDto userMeRequest) {
+//        UserModel user = userRepository.findById(id)
+//                .orElseThrow(() -> new UsernameNotFoundException("Usuario con el id " + id + " no encontrado"));
+//
+//        if (!user.getEmail().equals(userMeRequest.getEmail())) {
+//            userRepository.findByEmail(userMeRequest.getEmail()).ifPresent(existingUser -> {
+//                throw new EmailAlreadyExistsException("El correo " + userMeRequest.getEmail() + " ya existe en la base de datos.");
+//            });
+//            user.setEmail(userMeRequest.getEmail());
+//        }
+//
+//
+//        user.setName(userMeRequest.getName());
+//        user.setLastName(userMeRequest.getLastName());
+//
+//        userRepository.save(user);
+//        return getCurrentUser(user.getEmail());
+//    }
 
 
 
