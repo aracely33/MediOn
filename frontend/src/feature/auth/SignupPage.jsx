@@ -15,15 +15,15 @@ const SignupPage = () => {
   const [showToast, setShowToast] = useState(false);
   const navigate = useNavigate();
   return (
-    <div className="auth-bg">
+    <div className="auth-bg min-vh-100 d-flex flex-column ">
       <Container
         fluid
-        className=" d-flex align-items-center justify-content-center"
+        className="flex-grow-1 d-flex align-items-center  justify-content-center"
       >
-        <Row className="w-100 justify-content-center">
+        <Row className="w-100  justify-content-center ">
           <Col xs={11} sm={9} md={7} lg={5} xl={4}>
-            <div className="text-center mb-4">
-              <h1 className="brand-title">🩺 HealthConnect</h1>
+            <div className="text-center m-4">
+              <h1 className="brand-title">🩺 MedTech</h1>
             </div>
 
             <Card className="shadow-sm border-0 rounded-4">
@@ -43,7 +43,7 @@ const SignupPage = () => {
               </Card.Body>
             </Card>
 
-            <footer className="text-center mt-4 text-light small">
+            <footer className="text-center m-4 text-light small">
               © 2025 HealthConnect. Todos los derechos reservados.{" "}
               <a href="#">Política de Privacidad</a>
             </footer>
