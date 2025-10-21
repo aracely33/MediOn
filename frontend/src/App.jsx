@@ -7,26 +7,29 @@ import SignupPage from "./feature/auth/SignupPage";
 import ConfirmEmailPage from "./feature/auth/ConfirmEmailPage";
 import PatientDashboard from "./feature/Patient/PatientDashboard";
 import DoctorDashboard from "./feature/Doctor/DoctorDashboard";
+import { DoctorProvider } from "./context/DoctorContext";
 
 function App() {
   return (
     <BrowserRouter>
       <PatientProvider>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/registro" element={<SignupPage />} />
-          <Route path="/confirm-email" element={<ConfirmEmailPage />} />
+        <DoctorProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/registro" element={<SignupPage />} />
+            <Route path="/confirm-email" element={<ConfirmEmailPage />} />
 
-          {/*Lo pongo aquí provisionalmente para probar la vista*/}
-          <Route path="/doctor-home" element={<DoctorDashboard />} />
+            {/*Lo pongo aquí provisionalmente para probar la vista*/}
+            <Route path="/doctor-home" element={<DoctorDashboard />} />
 
-          <Route element={<ProtectedRoutePatient />}>
-            {/*Se agregan las rutas que solo puede acceder el paciente*/}
+            <Route element={<ProtectedRoutePatient />}>
+              {/*Se agregan las rutas que solo puede acceder el paciente*/}
 
-            {/* Dashboards */}
-            <Route path="/patient-home" element={<PatientDashboard />} />
-          </Route>
-        </Routes>
+              {/* Dashboards */}
+              <Route path="/patient-home" element={<PatientDashboard />} />
+            </Route>
+          </Routes>
+        </DoctorProvider>
       </PatientProvider>
     </BrowserRouter>
   );
