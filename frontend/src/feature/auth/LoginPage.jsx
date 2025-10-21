@@ -15,12 +15,7 @@ const validationSchema = Yup.object({
   email: Yup.string()
     .email("Debe ser un correo válido")
     .required("El correo es obligatorio"),
-  password: Yup.string()
-    .min(8, "Debe tener al menos 8 caracteres")
-    .matches(/[A-Z]/, "Debe contener al menos una mayúscula")
-    .matches(/[0-9]/, "Debe contener al menos un número")
-    .matches(/[!@#$%^&*]/, "Debe contener al menos un carácter especial")
-    .required("La contraseña es obligatoria"),
+  password: Yup.string().required("La contraseña es obligatoria"),
 });
 
 function LoginPage() {
@@ -39,7 +34,7 @@ function LoginPage() {
         <Row className="w-100 justify-content-center">
           <Col xs={11} sm={9} md={7} lg={5} xl={4}>
             <div className="text-center mb-4">
-              <h1 className="brand-title">🩺 Portal de Citas MediON</h1>
+              <h1 className="brand-title">🩺 Portal de Citas MedTech</h1>
             </div>
 
             <Card className="shadow-sm border-0 rounded-4">
@@ -75,6 +70,7 @@ function LoginPage() {
                     values,
                     errors,
                     touched,
+                    handleBlur,
                   }) => (
                     <Form noValidate onSubmit={handleSubmit}>
                       <Form.Group className="mb-3" controlId="formBasicEmail">
@@ -87,6 +83,7 @@ function LoginPage() {
                           placeholder="usuario@correo.com"
                           value={values.email}
                           onChange={handleChange}
+                          onBlur={handleBlur}
                           isInvalid={touched.email && !!errors.email}
                         />
                         <Form.Control.Feedback type="invalid">
@@ -104,6 +101,7 @@ function LoginPage() {
                           name="password"
                           placeholder="Ingresa tu contraseña"
                           value={values.password}
+                          onBlur={handleBlur}
                           onChange={handleChange}
                           isInvalid={touched.password && !!errors.password}
                         />
@@ -136,6 +134,11 @@ function LoginPage() {
 
                       <Button
                         variant="primary"
+                        disabled={
+                          !values.email ||
+                          !values.password ||
+                          Object.keys(errors).length > 0
+                        }
                         type="submit"
                         className="login-btn w-100"
                       >
