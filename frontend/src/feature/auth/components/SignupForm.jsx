@@ -42,6 +42,7 @@ const SignupForm = ({ onSuccess, onShowTerms, onShowPrivacy }) => {
             password: values.password,
             confirmPassword: values.password,
           });
+          console.log(patient);
 
           console.log("Registro exitoso:", patient);
           //onSuccess();
@@ -210,7 +211,7 @@ const SignupForm = ({ onSuccess, onShowTerms, onShowPrivacy }) => {
                   }}
                   className="text-decoration-none text-secondary"
                 >
-                  {showConfirm ? "Ocultar " : "Mostrar"}
+                  {showConfirm ? "Ocultar contraseña " : "Mostrar contraseña"}
                 </Card.Link>
               </div>
             </Form.Group>

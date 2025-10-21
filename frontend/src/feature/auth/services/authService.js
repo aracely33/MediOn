@@ -2,6 +2,7 @@ import { api } from "../../../services/api";
 
 // Endpoint para registrar un paciente
 export const registerPatient = async (patient) => {
+  console.log(patient);
   return await api.post("/auth/patient/register", patient);
 };
 
