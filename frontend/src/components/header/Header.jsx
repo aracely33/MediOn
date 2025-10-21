@@ -7,7 +7,7 @@ const Header = ({ title, avatarUrl, logoUrl, buttons = [] }) => (
     <Container fluid>
       <Navbar.Brand className="header-brand d-flex align-items-center gap-2">
         {logoUrl && (
-          <Image src={logoUrl} width={40} height={40} className="me-2" />
+          <Image src={logoUrl} width={60} className="me-2 header-logo" />
         )}
         <span className="header-title fw-bold">{title}</span>
       </Navbar.Brand>

@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
 import LoginPage from "./feature/auth/LoginPage";
+import LandingPage from "./feature/LandingPage/landingPage";
 import { PatientProvider } from "./context/PatientContext";
 import { ProtectedRoutePatient } from "./routes/ProtectedRoutePatient";
 import SignupPage from "./feature/auth/SignupPage";
@@ -15,6 +16,7 @@ function App() {
       <PatientProvider>
         <DoctorProvider>
           <Routes>
+            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/registro" element={<SignupPage />} />
             <Route path="/confirm-email" element={<ConfirmEmailPage />} />
