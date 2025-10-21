@@ -7,10 +7,14 @@ import DoctorScheduleCard from "../../components/doctorScheduleCard/DoctorSchedu
 import NotificationCard from "../../components/notificationCard/NotificationCard";
 import CalendarView from "../../components/calendarView/calendarView";
 import AppointmentDetails from "../../components/appointmentDetail/AppointmentDetails";
+import { useNavigate } from "react-router-dom";
 import { getProfessionalById } from "./doctorService";
 import "./DoctorDashboard.css";
+import { useDoctor } from "../../context/DoctorContext";
 
 const DoctorDashboard = () => {
+  const { signOut } = useDoctor();
+  const navigate = useNavigate();
   const [doctor, setDoctor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
@@ -74,7 +78,10 @@ const DoctorDashboard = () => {
     },
   ];
 
-  const handleLogout = () => alert("Logout");
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/login");
+  };
 
   if (loading) return <p>Cargando información del médico...</p>;
   if (!doctor) return <p>No se pudo cargar la información del médico.</p>;
@@ -101,7 +108,13 @@ const DoctorDashboard = () => {
             doctor.avatarUrl ||
             "https://cdn-icons-png.flaticon.com/512/387/387561.png"
           }
-          onLogout={handleLogout}
+          buttons={[
+            {
+              label: "Cerrar sesión",
+              onClick: handleLogout,
+              className: "logout-btn",
+            },
+          ]}
         />
 
         {/* Botón hamburguesa visible solo en móviles */}
