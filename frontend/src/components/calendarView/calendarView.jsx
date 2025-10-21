@@ -26,7 +26,7 @@ const CalendarView = ({ appointments = [], onSelectEvent }) => {
   return (
     <div className="calendar-container">
       <div className="calendar-header">
-        <h4>Calendario de Citas</h4>
+        <h5>Programación de consultas</h5>
       </div>
 
       <Calendar
