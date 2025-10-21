@@ -13,7 +13,7 @@ const VerificationSchema = Yup.object().shape({
     .length(6, "Enter all 6 digits"),
 });
 
-const VerificationForm = ({ onVerify }) => {
+const VerificationForm = ({ onVerify, onResend }) => {
   const inputsRef = useRef([]);
 
   const handleChange = (e, index, values, setFieldValue) => {
@@ -87,9 +87,13 @@ const VerificationForm = ({ onVerify }) => {
               <div className="text-center mb-3">
                 <p className="text-muted">
                   Didn’t receive the code?{" "}
-                  <a href="#" className="fw-semibold text-primary">
+                  <button
+                    type="button"
+                    className="btn btn-link fw-semibold text-primary p-0"
+                    onClick={onResend}
+                  >
                     Resend Code
-                  </a>
+                  </button>
                 </p>
               </div>
 

@@ -40,13 +40,15 @@ const SignupForm = ({ onSuccess, onShowTerms, onShowPrivacy }) => {
             lastName: values.lastName,
             email: values.email,
             password: values.password,
-            confirmPassword: values.password,
+            confirmPassword: values.confirmPassword,
           });
 
-          console.log("Registro exitoso:", patient);
-          //onSuccess();
+          localStorage.setItem("patient_email", values.email);
+
+          // Limpia el formulario
           resetForm();
-          //llamada a la api para  verificar código en email
+
+          // 🚀 Redirige a la verificación de email
           navigate("/confirm-email");
         } catch (error) {
           console.error("Error al registrar:", error.response?.data);
