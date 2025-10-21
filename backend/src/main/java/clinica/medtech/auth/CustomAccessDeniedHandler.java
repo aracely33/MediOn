@@ -33,6 +33,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
      * 4. Timestamp: Fecha y hora actual
      * 5. Path: URL que generó el error
      *
+     *
      * La respuesta se envía en formato JSON con charset UTF-8 y código HTTP 403 (FORBIDDEN)
      */
     @Override

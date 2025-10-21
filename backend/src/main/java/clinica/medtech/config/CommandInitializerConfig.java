@@ -2,10 +2,8 @@ package clinica.medtech.config;
 
 import clinica.medtech.users.Enum.EnumPermission;
 import clinica.medtech.users.Enum.EnumRole;
-import clinica.medtech.users.entities.PermissionModel;
-import clinica.medtech.users.entities.ProfessionalModel;
-import clinica.medtech.users.entities.RoleModel;
-import clinica.medtech.users.entities.UserModel;
+import clinica.medtech.users.entities.*;
+import clinica.medtech.users.repository.PatientRepository;
 import clinica.medtech.users.repository.PermissionRepository;
 import clinica.medtech.users.repository.RoleRepository;
 import clinica.medtech.users.repository.UserRepository;
@@ -15,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +26,7 @@ public class CommandInitializerConfig implements CommandLineRunner {
     private final PermissionRepository permissionRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PatientRepository patientRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -86,6 +86,16 @@ public class CommandInitializerConfig implements CommandLineRunner {
 
             userRepository.saveAll(professionals);
             System.out.println("✅ Sample professionals created: " + professionals.size());
+
+            List<PatientModel> patients = getSamplePatients().stream()
+                    .peek(p -> {
+                        p.setEmail(p.getName().toLowerCase() + "@example.com");
+                        p.setPassword(passwordEncoder.encode("123456"));
+                    })
+                    .toList();
+
+            patientRepository.saveAll(patients);
+            System.out.println("✅ Sample patients created: " + patients.size());
         }
     }
 
@@ -189,6 +199,159 @@ public class CommandInitializerConfig implements CommandLineRunner {
                         .specialty("Nutricionista")
                         .biography("Asesoramiento nutricional personalizado. Ayudo a mis pacientes a alcanzar sus metas de salud y peso.")
                         .consultationFee(BigDecimal.valueOf(850.00))
+                        .build()
+        );
+        }
+    public List<PatientModel> getSamplePatients() {
+        return List.of(
+                // Ejemplo 1
+                PatientModel.builder()
+                        .name("Juan")
+                        .lastName("Gonzalez")
+                        .birthDate(LocalDate.of(1990, 5, 15))
+                        .gender("Masculino")
+                        .address("Calle Principal 123")
+                        .city("Madrid")
+                        .country("España")
+                        .zip("28001")
+                        .bloodType("A+")
+                        .phone("1234567890")
+                        .email("k3tP1@example.com")
+                        .build(),
+
+                // Ejemplo 2
+                PatientModel.builder()
+                        .name("Maria")
+                        .lastName("Perez")
+                        .birthDate(LocalDate.of(1985, 10, 20))
+                        .gender("Femenino")
+                        .address("Avenida Central 456")
+                        .city("Buenos Aires")
+                        .country("Argentina")
+                        .zip("1001")
+                        .bloodType("O-")
+                        .phone("9876543210")
+                        .email("hTf3l@example.com")
+                        .build(),
+
+                // Ejemplo 3
+                PatientModel.builder()
+                        .name("Pedro")
+                        .lastName("Garcia")
+                        .birthDate(LocalDate.of(1995, 8, 10))
+                        .gender("Masculino")
+                        .address("Calle Secundaria 789")
+                        .city("Ciudad de México")
+                        .country("México")
+                        .zip("06000")
+                        .bloodType("AB+")
+                        .phone("5555555555")
+                        .email("2l2ZV@example.com")
+                        .build(),
+
+                // Ejemplo 4
+                PatientModel.builder()
+                        .name("Laura")
+                        .lastName("Gonzalez")
+                        .birthDate(LocalDate.of(1998, 3, 25))
+                        .gender("Femenino")
+                        .address("Avenida Principal 321")
+                        .city("Bogotá")
+                        .country("Colombia")
+                        .zip("110111")
+                        .bloodType("B-")
+                        .phone("1111111111")
+                        .email("1t7K7@example.com")
+                        .build(),
+
+                // Ejemplo 5
+                PatientModel.builder()
+                        .name("Carlos")
+                        .lastName("Lopez")
+                        .birthDate(LocalDate.of(1992, 7, 5))
+                        .gender("Masculino")
+                        .address("Calle Secundaria 654")
+                        .city("Lima")
+                        .country("Perú")
+                        .zip("15001")
+                        .bloodType("AB-")
+                        .phone("9999999999")
+                        .email("t4Yv3@example.com")
+                        .build(),
+
+                // Ejemplo 6
+                PatientModel.builder()
+                        .name("Ana")
+                        .lastName("Garcia")
+                        .birthDate(LocalDate.of(1988, 12, 15))
+                        .gender("Femenino")
+                        .address("Avenida Central 987")
+                        .city("Santiago")
+                        .country("Chile")
+                        .zip("8320000")
+                        .bloodType("O+")
+                        .phone("7777777777")
+                        .email("6PcZB@example.com")
+                        .build(),
+
+                // Ejemplo 7
+                PatientModel.builder()
+                        .name("Luis")
+                        .lastName("Gonzalez")
+                        .birthDate(LocalDate.of(1991, 9, 30))
+                        .gender("Masculino")
+                        .address("Calle Principal 123")
+                        .city("Quito")
+                        .country("Ecuador")
+                        .zip("170150")
+                        .bloodType("A-")
+                        .phone("8888888888")
+                        .email("4Zs7j@example.com")
+                        .build(),
+
+                // Ejemplo 8
+                PatientModel.builder()
+                        .name("Sofia")
+                        .lastName("Perez")
+                        .birthDate(LocalDate.of(1997, 4, 20))
+                        .gender("Femenino")
+                        .address("Avenida Secundaria 456")
+                        .city("San José")
+                        .country("Costa Rica")
+                        .zip("10101")
+                        .bloodType("B+")
+                        .phone("6666666666")
+                        .email("2l2ZV@example.com")
+                        .build(),
+
+                // Ejemplo 9
+                PatientModel.builder()
+                        .name("Diego")
+                        .lastName("Garcia")
+                        .birthDate(LocalDate.of(1993, 11, 10))
+                        .gender("Masculino")
+                        .address("Calle Principal 789")
+                        .city("Montevideo")
+                        .country("Uruguay")
+                        .zip("11000")
+                        .bloodType("AB+")
+                        .phone("9999999999")
+                        .email("t4Yv3@example.com")
+                        .build(),
+
+                // Ejemplo 10
+                PatientModel.builder()
+                        .name("Valentina")
+                        .lastName("Gonzalez")
+                        .birthDate(LocalDate.of(1996, 6, 25))
+                        .gender("Femenino")
+                        .address("Avenida Central 321")
+                        .city("Asunción")
+                        .country("Paraguay")
+                        .zip("1209")
+                        .bloodType("O-")
+                        .phone("7777777777")
+                        .email("6PcZB@example.com")
                         .build()
         );
     }

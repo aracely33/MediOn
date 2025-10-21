@@ -20,5 +20,8 @@ public class UserMeResponseDto {
     private String address;
     private String phone;
     private String bloodType;
+    private String city;
+    private String country;
+    private String zip;
     private List<String> roles;
 }

@@ -1,13 +1,18 @@
 package clinica.medtech.users.entities;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
+import java.util.List;
+
+import clinica.medtech.medicalRecord.entities.MedicalEntryModel;
 
 @Entity
 @Getter
@@ -25,4 +30,7 @@ public class ProfessionalModel extends UserModel {
 
     @Column(name = "consultation_fee")
     private BigDecimal consultationFee;
+
+    @OneToMany(mappedBy = "professional", cascade = CascadeType.ALL)
+    private List<MedicalEntryModel> medicalEntries;
 }
