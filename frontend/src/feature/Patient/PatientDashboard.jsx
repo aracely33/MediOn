@@ -114,7 +114,13 @@ const PatientDashboard = () => {
         <Header
           title="MedTech: Tu portal de salud"
           avatarUrl={user.avatar}
-          onLogout={handleLogout}
+          buttons={[
+            {
+              label: "Cerrar sesión",
+              onClick: handleLogout,
+              className: "logout-btn",
+            },
+          ]}
         />
 
         {/* Botón hamburguesa solo visible en móviles */}

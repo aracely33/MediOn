@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import {
-  loginPatient,
-  logoutPatient,
+  loginUser,
+  logoutUser,
   registerPatient,
 } from "../feature/auth/services/authService";
 import { api } from "../services/api";
@@ -44,7 +44,7 @@ export const PatientProvider = ({ children }) => {
 
   const signIn = async (patientData) => {
     try {
-      const response = await loginPatient(patientData);
+      const response = await loginUser(patientData);
       console.log("Respuesta en PatientContext: ", response);
       const { token } = response.data;
       console.log("Token obtenido: ", token);
@@ -63,7 +63,7 @@ export const PatientProvider = ({ children }) => {
 
   const signOut = async () => {
     try {
-      await logoutPatient(); // <-- llamada al backend
+      await logoutUser(); // <-- llamada al backend
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
       // incluso si falla, limpiamos localStorage para evitar quedar autenticado
