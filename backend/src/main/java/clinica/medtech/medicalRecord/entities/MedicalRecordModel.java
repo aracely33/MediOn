@@ -1,5 +1,6 @@
 package clinica.medtech.medicalRecord.entities;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -109,7 +110,7 @@ public class MedicalRecordModel {
     private String number;
 
     @Column(name = "creation_date", nullable = false)
-    private LocalDateTime creationDate;
+    private LocalDate creationDate;
 
     @Column(name = "fhir_id", unique = true)
     private String fhirId;
