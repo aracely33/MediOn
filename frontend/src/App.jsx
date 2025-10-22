@@ -5,8 +5,9 @@ import { PatientProvider } from "./context/PatientContext";
 import { ProtectedRoutePatient } from "./routes/ProtectedRoutePatient";
 import SignupPage from "./feature/auth/SignupPage";
 import ConfirmEmailPage from "./feature/auth/ConfirmEmailPage";
-import PatientDashboard from "./feature/Patient/PatientDashboard";
-import DoctorDashboard from "./feature/Doctor/DoctorDashboard";
+import PatientDashboard from "./feature/patient/PatientDashboard";
+import DoctorDashboard from "./feature/doctor/DoctorDashboard";
+import AppointmentBook from "./feature/patient/appointmentBook/AppointmentBook";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/registro" element={<SignupPage />} />
           <Route path="/confirm-email" element={<ConfirmEmailPage />} />
+          <Route path="/appointment-book" element={<AppointmentBook />} />
 
           {/*Lo pongo aquí provisionalmente para probar la vista*/}
           <Route path="/doctor-home" element={<DoctorDashboard />} />
