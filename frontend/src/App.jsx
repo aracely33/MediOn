@@ -8,6 +8,7 @@ import SignupPage from "./feature/auth/SignupPage";
 import ConfirmEmailPage from "./feature/auth/ConfirmEmailPage";
 import PatientDashboard from "./feature/Patient/PatientDashboard";
 import DoctorDashboard from "./feature/Doctor/DoctorDashboard";
+import AppointmentBook from "./feature/Patient/appointmentBook/AppointmentBook";
 import { DoctorProvider } from "./context/DoctorContext";
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/registro" element={<SignupPage />} />
             <Route path="/confirm-email" element={<ConfirmEmailPage />} />
+            <Route path="/appointment-book" element={<AppointmentBook />} />
 
             {/*Lo pongo aquí provisionalmente para probar la vista*/}
             <Route path="/doctor-home" element={<DoctorDashboard />} />

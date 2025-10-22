@@ -1,4 +1,3 @@
-// src/features/auth/utils/validationSchema.js
 import * as Yup from "yup";
 
 export const signupValidation = Yup.object({
