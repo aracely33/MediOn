@@ -4,7 +4,6 @@ import { Formik } from "formik";
 import { Eye, EyeSlash, CheckCircleFill } from "react-bootstrap-icons";
 import { signupValidation } from "../utils/validationSchema";
 import PasswordRequirements from "./PasswordRequirements";
-import { registerPatient } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 import { usePatient } from "../../../context/PatientContext"; //cual usePatient?
 import "./SignupForm.css";
