@@ -1,6 +1,7 @@
 // ...existing code...
 package clinica.medtech.medicalRecord.dtoRequest;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;

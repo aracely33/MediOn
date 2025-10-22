@@ -40,8 +40,8 @@ public class PatientModel extends UserModel {
     @Column(name = "city")
     private String city;
 
-    @Column(name = "state")
-    private String state;
+    @Column(name = "country")
+    private String country;
 
     @Column(name = "zip")
     private String zip;

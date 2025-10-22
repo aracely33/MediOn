@@ -58,4 +58,13 @@ public class PatientUpdateRequestDto {
     @Schema(description = "Tipo de sangre del paciente", example = "A+")
     private String bloodType;
 
+
+    @Schema(description = "Ciudad del paciente", example = "Buenos Aires")
+    private String city;
+
+    @Schema(description = "Pais del paciente", example = "Argentina")
+    private String country;
+
+    @Schema(description = "Código de área del paciente", example = "1234")
+    private String zip;
 }

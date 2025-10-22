@@ -74,4 +74,13 @@ public class UserModel {
         return suspensionEnd == null || suspensionEnd.isBefore(LocalDateTime.now());
     }
 
+
+    public boolean isEmailVerified() {
+        return Boolean.TRUE.equals(this.emailVerified);
+    }
+
+    public void verifyEmail() {
+        this.emailVerified = true;
+        this.emailVerifiedAt = LocalDateTime.now();
+    }
 }
