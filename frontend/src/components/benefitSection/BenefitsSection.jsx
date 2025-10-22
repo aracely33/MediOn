@@ -1,9 +1,10 @@
 // src/components/benefits/BenefitsSection.jsx
 import { Container, Row, Col } from "react-bootstrap";
 import { CheckCircle } from "react-bootstrap-icons";
+import "./BenefitsSection.css";
 
 const BenefitsSection = () => (
-  <section id="beneficios" className="py-5 bg-white">
+  <section id="beneficios" className="py-5">
     <Container>
       <Row>
         <Col md={6}>

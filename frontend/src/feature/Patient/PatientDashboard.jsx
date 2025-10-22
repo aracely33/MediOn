@@ -118,7 +118,7 @@ const PatientDashboard = () => {
             {
               label: "Cerrar sesión",
               onClick: handleLogout,
-              className: "logout-btn",
+              className: "header-btn",
             },
           ]}
         />
@@ -135,7 +135,15 @@ const PatientDashboard = () => {
 
         <Container className="py-4">
           <h2>
-            ¡Bienvenid{user.gender === "Femenino" ? "a" : "o"}, {user.name}!
+            ¡Bienvenid
+            {user.gender === "Femenino"
+              ? "a"
+              : user.gender === "Masculino"
+              ? "o"
+              : user.name?.trim().slice(-1).toLowerCase() === "a"
+              ? "a"
+              : "o"}
+            , {user.name}!
           </h2>
           <Row>
             <Col md={7}>
