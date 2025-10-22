@@ -1,45 +1,134 @@
 // src/components/testimonials/TestimonialsSection.jsx
-import { Container, Row, Col, Card } from "react-bootstrap";
+import { useState, useEffect } from "react";
+import { Container, Card, Carousel, Row, Col } from "react-bootstrap";
+import "./TestimonialsSection.css";
 
 const testimonials = [
   {
     name: "Dr. Juan Pérez",
     text: "La plataforma ha transformado la gestión de mi clínica, ahora todo es más eficiente.",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuC6Oc7J560E9conCqjYRWjvH2g_5CK6YqR1Aez3eEnnbugT4ZlJM0bUU7a-rb8hnXghumcSeeZkBy4ILMkhaYocGT_to3MDGkjG4aO7QVuQ9DP051hQTopakLTIvdFDJZ6HWcmYb8No27-lX_zOseY6tBwj73RiKQveuSVHqK6eI66DfHNQtFLF5ZzX2JzdJj8srohO4-Jr7nUszgUUHjqZT8nft6PB35sPI9JoF9IPqaTRnTjeLdhnmeLv5rwI4iwP2kyjiO268MM",
+    image: "https://randomuser.me/api/portraits/men/32.jpg",
   },
   {
     name: "María García",
     text: "Agendar mis citas nunca ha sido tan fácil y cómodo. ¡Totalmente recomendado!",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuAnMgPPyTyGKa2NE1IJDqXe6TH0iPL6XyqpSxm6YArhwgAf2HGEdfjur5O8e22IT4j6GUl7geTsfRYZvAFgK3PXHyHMYxX_Ra3GEi__CrfxCFPJ6aUzs_KeMw8iNqt9Vovw-iBpFd4dskxH-AxbRkUAJ3gyhAfR13uvhVCfLHFYSczEMRmMiGn8-gtPZWJWNHopQdbzFCfz7x10ObWLWPP109QEJzArHq5E2y0Iji078M9mvDfuN8VU2GlVDndcLqRK34-CoCRnYXE",
+    image: "https://randomuser.me/api/portraits/women/44.jpg",
+  },
+  {
+    name: "Clínica Salud Plus",
+    text: "Nuestro equipo ha reducido el tiempo de atención a pacientes gracias a MedTech.",
+    image: "https://randomuser.me/api/portraits/men/65.jpg",
+  },
+  {
+    name: "Luis Hernández",
+    text: "Poder ver mi historial médico desde mi celular me da mucha tranquilidad.",
+    image: "https://randomuser.me/api/portraits/men/22.jpg",
+  },
+  {
+    name: "Dra. Ana López",
+    text: "El seguimiento de pacientes nunca había sido tan sencillo y organizado.",
+    image: "https://randomuser.me/api/portraits/women/33.jpg",
+  },
+  {
+    name: "Clínica Zaragoza",
+    text: "La integración con nuestro sistema interno fue rápida y sin complicaciones.",
+    image: "https://randomuser.me/api/portraits/women/55.jpg",
+  },
+  {
+    name: "Carla Méndez",
+    text: "Recibir recordatorios de mis citas es genial, no se me olvida ninguna.",
+    image: "https://randomuser.me/api/portraits/women/66.jpg",
+  },
+  {
+    name: "Dr. Ricardo Torres",
+    text: "La comunicación con mis pacientes mejoró significativamente con MedTech.",
+    image: "https://randomuser.me/api/portraits/men/77.jpg",
+  },
+  {
+    name: "Clínica Vida Saludable",
+    text: "Ahora podemos gestionar varias sucursales desde una sola plataforma.",
+    image: "https://randomuser.me/api/portraits/men/88.jpg",
+  },
+  {
+    name: "Sofía Ramírez",
+    text: "Todo es intuitivo y rápido, desde agendar hasta consultar resultados.",
+    image: "https://randomuser.me/api/portraits/women/99.jpg",
+  },
+  {
+    name: "Clínica Horizonte",
+    text: "Nuestro personal se ha adaptado muy rápido gracias a la interfaz amigable de MedTech.",
+    image: "https://randomuser.me/api/portraits/men/90.jpg",
+  },
+  {
+    name: "Fernando López",
+    text: "Poder recibir mis resultados en línea me ahorra mucho tiempo y estrés.",
+    image: "https://randomuser.me/api/portraits/men/91.jpg",
   },
 ];
 
-const TestimonialsSection = () => (
-  <section id="testimonios" className="py-5 bg-light">
-    <Container>
-      <h2 className="text-center fw-bold mb-5">Historias de éxito</h2>
-      <Row className="g-4 justify-content-center">
-        {testimonials.map((t, i) => (
-          <Col key={i} md={4}>
-            <Card className="text-center p-3 shadow-sm h-100">
-              <Card.Img
-                variant="top"
-                src={t.image}
-                className="rounded-circle mx-auto mt-3"
-                style={{ width: "100px", height: "100px", objectFit: "cover" }}
-              />
-              <Card.Body>
-                <Card.Title>{t.name}</Card.Title>
-                <Card.Text>{t.text}</Card.Text>
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
-      </Row>
-    </Container>
-  </section>
-);
+// Función para dividir testimonios en grupos según el tamaño del slide
+const chunkArray = (arr, size) => {
+  const chunks = [];
+  for (let i = 0; i < arr.length; i += size) {
+    chunks.push(arr.slice(i, i + size));
+  }
+  return chunks;
+};
+
+const TestimonialsSection = () => {
+  const [itemsPerSlide, setItemsPerSlide] = useState(3);
+
+  useEffect(() => {
+    const updateItemsPerSlide = () => {
+      const width = window.innerWidth;
+      if (width < 768) setItemsPerSlide(1); // xs: móvil
+      else if (width < 992) setItemsPerSlide(2); // md: tablet
+      else setItemsPerSlide(3); // lg+: desktop
+    };
+
+    updateItemsPerSlide();
+    window.addEventListener("resize", updateItemsPerSlide);
+
+    return () => window.removeEventListener("resize", updateItemsPerSlide);
+  }, []);
+
+  const slides = chunkArray(testimonials, itemsPerSlide);
+
+  return (
+    <section id="testimonios" className="py-5">
+      <Container>
+        <h2 className="text-center fw-bold mb-5">Historias de éxito</h2>
+        <Carousel indicators={true}>
+          {slides.map((chunk, idx) => (
+            <Carousel.Item key={idx}>
+              <Row className="justify-content-center g-4">
+                {chunk.map((t, i) => (
+                  <Col key={i} xs={12} md={6} lg={4}>
+                    <Card className="text-center p-3 shadow-sm h-100 testimoni">
+                      <Card.Img
+                        variant="top"
+                        src={t.image}
+                        className="rounded-circle mx-auto mt-3"
+                        style={{
+                          width: "100px",
+                          height: "100px",
+                          objectFit: "cover",
+                        }}
+                      />
+                      <Card.Body>
+                        <Card.Title>{t.name}</Card.Title>
+                        <Card.Text>{t.text}</Card.Text>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                ))}
+              </Row>
+            </Carousel.Item>
+          ))}
+        </Carousel>
+      </Container>
+    </section>
+  );
+};
 
 export default TestimonialsSection;
