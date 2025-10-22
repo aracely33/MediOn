@@ -36,7 +36,7 @@ const FeaturesSection = () => {
     <section id="caracteristicas" className="py-5">
       <Container>
         <h2 className="text-center mb-4 fw-bold text-white">
-          Características Principales
+          Características del servicio médico
         </h2>
         <Row className="g-4">
           {features.map((feature, i) => (

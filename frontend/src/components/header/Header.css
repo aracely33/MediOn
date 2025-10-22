@@ -25,7 +25,7 @@
 }
 
 /* --- Botón cerrar sesión --- */
-.logout-btn {
+.header-btn {
   background: linear-gradient(90deg, #0cb1e0, #52e0c4);
   border: none;
   border-radius: 30px;
@@ -34,7 +34,7 @@
   transition: all 0.3s ease;
 }
 
-.logout-btn:hover {
+.header-btn:hover {
   background: linear-gradient(90deg, #0994c4, #3ccfb4);
   transform: translateY(-1px);
 }
@@ -48,4 +48,9 @@
 
 .user-avatar:hover {
   transform: scale(1.05);
+}
+
+.navbar-light .navbar-toggler-icon {
+  filter: invert(64%) sepia(48%) saturate(409%) hue-rotate(175deg)
+    brightness(95%) contrast(92%);
 }

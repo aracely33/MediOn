@@ -4,7 +4,6 @@ import FeaturesSection from "../../components/featureSection/FeatureSection";
 import BenefitsSection from "../../components/benefitSection/BenefitsSection";
 import TestimonialsSection from "../../components/testimonialSection/TestimonialsSection";
 import Footer from "../../components/footer/Footer";
-
 import logo from "../../assets/logo.jpg";
 
 const LandingPage = () => {
@@ -17,11 +16,17 @@ const LandingPage = () => {
           {
             label: "Características",
             onClick: () => scrollToSection("caracteristicas"),
+            className: "header-btn buttons",
           },
-          { label: "Beneficios", onClick: () => scrollToSection("beneficios") },
+          {
+            label: "Beneficios",
+            onClick: () => scrollToSection("beneficios"),
+            className: "header-btn buttons",
+          },
           {
             label: "Testimonios",
             onClick: () => scrollToSection("testimonios"),
+            className: "header-btn buttons",
           },
         ]}
       />
@@ -34,7 +39,6 @@ const LandingPage = () => {
   );
 };
 
-// 🔹 función para desplazamiento suave
 const scrollToSection = (id) => {
   const section = document.getElementById(id);
   if (section) {
