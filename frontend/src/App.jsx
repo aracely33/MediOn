@@ -1,7 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
 import LoginPage from "./feature/auth/LoginPage";
-import LandingPage from "./feature/LandingPage/landingPage";
+import LandingPage from "./feature/landingP/LandingPage";
 import { PatientProvider } from "./context/PatientContext";
 import { ProtectedRoutePatient } from "./routes/ProtectedRoutePatient";
 import SignupPage from "./feature/auth/SignupPage";

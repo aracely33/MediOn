@@ -112,7 +112,7 @@ const DoctorDashboard = () => {
             {
               label: "Cerrar sesión",
               onClick: handleLogout,
-              className: "logout-btn",
+              className: "header-btn",
             },
           ]}
         />

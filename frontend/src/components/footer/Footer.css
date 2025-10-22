@@ -1,0 +1,43 @@
+footer {
+  background-color: rgb(7, 90, 145); /* azul principal */
+  color: white;
+  font-size: 0.9rem;
+}
+
+footer h5,
+footer h6 {
+  color: white;
+  margin-bottom: 0.8rem;
+}
+
+footer a {
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+footer a:hover {
+  color: #cfe8fc; /* celeste pastel al pasar el mouse */
+  text-decoration: underline;
+}
+
+footer .text-muted {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+footer hr {
+  border-color: rgba(255, 255, 255, 0.3);
+  margin: 1.5rem 0;
+}
+
+footer p {
+  margin-bottom: 0;
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+  footer .text-md-start {
+    text-align: center !important;
+    margin-bottom: 1.5rem;
+  }
+}
