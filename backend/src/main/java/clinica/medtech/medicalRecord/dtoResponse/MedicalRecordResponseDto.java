@@ -1,6 +1,8 @@
 package clinica.medtech.medicalRecord.dtoResponse;
 
 import lombok.*;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -15,7 +17,7 @@ import java.util.List;
 public class MedicalRecordResponseDto {
     private Long id;
     private String number;
-    private LocalDateTime creationDate;
+    private LocalDate creationDate;
     private String observations;
     private Long patientId;
     private String patientName;
