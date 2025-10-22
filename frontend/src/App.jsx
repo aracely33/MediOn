@@ -8,7 +8,7 @@ import SignupPage from "./feature/auth/SignupPage";
 import ConfirmEmailPage from "./feature/auth/ConfirmEmailPage";
 import PatientDashboard from "./feature/Patient/PatientDashboard";
 import DoctorDashboard from "./feature/Doctor/DoctorDashboard";
-import AppointmentBook from "./feature/patient/appointmentBook/AppointmentBook";
+import AppointmentBook from "./feature/Patient/appointmentBook/AppointmentBook";
 import { DoctorProvider } from "./context/DoctorContext";
 
 function App() {
