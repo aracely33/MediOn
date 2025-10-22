@@ -11,7 +11,7 @@ import "./LoginPage.css";
 import { usePatient } from "../../context/PatientContext";
 import { useNavigate } from "react-router-dom";
 
-const validationSchema = Yup.object({
+export const validationSchema = Yup.object({
   email: Yup.string()
     .email("Debe ser un correo válido")
     .required("El correo es obligatorio"),
