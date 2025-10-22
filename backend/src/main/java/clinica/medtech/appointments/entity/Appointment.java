@@ -1,11 +1,14 @@
 package clinica.medtech.appointments.entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import clinica.medtech.appointments.enums.AppointmentStatus;
+import clinica.medtech.appointments.enums.AppointmentType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,9 +16,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,49 +38,48 @@ public class Appointment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "patient_id", nullable = false)
+    private Long patientId;
+
     @Column(name = "doctor_id", nullable = false)
     private Long doctorId;
 
-    @Column(name = "patient_id")
-    private Long patientId;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false, length = 20)
+    private AppointmentType type; 
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 20)
+    private AppointmentStatus status;
+
+    @Column(name = "appointment_date", nullable = false)
+    private LocalDate appointmentDate;
+
+    @Column(name = "appointment_time", nullable = false)
+    private LocalTime appointmentTime;
+
+    @Column(name = "duration", nullable = false)
+    private Integer duration;
 
     @Column(name = "reason", nullable = false, length = 500)
     private String reason;
 
-    @Column(name = "appointment_date_time", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
-    private LocalDateTime appointmentDateTime;
-
-    @Column(name = "end_date_time", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
-    private LocalDateTime endDateTime;
-
-    @Column(name = "duration", nullable = false)
-    private Integer duration; // en minutos
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private AppointmentStatus status;
-
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
-    /**
-     * Calcula automáticamente la hora de finalización antes de guardar o actualizar.
-     * Si no se define duración, se asignan 30 minutos por defecto.
-     */
-    @PrePersist
-    @PreUpdate
-    private void calculateEndDateTime() {
-        if (appointmentDateTime != null) {
-            if (duration == null) duration = 30;
-            this.endDateTime = appointmentDateTime.plusMinutes(duration);
-        }
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
+
+    @Transient
+    public LocalDateTime getAppointmentStartDateTime() {
+        return LocalDateTime.of(appointmentDate, appointmentTime);
+    }
+
+    @Transient
+    public LocalDateTime getAppointmentEndDateTime() {
+        return getAppointmentStartDateTime().plusMinutes(duration != null ? duration : 30);
     }
 }

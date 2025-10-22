@@ -32,16 +32,21 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/appointments")
 @RequiredArgsConstructor
 @Validated
-@Tag(name = "API de Citas Médicas", description = "Operaciones para gestionar las citas de los doctores y pacientes.")
+@Tag(
+    name = "API de Citas Médicas",
+    description = "Operaciones para gestionar las citas médicas de doctores y pacientes."
+)
 public class AppointmentController {
 
     private final AppointmentService appointmentService;
 
+    //1. Crear cita médica
     @Operation(
         summary = "Agendar una nueva cita médica",
         description = """
-            Permite crear una nueva cita médica para un doctor y paciente.
-            Se validan posibles conflictos de horario y la duración mínima y máxima permitida.
+            Permite crear una nueva cita médica para un doctor y un paciente.
+            Se validan conflictos de horario, tipo de cita (presencial o virtual)
+            y duración mínima y máxima permitida.
             """,
         responses = {
             @ApiResponse(
@@ -49,16 +54,8 @@ public class AppointmentController {
                 description = "Cita creada exitosamente.",
                 content = @Content(schema = @Schema(implementation = AppointmentResponse.class))
             ),
-            @ApiResponse(
-                responseCode = "400",
-                description = "Datos inválidos enviados en la solicitud.",
-                content = @Content
-            ),
-            @ApiResponse(
-                responseCode = "409",
-                description = "Conflicto: el doctor ya tiene una cita en ese horario.",
-                content = @Content
-            )
+            @ApiResponse(responseCode = "400", description = "Datos inválidos enviados en la solicitud."),
+            @ApiResponse(responseCode = "409", description = "Conflicto: el doctor ya tiene otra cita en ese horario.")
         }
     )
     @PostMapping
@@ -70,22 +67,24 @@ public class AppointmentController {
         return ResponseEntity.created(location).body(created);
     }
 
+    //2. Actualizar parcialmente una cita médica
     @Operation(
         summary = "Actualizar parcialmente una cita médica",
         description = """
             Permite modificar algunos datos de una cita existente (PATCH).
-            Solo se actualizan los campos enviados en el cuerpo de la solicitud.
+            Solo se actualizan los campos enviados en la solicitud.
+            Si se cambia la fecha u hora, se valida que no exista conflicto.
             """,
         responses = {
             @ApiResponse(responseCode = "200", description = "Cita actualizada exitosamente."),
             @ApiResponse(responseCode = "400", description = "Datos inválidos enviados."),
-            @ApiResponse(responseCode = "404", description = "No se encontró la cita especificada."),
-            @ApiResponse(responseCode = "409", description = "Conflicto de horario con otra cita del mismo doctor.")
+            @ApiResponse(responseCode = "404", description = "Cita no encontrada."),
+            @ApiResponse(responseCode = "409", description = "Conflicto de horario con otra cita.")
         }
     )
     @PatchMapping("/{id}")
     public ResponseEntity<Void> updateAppointment(
-            @Parameter(description = "ID de la cita que se desea actualizar.", example = "15")
+            @Parameter(description = "ID de la cita a actualizar.", example = "15")
             @PathVariable Long id,
             @Valid @RequestBody AppointmentUpdateRequest request) {
 
@@ -93,38 +92,42 @@ public class AppointmentController {
         return ResponseEntity.ok().build();
     }
 
+    //3. Cancelar cita médica
     @Operation(
         summary = "Cancelar una cita médica",
         description = """
             Permite cancelar una cita existente cambiando su estado a CANCELADA.
-            Se puede incluir opcionalmente una razón de cancelación.
+            Se puede incluir opcionalmente un motivo de cancelación. 
+            Las citas canceladas dejan de aparecer como horarios ocupados.
             """,
         responses = {
             @ApiResponse(responseCode = "204", description = "Cita cancelada correctamente."),
-            @ApiResponse(responseCode = "404", description = "No se encontró la cita especificada."),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida.")
+            @ApiResponse(responseCode = "404", description = "Cita no encontrada."),
+            @ApiResponse(responseCode = "400", description = "La cita ya estaba cancelada.")
         }
     )
     @PatchMapping("/{id}/cancel")
     public ResponseEntity<Void> cancelAppointment(
-            @Parameter(description = "ID de la cita que se desea cancelar.", example = "8")
+            @Parameter(description = "ID de la cita a cancelar.", example = "8")
             @PathVariable Long id,
-            @Parameter(description = "Motivo opcional de cancelación.", example = "El paciente no podrá asistir por motivos personales.")
+            @Parameter(description = "Motivo opcional de cancelación.", example = "El paciente no podrá asistir.")
             @RequestParam(required = false) String reason) {
 
         appointmentService.cancelAppointment(id, reason);
         return ResponseEntity.noContent().build();
     }
 
+    //4. Confirmar cita médica
     @Operation(
         summary = "Confirmar una cita médica",
         description = """
-            Confirma una cita pendiente siempre que no existan conflictos de horario con otras citas del mismo doctor.
+            Confirma una cita pendiente siempre que no existan conflictos
+            de horario con otras citas del mismo doctor.
             """,
         responses = {
             @ApiResponse(responseCode = "204", description = "Cita confirmada exitosamente."),
-            @ApiResponse(responseCode = "404", description = "No se encontró la cita especificada."),
-            @ApiResponse(responseCode = "409", description = "Conflicto de horario con otra cita del mismo doctor.")
+            @ApiResponse(responseCode = "404", description = "Cita no encontrada."),
+            @ApiResponse(responseCode = "409", description = "Conflicto de horario con otra cita.")
         }
     )
     @PatchMapping("/{id}/confirm")
@@ -138,11 +141,12 @@ public class AppointmentController {
         return ResponseEntity.noContent().build();
     }
 
+    //5. Consultar disponibilidad del doctor
     @Operation(
         summary = "Obtener las horas ocupadas de un doctor",
         description = """
             Devuelve una lista con las fechas y horas en las que el doctor ya tiene citas programadas.
-            En futuras versiones se ajustará para mostrar únicamente las horas disponibles.
+            Solo se incluyen citas pendientes, confirmadas o en curso (no canceladas).
             """,
         responses = {
             @ApiResponse(
@@ -150,11 +154,7 @@ public class AppointmentController {
                 description = "Lista de horarios ocupados obtenida correctamente.",
                 content = @Content(schema = @Schema(implementation = LocalDateTime.class))
             ),
-            @ApiResponse(
-                responseCode = "404",
-                description = "No se encontraron citas para el doctor especificado.",
-                content = @Content
-            )
+            @ApiResponse(responseCode = "404", description = "No se encontraron citas activas para el doctor especificado.")
         }
     )
     @GetMapping("/doctor/{doctorId}/availability")

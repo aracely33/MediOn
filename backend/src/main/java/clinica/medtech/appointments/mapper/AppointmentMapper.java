@@ -1,5 +1,6 @@
 package clinica.medtech.appointments.mapper;
 
+
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -12,19 +13,22 @@ import clinica.medtech.appointments.dto.request.AppointmentUpdateRequest;
 import clinica.medtech.appointments.dto.response.AppointmentResponse;
 import clinica.medtech.appointments.entity.Appointment;
 
+
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface AppointmentMapper {
 
+
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "endDateTime", ignore = true) 
     @Mapping(target = "status", constant = "PENDIENTE")
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     Appointment toEntity(AppointmentCreateRequest request);
 
+
+    @Mapping(target = "appointmentEndDateTime", expression = "java(appointment.getAppointmentEndDateTime())")
     AppointmentResponse toResponse(Appointment appointment);
+
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateFromDto(AppointmentUpdateRequest request, @MappingTarget Appointment appointment);
-
 }

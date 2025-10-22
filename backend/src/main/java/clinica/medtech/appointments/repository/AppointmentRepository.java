@@ -15,15 +15,15 @@ import clinica.medtech.appointments.enums.AppointmentStatus;
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
-    //Verifica si hay conflicto de horario para un doctor
+ 
     @Query("""
         SELECT CASE WHEN COUNT(a) > 0 THEN TRUE ELSE FALSE END
         FROM Appointment a
         WHERE a.doctorId = :doctorId
           AND a.status IN :statuses
-          AND a.appointmentDateTime < :end
-          AND a.endDateTime > :start
-        """)
+          AND FUNCTION('TIMESTAMP', a.appointmentDate, a.appointmentTime) < :end
+          AND FUNCTION('TIMESTAMP', a.appointmentDate, a.appointmentTime) + a.duration * INTERVAL '1' MINUTE > :start
+    """)
     boolean existsOverlapByDoctorAndTime(
             @Param("doctorId") Long doctorId,
             @Param("start") LocalDateTime start,
@@ -31,16 +31,15 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             @Param("statuses") List<AppointmentStatus> statuses
     );
 
-    //Verifica conflicto de horario al modificar una cita (excluyendo su propio ID)
     @Query("""
         SELECT CASE WHEN COUNT(a) > 0 THEN TRUE ELSE FALSE END
         FROM Appointment a
         WHERE a.doctorId = :doctorId
           AND a.status IN :statuses
-          AND a.appointmentDateTime < :end
-          AND a.endDateTime > :start
+          AND FUNCTION('TIMESTAMP', a.appointmentDate, a.appointmentTime) < :end
+          AND FUNCTION('TIMESTAMP', a.appointmentDate, a.appointmentTime) + a.duration * INTERVAL '1' MINUTE > :start
           AND (:excludeId IS NULL OR a.id <> :excludeId)
-        """)
+    """)
     boolean existsOverlapByDoctorAndTimeExcludingId(
             @Param("doctorId") Long doctorId,
             @Param("start") LocalDateTime start,
@@ -49,16 +48,14 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             @Param("excludeId") Long excludeId
     );
 
-
     @Query("""
-      SELECT a FROM Appointment a
-      WHERE a.doctorId = :doctorId
-        AND a.status IN :statuses
-      ORDER BY a.appointmentDateTime ASC
-      """)
+        SELECT a FROM Appointment a
+        WHERE a.doctorId = :doctorId
+          AND a.status IN :statuses
+        ORDER BY a.appointmentDate ASC, a.appointmentTime ASC
+    """)
     List<Appointment> findActiveAppointmentsByDoctor(
-        @Param("doctorId") Long doctorId,
-        @Param("statuses") List<AppointmentStatus> statuses
-);
-
+            @Param("doctorId") Long doctorId,
+            @Param("statuses") List<AppointmentStatus> statuses
+    );
 }
