@@ -21,6 +21,7 @@ import clinica.medtech.appointments.dto.response.AppointmentResponse;
 import clinica.medtech.appointments.service.AppointmentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -164,5 +165,29 @@ public class AppointmentController {
 
         List<LocalDateTime> bookedSlots = appointmentService.getDoctorAvailability(doctorId);
         return ResponseEntity.ok(bookedSlots);
+    }
+
+    @Operation(
+    summary = "Obtener todas las citas de un paciente",
+    description = """
+        Devuelve una lista con todas las citas registradas para un paciente específico,
+        ordenadas por fecha y hora.
+        """,
+    responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Lista de citas obtenida correctamente.",
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = AppointmentResponse.class)))
+        ),
+        @ApiResponse(responseCode = "404", description = "No se encontraron citas para el paciente indicado.")
+    }
+    )
+    @GetMapping("/patient/{patientId}")
+    public ResponseEntity<List<AppointmentResponse>> getAppointmentsByPatientId(
+            @Parameter(description = "ID del paciente del cual se desean obtener las citas.", example = "42")
+            @PathVariable Long patientId) {
+
+        List<AppointmentResponse> responses = appointmentService.getAppointmentsByPatientId(patientId);
+        return ResponseEntity.ok(responses);
     }
 }

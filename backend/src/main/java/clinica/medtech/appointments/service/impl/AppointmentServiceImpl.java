@@ -167,4 +167,18 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .map(a -> LocalDateTime.of(a.getAppointmentDate(), a.getAppointmentTime()))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AppointmentResponse> getAppointmentsByPatientId(Long patientId) {
+    List<Appointment> appointments = appointmentRepository.findAppointmentsByPatientId(patientId);
+
+    if (appointments.isEmpty()) {
+        throw new AppointmentNotFoundException(patientId);
+    }
+
+    return appointments.stream()
+            .map(appointmentMapper::toResponse)
+            .collect(Collectors.toList());
+    }
 }

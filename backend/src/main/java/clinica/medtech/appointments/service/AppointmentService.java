@@ -22,4 +22,6 @@ public interface AppointmentService {
     boolean confirmAppointment(Long id, String notes);
 
     List<LocalDateTime> getDoctorAvailability(Long doctorId);
+
+    List<AppointmentResponse> getAppointmentsByPatientId(Long patientId);
 }

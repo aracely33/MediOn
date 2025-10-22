@@ -58,4 +58,11 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             @Param("doctorId") Long doctorId,
             @Param("statuses") List<AppointmentStatus> statuses
     );
+
+    @Query("""
+        SELECT a FROM Appointment a
+        WHERE a.patientId = :patientId
+        ORDER BY a.appointmentDate ASC, a.appointmentTime ASC
+    """)
+    List<Appointment> findAppointmentsByPatientId(@Param("patientId") Long patientId);
 }
