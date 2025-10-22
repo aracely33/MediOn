@@ -1,0 +1,7 @@
+html,
+body {
+  overflow-x: hidden; /* Oculta el desplazamiento horizontal */
+  width: 100%; /* Asegura que no se extienda más del viewport */
+  margin: 0;
+  padding: 0;
+}

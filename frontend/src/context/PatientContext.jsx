@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import {
-  loginPatient,
-  logoutPatient,
+  loginUser,
+  logoutUser,
   registerPatient,
 } from "../feature/auth/services/authService";
 import { api } from "../services/api";
@@ -51,7 +51,8 @@ export const PatientProvider = ({ children }) => {
   // 🟢 Login
   const signIn = async (patientData) => {
     try {
-      const response = await loginPatient(patientData);
+      const response = await loginUser(patientData);
+      console.log("Respuesta en PatientContext: ", response);
       const { token } = response.data;
       console.log("🔑 Token obtenido en login:", token);
 
@@ -77,8 +78,7 @@ export const PatientProvider = ({ children }) => {
   // 🟢 Logout
   const signOut = async () => {
     try {
-      console.log("🚪 Cerrando sesión...");
-      await logoutPatient();
+      await logoutUser(); // <-- llamada al backend
     } catch (error) {
       console.error("⚠️ Error al cerrar sesión:", error);
     } finally {

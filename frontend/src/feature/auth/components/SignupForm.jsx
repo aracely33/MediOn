@@ -4,7 +4,6 @@ import { Formik } from "formik";
 import { Eye, EyeSlash, CheckCircleFill } from "react-bootstrap-icons";
 import { signupValidation } from "../utils/validationSchema";
 import PasswordRequirements from "./PasswordRequirements";
-import { registerPatient } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 import { usePatient } from "../../../context/PatientContext"; //cual usePatient?
 import "./SignupForm.css";
@@ -42,6 +41,7 @@ const SignupForm = ({ onSuccess, onShowTerms, onShowPrivacy }) => {
             password: values.password,
             confirmPassword: values.confirmPassword,
           });
+          console.log(patient);
 
           localStorage.setItem("patient_email", values.email);
 
@@ -212,7 +212,7 @@ const SignupForm = ({ onSuccess, onShowTerms, onShowPrivacy }) => {
                   }}
                   className="text-decoration-none text-secondary"
                 >
-                  {showConfirm ? "Ocultar " : "Mostrar"}
+                  {showConfirm ? "Ocultar contraseña " : "Mostrar contraseña"}
                 </Card.Link>
               </div>
             </Form.Group>
