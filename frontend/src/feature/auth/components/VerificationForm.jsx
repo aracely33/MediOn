@@ -53,6 +53,7 @@ const VerificationForm = ({ onVerify, onResend }) => {
           validationSchema={VerificationSchema}
           onSubmit={(values, { setSubmitting }) => {
             const finalCode = values.code.join("");
+            console.log("🧩 Código a verificar:", finalCode);
             onVerify(finalCode);
             setSubmitting(false);
           }}

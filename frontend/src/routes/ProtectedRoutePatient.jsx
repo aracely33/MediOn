@@ -4,13 +4,17 @@ import { usePatient } from "../context/PatientContext";
 export const ProtectedRoutePatient = () => {
   const { patient, isAuthenticatedPatient, loadingPatient } = usePatient();
 
-  console.log("Patient en Ruta Protegida: ", patient);
+  console.log("🧩 Estado en ProtectedRoutePatient:", {
+    isAuthenticatedPatient,
+    loadingPatient,
+    patient,
+  });
 
   if (loadingPatient) {
     return (
       <div className="d-flex justify-content-center align-items-center vh-100">
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Verificando sesión...</span>
+          <span className="visually-hidden">🌀Verificando sesión...</span>
         </div>
       </div>
     );

@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import VerificationForm from "./components/VerificationForm";
 import {
@@ -9,50 +10,96 @@ import { usePatient } from "../../context/PatientContext";
 const ConfirmEmailPage = () => {
   const navigate = useNavigate();
   const { reviewLogin } = usePatient();
-  const handleVerify = async (code) => {
-    try {
-      const token = localStorage.getItem("patient_token");
+  const [isVerifying, setIsVerifying] = useState(false);
 
-      if (!token) {
-        alert("⚠️ No se encontró token, inicia sesión o regístrate de nuevo.");
+  const handleVerify = async (code) => {
+    console.log("🚀 Enviando código de verificación al backend:", code);
+    setIsVerifying(true);
+
+    try {
+      const response = await verifyEmailCode(code);
+      console.log("✅ Respuesta del backend (verificación):", response.data);
+
+      const { success, message, token } = response.data;
+
+      if (!success) {
+        alert("❌ Código inválido o expirado.");
         return;
       }
 
-      const response = await verifyEmailCode(code, code); // solo código
-      const { status, message } = response.data;
+      // success === true
+      alert(message || "✅ ¡Correo verificado correctamente!");
+      console.log("💖 Token recibido del backend:", token);
 
-      if (status) {
-        alert(message || "✅ ¡Correo verificado correctamente!");
-        await reviewLogin(); // aquí sí obtienes token al hacer login
+      if (!token) {
+        console.warn("⚠️ No se recibió token del backend.");
+        // intentar reviewLogin sin token (por si token ya estaba en localStorage)
+        await reviewLogin();
+        navigate("/patient-home");
+        return;
+      }
+
+      // GUARDA token y LUEGO llama reviewLogin PASÁNDOLO explícitamente
+      localStorage.setItem("patient_token", token);
+      console.log(
+        "💾 Token guardado en localStorage:",
+        localStorage.getItem("patient_token")
+      );
+
+      // Pasa el token explicitamente para evitar race conditions
+      const ok = await reviewLogin(token);
+      console.log("🔁 reviewLogin terminó. Resultado:", ok);
+
+      if (ok) {
         navigate("/patient-home");
       } else {
-        alert("❌ Código inválido o expirado.");
+        // si reviewLogin devolvió false, mostrar info y no navegar
+        alert(
+          "⚠️ No fue posible restaurar la sesión. Intenta iniciar sesión manualmente."
+        );
       }
     } catch (error) {
-      console.error("Error al verificar el código:", error);
-      alert("⚠️ Ocurrió un error al verificar tu correo.");
+      console.error("⚠️ Error al verificar el código:", error);
+      const msg = error.response?.data?.message;
+      if (msg?.includes("ya está verificado")) {
+        alert(
+          "✅ Tu correo ya estaba verificado. Intentando restaurar sesión..."
+        );
+        await reviewLogin();
+        navigate("/patient-home");
+      } else {
+        alert("⚠️ Ocurrió un error al verificar tu correo.");
+      }
+    } finally {
+      setIsVerifying(false);
     }
   };
 
   const handleResend = async () => {
     const email = localStorage.getItem("patient_email");
-    if (!email) {
-      alert("⚠️ No se encontró el correo registrado.");
-      return;
-    }
-
+    if (!email) return alert("⚠️ No se encontró el correo registrado.");
     try {
-      await resendVerificationCode(email);
-      alert("📧 Se ha reenviado el código a tu correo.");
-    } catch (error) {
-      console.error("Error al reenviar código:", error);
-      alert("⚠️ No se pudo reenviar el código.");
+      const response = await resendVerificationCode(email);
+      console.log("✅ Reenvío ok:", response);
+      alert("📧 Código reenviado.");
+    } catch (err) {
+      console.error("❌ Error reenviar:", err.response?.data || err);
+      alert(err.response?.data?.message || "No se pudo reenviar el código.");
     }
   };
 
   return (
     <div>
-      <VerificationForm onVerify={handleVerify} onResend={handleResend} />
+      {isVerifying ? (
+        <div className="d-flex justify-content-center align-items-center vh-100">
+          <div className="text-center">
+            <div className="spinner-border text-primary mb-3" role="status" />
+            <p>🔄 Verificando tu cuenta...</p>
+          </div>
+        </div>
+      ) : (
+        <VerificationForm onVerify={handleVerify} onResend={handleResend} />
+      )}
     </div>
   );
 };

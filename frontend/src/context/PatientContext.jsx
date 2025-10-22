@@ -21,10 +21,10 @@ export const PatientProvider = ({ children }) => {
   const [isAuthenticatedPatient, setIsAuthenticatedPatient] = useState(false);
   const [loadingPatient, setLoadingPatient] = useState(true);
 
-  console.log("Ver paciente: ", patient);
-
+  console.log("👀 Estado inicial del paciente:", patient);
+  // 🟢 Registro
   const signUp = async (patientData) => {
-    console.log("estas en en signup de PatientContext");
+    console.log("🚀 Registrando paciente...");
     try {
       const response = await registerPatient({
         name: patientData.name,
@@ -35,9 +35,8 @@ export const PatientProvider = ({ children }) => {
       });
 
       console.log("✅ Registro exitoso:", response.data);
-      //const { token } = response.data;
-      // Guardamos en localStorage para usarlos luego
-      //localStorage.setItem("patient_token", token);
+
+      // Guardamos email para reenviar código o recordar usuario
       localStorage.setItem("patient_email", patientData.email);
 
       // Guardamos email en el contexto temporalmente
@@ -45,81 +44,100 @@ export const PatientProvider = ({ children }) => {
 
       return response.data;
     } catch (error) {
-      console.error("Error al registrar paciente:", error.response?.data);
-      throw error; // para que SignupForm pueda mostrarlo
+      console.error("⚠️ Error al registrar paciente:", error.response?.data);
+      throw error;
     }
   };
-
+  // 🟢 Login
   const signIn = async (patientData) => {
     try {
       const response = await loginPatient(patientData);
-      console.log("Respuesta en PatientContext: ", response);
       const { token } = response.data;
-      console.log("Token obtenido: ", token);
-      localStorage.setItem("patient_token", token);
+      console.log("🔑 Token obtenido en login:", token);
 
+      if (token) {
+        localStorage.setItem("patient_token", token);
+      }
+      /*
       const meResponse = await api.get("/auth/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      console.log("👤 Datos del paciente después del login:", meResponse.data);
+
       setPatient(meResponse.data);
-      setIsAuthenticatedPatient(true);
+      setIsAuthenticatedPatient(true);*/
+
+      await reviewLogin(token);
     } catch (error) {
-      console.log("Error to login patient: ", error);
+      console.log("⚠️ Error al iniciar sesión:", error);
     }
   };
 
+  // 🟢 Logout
   const signOut = async () => {
     try {
-      await logoutPatient(); // <-- llamada al backend
+      console.log("🚪 Cerrando sesión...");
+      await logoutPatient();
     } catch (error) {
-      console.error("Error al cerrar sesión:", error);
-      // incluso si falla, limpiamos localStorage para evitar quedar autenticado
+      console.error("⚠️ Error al cerrar sesión:", error);
     } finally {
       localStorage.removeItem("patient_token");
       setPatient(null);
       setIsAuthenticatedPatient(false);
+      setLoadingPatient(false); // 👋esto es nuevo
     }
   };
 
-  // ✅ Movemos reviewLogin FUERA del useEffect
-  const reviewLogin = async () => {
+  // 🟢 Revisar sesión
+  const reviewLogin = async (token) => {
     console.log("🟡 Ejecutando reviewLogin...");
-
     setLoadingPatient(true);
 
-    const token = localStorage.getItem("patient_token");
-    console.log("📦 Token encontrado en localStorage:", token);
+    const authToken = token || localStorage.getItem("patient_token");
+    console.log("📦 Token usado en reviewLogin:", authToken);
 
     if (!token) {
-      console.log("❌ No hay token guardado. Cerrando sesión...");
-      setPatient(null);
+      console.log("❌ No hay token. No autenticado.");
       setIsAuthenticatedPatient(false);
       setLoadingPatient(false);
-      return;
+      return false;
     }
 
     try {
-      console.log("➡️ Enviando solicitud a /auth/me con token...");
+      console.log("➡️ Solicitando /auth/me con token...");
       const response = await api.get("/auth/me", {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Accept: "*/*", Authorization: `Bearer ${token}` },
       });
-      console.log("✅ Respuesta recibida en reviewLogin:", response);
+
+      console.log("✅ /auth/me respondió con éxito:", response.data);
 
       setPatient(response.data);
       setIsAuthenticatedPatient(true);
-      console.log("🟢 Paciente autenticado correctamente:", response.data);
+      console.log("🟢 Paciente autenticado correctamente");
+      return true;
     } catch (error) {
-      console.log("🚨 Error al verificar el token:", error);
-      signOut();
+      console.error(
+        "🚨 Error al verificar el token:",
+        error.response?.data || error
+      );
+      // limpiar token inválido
+      localStorage.removeItem("patient_token"); // limpiar token inválido
+      setIsAuthenticatedPatient(false);
+      return false;
     } finally {
       setLoadingPatient(false);
-      console.log("🔵 Finalizando revisión de login (setLoadingPatient=false)");
+      console.log("🔵 reviewLogin finalizado");
     }
   };
-
+  // 🟢 Ejecutar revisión automática al iniciar app
   useEffect(() => {
-    reviewLogin();
+    const token = localStorage.getItem("patient_token");
+    if (token) {
+      reviewLogin(token);
+    } else {
+      setLoadingPatient(false);
+    }
   }, []);
 
   return (
