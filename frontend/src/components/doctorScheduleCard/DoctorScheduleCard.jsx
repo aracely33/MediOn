@@ -1,11 +1,12 @@
 import { Card, Badge } from "react-bootstrap";
+import "./DoctorScheduleCard.css";
 
 const DoctorScheduleCard = ({ time, patient, specialty, status, onSelect }) => {
   const statusColor = status === "Confirmada" ? "success" : "warning";
 
   return (
     <Card
-      className="mb-3 shadow-sm"
+      className="mb-3 shadow-sm doctor-schedule-card"
       onClick={onSelect}
       style={{ cursor: "pointer" }}
     >

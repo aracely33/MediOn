@@ -1,0 +1,87 @@
+#testimonios {
+  background: linear-gradient(135deg, rgb(7, 90, 145) 0%, #cfe8fc 100%);
+  color: rgb(7, 90, 145);
+  padding: 4rem 0;
+}
+
+/* Título centrado y destacado */
+#testimonios h2 {
+  color: white;
+  font-size: 2.2rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 3rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Carousel indicators */
+.carousel .carousel-indicators li {
+  background-color: #ffffff;
+  opacity: 0.7;
+}
+
+.carousel .carousel-indicators .active {
+  background-color: rgb(7, 90, 145);
+  opacity: 1;
+}
+
+/* Solo los cards dentro de testimonios */
+#testimonios .testimoni {
+  background: linear-gradient(90deg, #eceac9, #fcdec2);
+  color: rgb(7, 90, 145);
+  border-radius: 15px;
+  border: none;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+#testimonios .testimoni:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+}
+
+#testimonios .testimoni .card-text {
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+}
+
+/* Imagen de perfil */
+#testimonios .testimoni .card-img-top {
+  border: 3px solid rgba(7, 90, 145);
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  margin: 0 auto 1rem auto;
+  box-shadow: 0 4px 10px rgba(7, 90, 145, 0.1);
+  transition: transform 0.3s ease;
+}
+
+#testimonios .testimoni .card-img-top:hover {
+  transform: scale(1.05);
+}
+
+/* Títulos y texto dentro de la card */
+#testimonios .testimoni .card-title {
+  font-weight: 600;
+  font-size: 1.2rem;
+  margin-top: 0.5rem;
+  color: black;
+}
+
+#testimonios .testimoni .card-text {
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+  color: black;
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+  #testimonios .testimoni .card-title {
+    font-size: 1rem;
+  }
+  #testimonios .testimoni .card-text {
+    font-size: 0.9rem;
+  }
+}
