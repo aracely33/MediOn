@@ -6,8 +6,8 @@ import { PatientProvider } from "./context/PatientContext";
 import { ProtectedRoutePatient } from "./routes/ProtectedRoutePatient";
 import SignupPage from "./feature/auth/SignupPage";
 import ConfirmEmailPage from "./feature/auth/ConfirmEmailPage";
-import PatientDashboard from "./feature/patient/PatientDashboard";
-import DoctorDashboard from "./feature/doctor/DoctorDashboard";
+import PatientDashboard from "./feature/Patient/PatientDashboard";
+import DoctorDashboard from "./feature/Doctor/DoctorDashboard";
 import AppointmentBook from "./feature/patient/appointmentBook/AppointmentBook";
 import { DoctorProvider } from "./context/DoctorContext";
 
