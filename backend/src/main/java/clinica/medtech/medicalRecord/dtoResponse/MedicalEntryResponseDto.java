@@ -1,6 +1,8 @@
 package clinica.medtech.medicalRecord.dtoResponse;
 
 import lombok.*;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -14,7 +16,7 @@ import java.util.List;
 @Builder
 public class MedicalEntryResponseDto {
     private Long id; // Identificador único de la entrada médica
-    private LocalDateTime creationDate; // Fecha y hora de creación de la entrada
+    private LocalDate creationDate; // Fecha y hora de creación de la entrada
     private String type; // Tipo de entrada médica (consulta, evolución, etc.)
     private String summary; // Resumen de la entrada médica
     private String description; // Descripción detallada de la entrada médica
