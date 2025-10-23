@@ -2,6 +2,8 @@ package clinica.medtech.medicalRecord.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -35,7 +37,7 @@ public class MedicalEntryModel {
     private Long id;
 
     @Column(name = "creation_date", nullable = false)
-    private LocalDateTime creationDate;
+    private LocalDate creationDate;
 
     @Column(name = "type", nullable = false)
     private String type;
