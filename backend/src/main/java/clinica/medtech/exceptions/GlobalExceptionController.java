@@ -980,5 +980,69 @@ public class GlobalExceptionController {
         return path.toLowerCase().contains("password") ? "credential" : path.replaceAll("[\\n\\r]", "");
     }
 
+        // -- Inserciones para manejar excepciones del módulo appointments --
+    @ExceptionHandler(clinica.medtech.appointments.exception.AppointmentNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleAppointmentNotFound(
+            clinica.medtech.appointments.exception.AppointmentNotFoundException ex, WebRequest request) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .errorCode("APPT-404")
+                .message("La cita solicitada no fue encontrada")
+                .details(List.of(sanitizeErrorMessage(ex.getMessage())))
+                .timestamp(Instant.now())
+                .path(getSanitizedPath(request))
+                .build();
+        log.warn("Appointment not found - Path: {} | Message: {}", errorResponse.getPath(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .header("X-Content-Type-Options", "nosniff")
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(clinica.medtech.appointments.exception.AppointmentConflictException.class)
+    public ResponseEntity<ErrorResponse> handleAppointmentConflict(
+            clinica.medtech.appointments.exception.AppointmentConflictException ex, WebRequest request) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .errorCode("APPT-409")
+                .message("Conflicto al programar la cita")
+                .details(List.of(sanitizeErrorMessage(ex.getMessage())))
+                .timestamp(Instant.now())
+                .path(getSanitizedPath(request))
+                .build();
+        log.warn("Appointment conflict - Path: {} | Message: {}", errorResponse.getPath(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .header("X-Content-Type-Options", "nosniff")
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(clinica.medtech.doctoravailability.exception.AvailabilityNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleAvailabilityNotFound(
+            clinica.medtech.doctoravailability.exception.AvailabilityNotFoundException ex, WebRequest request) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .errorCode("AVAIL-404")
+                .message("Disponibilidad no encontrada")
+                .details(List.of(sanitizeErrorMessage(ex.getMessage())))
+                .timestamp(Instant.now())
+                .path(getSanitizedPath(request))
+                .build();
+        log.warn("Availability not found - Path: {} | Message: {}", errorResponse.getPath(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .header("X-Content-Type-Options", "nosniff")
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(clinica.medtech.doctoravailability.exception.InvalidAvailabilityException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidAvailability(
+            clinica.medtech.doctoravailability.exception.InvalidAvailabilityException ex, WebRequest request) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .errorCode("AVAIL-400")
+                .message("Datos inválidos para disponibilidad")
+                .details(List.of(sanitizeErrorMessage(ex.getMessage())))
+                .timestamp(Instant.now())
+                .path(getSanitizedPath(request))
+                .build();
+        log.warn("Invalid availability - Path: {} | Message: {}", errorResponse.getPath(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .header("X-Content-Type-Options", "nosniff")
+                .body(errorResponse);
+        }
 
 }
