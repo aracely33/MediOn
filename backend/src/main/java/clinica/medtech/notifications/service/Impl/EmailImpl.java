@@ -1,11 +1,16 @@
 package clinica.medtech.notifications.service.Impl;
 
+import com.sendgrid.helpers.mail.Mail;
+import com.sendgrid.helpers.mail.objects.Content;
+import com.sendgrid.helpers.mail.objects.Email;
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import clinica.medtech.notifications.service.EmailService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
+import com.sendgrid.*;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -29,6 +34,7 @@ public class EmailImpl implements EmailService {
     @Value("${app.email.verification.subject}")
     private String verificationSubject;
 
+
     @Override
     public void sendWelcomeEmail(String userEmail, String userName) {
         try {
@@ -37,6 +43,17 @@ public class EmailImpl implements EmailService {
             log.info("Email de bienvenida enviado exitosamente a: {}", userEmail);
         } catch (Exception e) {
             log.error("Error enviando email de bienvenida a: {}", userEmail, e);
+        }
+    }
+
+    @Override
+    public void sendVerificationEmail(String userEmail, String userName, String verificationCode) {
+        try {
+            String htmlContent = loadVerificationTemplate(userName, verificationCode);
+            sendEmail(userEmail, verificationSubject, htmlContent);
+            log.info("Código de verificación enviado exitosamente a: {}", userEmail);
+        } catch (Exception e) {
+            log.error("Error enviando código de verificación a: {}", userEmail, e);
         }
     }
 
@@ -61,26 +78,14 @@ public class EmailImpl implements EmailService {
     private String loadWelcomeTemplate(String userName) throws IOException {
         ClassPathResource resource = new ClassPathResource("templates/welcome-email.html");
         String template = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-
         return template.replace("{userName}", userName);
-    }
-
-    @Override
-    public void sendVerificationEmail(String userEmail, String userName, String verificationCode) {
-        try {
-            String htmlContent = loadVerificationTemplate(userName, verificationCode);
-            sendEmail(userEmail, verificationSubject, htmlContent);
-            log.info("Código de verificación enviado exitosamente a: {}", userEmail);
-        } catch (Exception e) {
-            log.error("Error enviando código de verificación a: {}", userEmail, e);
-        }
     }
 
     private String loadVerificationTemplate(String userName, String verificationCode) throws IOException {
         ClassPathResource resource = new ClassPathResource("templates/verification-email.html");
         String template = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-
-        return template.replace("{userName}", userName)
+        return template
+                .replace("{userName}", userName)
                 .replace("{verificationCode}", verificationCode);
     }
 }

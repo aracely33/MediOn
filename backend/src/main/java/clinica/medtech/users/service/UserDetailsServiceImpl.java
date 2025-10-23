@@ -1,6 +1,7 @@
 package clinica.medtech.users.service;
 
 import clinica.medtech.auth.jwt.JwtUtils;
+import clinica.medtech.exceptions.AccountNotVerifiedException;
 import clinica.medtech.exceptions.EmailAlreadyExistsException;
 import clinica.medtech.exceptions.PatientNotFoundException;
 import clinica.medtech.notifications.service.EmailService;
@@ -85,17 +86,42 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         String email = authDto.getEmail().trim().toLowerCase();
         String password = authDto.getPassword();
 
-        Long id = userRepository.findByEmail(email)
-                .map(UserModel::getId)
-                .orElseThrow(() -> new UsernameNotFoundException("El usuario con el correo " + email + " no existe"));
+        // Buscar usuario
+        UserModel user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException(
+                        "El usuario con el correo " + email + " no existe."));
 
-        Authentication authentication = this.authenticate(email, password);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        // Verificar si el correo fue validado
+        if (!user.isEmailVerified()) {
+            log.warn("Intento de login sin verificar: {}", email);
+            throw new AccountNotVerifiedException("Por favor, verifica tu correo antes de iniciar sesión.");
+        }
 
-        String token = jwtUtils.generateJwtToken(authentication);
+        try {
+            // Autenticar usuario con Spring Security
+            Authentication authentication = this.authenticate(email, password);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        return new AuthResponseDto(id, email, "Autenticación exitosa", token, true);
+            // Generar token JWT
+            String token = jwtUtils.generateJwtToken(authentication);
+
+            log.info("Usuario autenticado correctamente: {}", email);
+
+            return new AuthResponseDto(
+                    user.getId(),
+                    user.getName(),  // o user.getEmail() si prefieres
+                    "Inicio de sesión exitoso",
+                    token,
+                    true
+            );
+
+        } catch (BadCredentialsException ex) {
+            log.warn("Intento de login con credenciales inválidas: {}", email);
+            throw new BadCredentialsException("Correo o contraseña incorrectos.");
+        }
     }
+
+
 
 
     /**
@@ -109,24 +135,24 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Transactional
     public AuthResponseRegisterDto createUser(@Valid PatientRequestDto authCreateUserDto) {
 
-        // Normalizar el email
+        // Normalizar los datos
         String email = authCreateUserDto.getEmail().trim().toLowerCase();
         String name = authCreateUserDto.getName().trim();
         String lastName = authCreateUserDto.getLastName().trim();
         String password = authCreateUserDto.getPassword();
 
-        //Verificar si ya existe (en minúsculas)
+        // Verificar si ya existe
         if (userRepository.findByEmail(email).isPresent()) {
             throw new EmailAlreadyExistsException("El correo " + email + " ya existe en la base de datos.");
         }
 
         // Buscar rol del paciente
         RoleModel patientRole = roleRepository.findByEnumRole(EnumRole.PATIENT)
-                .orElseThrow(() -> new IllegalArgumentException("El rol especificado no está configurado en la base de datos."));
+                .orElseThrow(() -> new IllegalArgumentException("El rol de paciente no está configurado en la base de datos."));
 
         Set<RoleModel> roleEntities = Set.of(patientRole);
 
-        // Crear entidad con email normalizado
+        // Crear entidad
         PatientModel patientEntity = PatientModel.builder()
                 .email(email)
                 .name(name)
@@ -136,40 +162,27 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .emailVerified(false)
                 .build();
 
-        log.info("Registrando paciente: {}", patientEntity.getRoles().stream().map(RoleModel::getEnumRole).toList());
+        log.info("Registrando nuevo paciente con correo: {}", email);
         PatientModel patientCreated = patientRepository.save(patientEntity);
 
+        // Enviar email de bienvenida y código de verificación
         try {
             emailService.sendWelcomeEmail(patientCreated.getEmail(), patientCreated.getName());
-            // Agregar verificación por código (opcional por ahora)
             emailVerificationService.createVerificationCode(patientCreated);
         } catch (Exception e) {
-            log.warn("No se pudo enviar el email de bienvenida a: {}", patientCreated.getEmail(), e);
-            log.warn("No se pudo enviar emails a: {}", patientCreated.getEmail(), e);
+            log.warn("No se pudo enviar el email de bienvenida o verificación a {}", patientCreated.getEmail(), e);
         }
 
-        // Generar authorities
-        List<SimpleGrantedAuthority> authoritiesList = new ArrayList<>();
-        patientCreated.getRoles().forEach(role -> {
-            authoritiesList.add(new SimpleGrantedAuthority("ROLE_" + role.getEnumRole().name()));
-            role.getPermissions().forEach(permission ->
-                    authoritiesList.add(new SimpleGrantedAuthority(permission.getName())));
-        });
-
-        UserDetails userDetails = loadUserByUsername(patientCreated.getEmail());
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-                userDetails, patientCreated.getPassword(), authoritiesList);
-
-        String accessToken = jwtUtils.generateJwtToken(authentication);
-
+        // Retornar respuesta sin token (aún no verificado)
         return new AuthResponseRegisterDto(
                 patientCreated.getId(),
                 patientCreated.getName(),
-                "Paciente registrado exitosamente",
+                "Paciente registrado exitosamente. Por favor, verifica tu correo para activar tu cuenta.",
                 null,
-                true
+                false
         );
     }
+
 
 
 

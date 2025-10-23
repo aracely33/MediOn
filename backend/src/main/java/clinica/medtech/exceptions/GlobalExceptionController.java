@@ -349,6 +349,30 @@ public class GlobalExceptionController {
                 .body(errorResponse);
     }
 
+    @ExceptionHandler(AccountNotVerifiedException.class)
+    public ResponseEntity<ErrorResponse> handleAccountNotVerified(
+            AccountNotVerifiedException ex,
+            WebRequest request) {
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .errorCode("AUTH-404")
+                .message("El usuario no fue verificado")
+                .details(List.of(sanitizeErrorMessage(ex.getMessage())))
+                .timestamp(Instant.now())
+                .path(getSanitizedPath(request))
+                .build();
+
+        log.warn("Usuario no verificado - Path: {} | IP: {} | Mensaje: {}",
+                errorResponse.getPath(),
+                request.getHeader("X-Forwarded-For"),
+                ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .header("X-Content-Type-Options", "nosniff")
+                .header("X-Auth-Error", "true")
+                .body(errorResponse);
+    }
+
 //    /**
 //     * Manejador de excepciones para solicitudes con acceso no autorizado.
 //     * Captura instancias de {@link UnauthorizedAccessException} cuando se intenta acceder a un recurso sin permisos.
