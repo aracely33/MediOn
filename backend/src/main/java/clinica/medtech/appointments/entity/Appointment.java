@@ -9,44 +9,35 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import clinica.medtech.appointments.enums.AppointmentStatus;
 import clinica.medtech.appointments.enums.AppointmentType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
-@Getter
-@Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "appointments")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Appointment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "patient_id", nullable = false)
-    private Long patientId;
-
-    @Column(name = "doctor_id", nullable = false)
+    @Column(nullable = false)
     private Long doctorId;
 
+    @Column(nullable = false)
+    private Long patientId;
+
     @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false, length = 20)
-    private AppointmentType type; 
+    @Column(nullable = false)
+    private AppointmentType type;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
