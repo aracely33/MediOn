@@ -34,7 +34,7 @@ const SignupPage = () => {
       >
         <Row className="w-100 justify-content-center">
           <Col xs={11} sm={9} md={7} lg={5} xl={4}>
-            <div className="text-center m-4 d-flex flex justify-content-around align-items-center">
+            <div className="text-center m-4 justify-content-around align-items-center">
               <Link to="/">
                 <img
                   src={logo}
@@ -48,7 +48,6 @@ const SignupPage = () => {
                   }}
                 />
               </Link>
-              <h1 className="brand-title mt-3">MedTech</h1>
             </div>
 
             <Card className="shadow-sm border-0 rounded-4">
