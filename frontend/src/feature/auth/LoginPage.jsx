@@ -9,12 +9,17 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import "./LoginPage.css";
 import { usePatient } from "../../context/PatientContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import logo from "../../assets/logoMed.svg";
 
 export const validationSchema = Yup.object({
   email: Yup.string()
     .email("Debe ser un correo válido")
-    .required("El correo es obligatorio"),
+    .required("El correo es obligatorio")
+    .matches(
+      /^(?=.*[A-Za-z])[A-Za-z0-9@._-]+$/,
+      "El correo debe contener al menos una letra y puede incluir números"
+    ),
   password: Yup.string().required("La contraseña es obligatoria"),
 });
 
@@ -34,7 +39,19 @@ function LoginPage() {
         <Row className="w-100 justify-content-center">
           <Col xs={11} sm={9} md={7} lg={5} xl={4}>
             <div className="text-center mb-4">
-              <h1 className="brand-title">🩺 Portal de Citas MedTech</h1>
+              <Link to="/">
+                <img
+                  src={logo}
+                  alt="MedTech Logo"
+                  style={{
+                    width: "100px",
+                    marginBottom: "1rem",
+                    cursor: "pointer",
+                    borderRadius: "30px",
+                  }}
+                />
+              </Link>
+              <h1 className="brand-title">Portal de Citas MedTech</h1>
             </div>
 
             <Card className="shadow-sm border-0 rounded-4">
@@ -124,7 +141,7 @@ function LoginPage() {
                           </Card.Link>
 
                           <Card.Link
-                            href="#"
+                            href="/forgot-password"
                             className="text-decoration-none text-secondary"
                           >
                             ¿Olvidaste tu contraseña?
@@ -147,7 +164,7 @@ function LoginPage() {
 
                       <p className="register-text mt-3">
                         ¿No tienes una cuenta?
-                        <Card.Link href="/registro"> Regístrate aquí</Card.Link>
+                        <Card.Link href="/signup"> Regístrate aquí</Card.Link>
                       </p>
                     </Form>
                   )}

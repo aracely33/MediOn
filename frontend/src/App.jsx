@@ -9,6 +9,7 @@ import ConfirmEmailPage from "./feature/auth/ConfirmEmailPage";
 import PatientDashboard from "./feature/Patient/PatientDashboard";
 import DoctorDashboard from "./feature/Doctor/DoctorDashboard";
 import AppointmentBook from "./feature/Patient/appointmentBook/AppointmentBook";
+import ForgotPasswordPage from "./feature/auth/ForgotPasswordPage";
 import { DoctorProvider } from "./context/DoctorContext";
 
 function App() {
@@ -19,8 +20,9 @@ function App() {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/registro" element={<SignupPage />} />
+            <Route path="/signup" element={<SignupPage />} />
             <Route path="/confirm-email" element={<ConfirmEmailPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/appointment-book" element={<AppointmentBook />} />
 
             {/*Lo pongo aquí provisionalmente para probar la vista*/}
