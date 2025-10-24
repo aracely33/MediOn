@@ -47,9 +47,11 @@ const SignupForm = ({ onSuccess, onShowTerms, onShowPrivacy }) => {
 
           // Limpia el formulario
           resetForm();
+          // Activa el toast de éxito
+          onSuccess(); // 👈 aquí se dispara el CustomToast
 
           // 🚀 Redirige a la verificación de email
-          navigate("/confirm-email");
+          setTimeout(() => navigate("/confirm-email"), 2000);
         } catch (error) {
           console.error("Error al registrar:", error.response?.data);
           setErrors({
