@@ -59,7 +59,7 @@ export const PatientProvider = ({ children }) => {
       if (token) {
         localStorage.setItem("patient_token", token);
       }
-      /*
+
       const meResponse = await api.get("/auth/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -67,9 +67,9 @@ export const PatientProvider = ({ children }) => {
       console.log("👤 Datos del paciente después del login:", meResponse.data);
 
       setPatient(meResponse.data);
-      setIsAuthenticatedPatient(true);*/
+      setIsAuthenticatedPatient(true);
 
-      await reviewLogin(token);
+      //await reviewLogin(token);
     } catch (error) {
       console.log("⚠️ Error al iniciar sesión:", error);
     }
@@ -97,7 +97,7 @@ export const PatientProvider = ({ children }) => {
     const authToken = token || localStorage.getItem("patient_token");
     console.log("📦 Token usado en reviewLogin:", authToken);
 
-    if (!token) {
+    if (!authToken) {
       console.log("❌ No hay token. No autenticado.");
       setIsAuthenticatedPatient(false);
       setLoadingPatient(false);

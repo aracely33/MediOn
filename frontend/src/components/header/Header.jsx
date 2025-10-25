@@ -17,7 +17,7 @@ const Header = ({
     <Container fluid>
       <Navbar.Brand className="header-brand d-flex align-items-center gap-2">
         {logoUrl && (
-          <Image src={logoUrl} width={100} className="me-2 header-logo" />
+          <Image src={logoUrl} className="me-2 header-logo rounded" />
         )}
         <span className="header-title fw-bold">{title}</span>
       </Navbar.Brand>

@@ -28,7 +28,7 @@ const HeroSection = () => {
             variant="light"
             size="lg"
             className="header-btn text-white"
-            onClick={() => navigate("/registro")}
+            onClick={() => navigate("/signup")}
           >
             Registrarme
           </Button>

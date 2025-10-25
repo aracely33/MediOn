@@ -5,7 +5,7 @@ import BenefitsSection from "../../components/benefitSection/BenefitsSection";
 import TestimonialsSection from "../../components/testimonialSection/TestimonialsSection";
 import Footer from "../../components/footer/Footer";
 import "./LandingPage.css";
-import logo from "../../assets/logo.jpg";
+import logo from "../../assets/logoMed.svg";
 
 const LandingPage = () => {
   return (
