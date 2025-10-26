@@ -8,7 +8,9 @@ import AppointmentDetails from "../../components/appointmentDetail/AppointmentDe
 import NotificationCard from "../../components/notificationCard/NotificationCard";
 import { useNavigate } from "react-router-dom";
 import { usePatient } from "../../context/PatientContext";
-import { getMe, getPatientById } from "./patientService";
+import { getMe, getAppointmentsByPatientId } from "./patientService";
+import { getProfessionalById } from "../Doctor/doctorService";
+import { calculateAge, formatDateTime } from "../auth/utils/birthday";
 import "./PatientDashboard.css";
 
 const PatientDashboard = () => {
@@ -18,26 +20,21 @@ const PatientDashboard = () => {
   const [user, setUser] = useState(null);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [notification, setNotification] = useState(null);
+  const [appointments, setAppointments] = useState([]); // antes era el array fake
 
   // Cargar usuario real desde backend
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const me = await getMe();
-        const patient = await getPatientById(me.id);
 
         setUser({
-          id: patient.id,
-          name: patient.name,
-          lastName: patient.lastName,
-          email: patient.email,
-          age: patient.birthDate
-            ? Math.floor(
-                (new Date() - new Date(patient.birthDate)) /
-                  (1000 * 60 * 60 * 24 * 365)
-              )
-            : null,
-          gender: patient.gender || "No especificado",
+          id: me.id,
+          name: me.name,
+          lastName: me.lastName,
+          email: me.email,
+          age: calculateAge(me.birthDate),
+          gender: me.gender || "No especificado",
           avatar: "https://cdn-icons-png.flaticon.com/512/149/149071.png", // avatar genérico
         });
       } catch (error) {
@@ -48,24 +45,54 @@ const PatientDashboard = () => {
     fetchUser();
   }, []);
 
-  const appointments = [
-    {
-      dateTime: "15 de Mayo, 2025 - 10:30 AM",
-      doctor: "Dr. Carlos Rivas",
-      specialty: "Cardiología",
-      clinic: "Clínica Corazón Sano",
-      motive: "Chequeo de presión arterial",
-      isTeleconsultation: false,
-    },
-    {
-      dateTime: "22 de Mayo, 2026 - 09:00 AM",
-      doctor: "Dra. Elena Gómez",
-      specialty: "Dermatología",
-      clinic: "Centro Médico Piel Bella",
-      motive: "Revisión de lunares",
-      isTeleconsultation: true,
-    },
-  ];
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      if (!user) return; // espera a que user ya esté cargado
+      try {
+        // Traer citas del backend
+        const response = await getAppointmentsByPatientId(user.id);
+        const appointmentsFromBackend = response.data;
+
+        // Mapear citas y traer info del doctor
+        const mappedAppointments = await Promise.all(
+          appointmentsFromBackend.map(async (appt) => {
+            const doctor = await getProfessionalById(appt.doctorId);
+
+            // Para CardAppointment: no mostrar el día
+            const { date, time } = formatDateTime(
+              appt.appointmentDate,
+              appt.appointmentTime,
+              false // aquí false indica que no queremos el día
+            );
+
+            // Guardamos también la fecha completa con día por si se usa en AppointmentDetails
+            const { date: dateWithDay } = formatDateTime(
+              appt.appointmentDate,
+              appt.appointmentTime,
+              true // true para incluir el día
+            );
+
+            return {
+              dateTime: `${date} - ${time}`, // para CardAppointment
+              fullDateTime: `${dateWithDay} - ${time}`, // para AppointmentDetails
+              doctor: `${doctor.name} ${doctor.lastName}`,
+              specialty: doctor.specialty,
+              license: doctor.medicalLicense || "No disponible",
+              motive: appt.reason,
+              isTeleconsultation: appt.type,
+            };
+          })
+        );
+
+        // Guardar en el estado para renderizar
+        setAppointments(mappedAppointments);
+      } catch (error) {
+        console.error("Error cargando citas:", error);
+      }
+    };
+
+    fetchAppointments();
+  }, [user]);
 
   const mensajes = [
     {
@@ -140,7 +167,7 @@ const PatientDashboard = () => {
               ? "a"
               : user.gender === "Masculino"
               ? "o"
-              : user.name?.trim().slice(-1).toLowerCase() === "a"
+              : user.name?.trim().slice(-1).toLowerCase() === "a" || "y"
               ? "a"
               : "o"}
             , {user.name}!
@@ -163,10 +190,12 @@ const PatientDashboard = () => {
               {selectedAppointment ? (
                 <AppointmentDetails
                   name={user.name}
-                  age={user.age}
-                  gender="Mujer"
-                  date={selectedAppointment.dateTime.split(" - ")[0]}
-                  time={selectedAppointment.dateTime.split(" - ")[1]}
+                  age={
+                    user.age !== null ? user.age + " años" : " No disponible"
+                  }
+                  gender={user.gender}
+                  date={selectedAppointment.fullDateTime.split(" - ")[0]}
+                  time={selectedAppointment.fullDateTime.split(" - ")[1]}
                   motive={selectedAppointment.motive}
                   isTeleconsultation={selectedAppointment.isTeleconsultation}
                   assignedTo={selectedAppointment.doctor}

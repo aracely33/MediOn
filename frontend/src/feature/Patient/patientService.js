@@ -23,3 +23,7 @@ export const getPatientById = async (id) => {
     throw error;
   }
 };
+
+export const getAppointmentsByPatientId = async (patientId) => {
+  return await api.get(`/api/appointments/patient/${patientId}`);
+};

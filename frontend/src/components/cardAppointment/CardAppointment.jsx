@@ -1,7 +1,13 @@
 import { Button, Card } from "react-bootstrap";
 import "./CardAppointment.css";
 
-const CardAppointment = ({ dateTime, doctor, specialty, clinic, onSelect }) => (
+const CardAppointment = ({
+  dateTime,
+  doctor,
+  specialty,
+  license,
+  onSelect,
+}) => (
   <Card
     className="card-appointment"
     onClick={onSelect}
@@ -11,7 +17,7 @@ const CardAppointment = ({ dateTime, doctor, specialty, clinic, onSelect }) => (
       <Card.Title className="appointment-title">{dateTime}</Card.Title>
       <Card.Text className="appointment-info">
         {doctor}, {specialty} <br />
-        {clinic}
+        {"Licencia médica: " + license}
       </Card.Text>
       <div className="d-flex justify-content-end gap-2">
         <Button variant="secondary" size="sm" className="btn-cancel">
