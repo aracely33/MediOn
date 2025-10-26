@@ -17,7 +17,7 @@ export const calculateAge = (birthDateString) => {
 // Función para formatear fecha y hora
 export const formatDateTime = (date, time, showWeekday = false) => {
   const dateTime = new Date(`${date}T${time}`);
-  const formattedDate = dateTime.toLocaleDateString("es-MX", {
+  let formattedDate = dateTime.toLocaleDateString("es-MX", {
     weekday: showWeekday ? "long" : undefined,
     year: "numeric",
     month: "long",
@@ -27,5 +27,11 @@ export const formatDateTime = (date, time, showWeekday = false) => {
     hour: "2-digit",
     minute: "2-digit",
   });
+
+  if (showWeekday) {
+    formattedDate =
+      formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+  }
+
   return { date: formattedDate, time: formattedTime };
 };

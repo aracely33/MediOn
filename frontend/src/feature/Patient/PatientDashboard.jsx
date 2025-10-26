@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Container, Row, Col, Button } from "react-bootstrap";
+import { Container, Row, Col, Button, Modal } from "react-bootstrap";
 import { List } from "react-bootstrap-icons"; // ícono hamburguesa
 import Header from "../../components/header/Header";
 import Sidebar from "../../components/sidebar/Sidebar";
@@ -8,7 +8,11 @@ import AppointmentDetails from "../../components/appointmentDetail/AppointmentDe
 import NotificationCard from "../../components/notificationCard/NotificationCard";
 import { useNavigate } from "react-router-dom";
 import { usePatient } from "../../context/PatientContext";
-import { getMe, getAppointmentsByPatientId } from "./patientService";
+import {
+  getMe,
+  getAppointmentsByPatientId,
+  cancelAppointment,
+} from "./patientService";
 import { getProfessionalById } from "../Doctor/doctorService";
 import { calculateAge, formatDateTime } from "../auth/utils/birthday";
 import "./PatientDashboard.css";
@@ -20,14 +24,14 @@ const PatientDashboard = () => {
   const [user, setUser] = useState(null);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [notification, setNotification] = useState(null);
-  const [appointments, setAppointments] = useState([]); // antes era el array fake
+  const [appointments, setAppointments] = useState([]);
+  const [appointmentToCancel, setAppointmentToCancel] = useState(null);
 
-  // Cargar usuario real desde backend
+  // Cargar usuario
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const me = await getMe();
-
         setUser({
           id: me.id,
           name: me.name,
@@ -35,65 +39,72 @@ const PatientDashboard = () => {
           email: me.email,
           age: calculateAge(me.birthDate),
           gender: me.gender || "No especificado",
-          avatar: "https://cdn-icons-png.flaticon.com/512/149/149071.png", // avatar genérico
+          avatar: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
         });
       } catch (error) {
         console.error(error);
       }
     };
-
     fetchUser();
   }, []);
 
+  // Cargar citas
   useEffect(() => {
     const fetchAppointments = async () => {
-      if (!user) return; // espera a que user ya esté cargado
+      if (!user) return;
       try {
-        // Traer citas del backend
         const response = await getAppointmentsByPatientId(user.id);
         const appointmentsFromBackend = response.data;
 
-        // Mapear citas y traer info del doctor
         const mappedAppointments = await Promise.all(
           appointmentsFromBackend.map(async (appt) => {
-            const doctor = await getProfessionalById(appt.doctorId);
+            try {
+              const doctor = await getProfessionalById(appt.doctorId);
 
-            // Para CardAppointment: no mostrar el día
-            const { date, time } = formatDateTime(
-              appt.appointmentDate,
-              appt.appointmentTime,
-              false // aquí false indica que no queremos el día
-            );
+              const { date, time } = formatDateTime(
+                appt.appointmentDate,
+                appt.appointmentTime,
+                false
+              );
+              const { date: dateWithDay } = formatDateTime(
+                appt.appointmentDate,
+                appt.appointmentTime,
+                true
+              );
 
-            // Guardamos también la fecha completa con día por si se usa en AppointmentDetails
-            const { date: dateWithDay } = formatDateTime(
-              appt.appointmentDate,
-              appt.appointmentTime,
-              true // true para incluir el día
-            );
-
-            return {
-              dateTime: `${date} - ${time}`, // para CardAppointment
-              fullDateTime: `${dateWithDay} - ${time}`, // para AppointmentDetails
-              doctor: `${doctor.name} ${doctor.lastName}`,
-              specialty: doctor.specialty,
-              license: doctor.medicalLicense || "No disponible",
-              motive: appt.reason,
-              isTeleconsultation: appt.type,
-            };
+              return {
+                dateTime: `${date} - ${time}`,
+                fullDateTime: `${dateWithDay} - ${time}`,
+                doctor: doctor
+                  ? `${doctor.name} ${doctor.lastName}`
+                  : "Médico no disponible",
+                specialty: doctor?.specialty || "Sin especialidad",
+                license: doctor?.medicalLicense || "No disponible",
+                motive: appt.reason,
+                isTeleconsultation: appt.type,
+                status: appt.status,
+                id: appt.id,
+              };
+            } catch (error) {
+              console.error(`Error obteniendo médico ${appt.doctorId}:`, error);
+              return null;
+            }
           })
         );
 
-        // Guardar en el estado para renderizar
-        setAppointments(mappedAppointments);
+        setAppointments(
+          mappedAppointments.filter(
+            (appt) => appt && appt.status !== "CANCELADA"
+          )
+        );
       } catch (error) {
         console.error("Error cargando citas:", error);
       }
     };
-
     fetchAppointments();
   }, [user]);
 
+  // Mensajes de notificación automáticos
   const mensajes = [
     {
       title: "Recordatorio de cita",
@@ -120,6 +131,29 @@ const PatientDashboard = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  const handlePrepareCancel = (appt) => setAppointmentToCancel(appt);
+
+  const handleConfirmCancel = async () => {
+    if (!appointmentToCancel) return;
+    try {
+      await cancelAppointment(appointmentToCancel.id);
+      setAppointments((prev) =>
+        prev.filter((appt) => appt.id !== appointmentToCancel.id)
+      );
+      if (selectedAppointment?.id === appointmentToCancel.id)
+        setSelectedAppointment(null);
+      setNotification({
+        title: "Cita cancelada",
+        description: "La cita se canceló exitosamente.",
+      });
+    } catch (error) {
+      console.error("Error al cancelar la cita:", error);
+      alert("No se pudo cancelar la cita. Inténtalo de nuevo más tarde.");
+    } finally {
+      setAppointmentToCancel(null);
+    }
+  };
+
   const handleLogout = async () => {
     await signOut();
     navigate("/login");
@@ -129,7 +163,6 @@ const PatientDashboard = () => {
 
   return (
     <div className="d-flex patient-dashboard">
-      {/* Sidebar retráctil */}
       <Sidebar
         user={user}
         role="patient"
@@ -150,7 +183,6 @@ const PatientDashboard = () => {
           ]}
         />
 
-        {/* Botón hamburguesa solo visible en móviles */}
         <div className="d-lg-none p-2">
           <Button
             variant="outline-primary"
@@ -172,6 +204,7 @@ const PatientDashboard = () => {
               : "o"}
             , {user.name}!
           </h2>
+
           <Row>
             <Col md={7}>
               <h4 className="mt-3 mb-3">Próximas Citas</h4>
@@ -181,18 +214,18 @@ const PatientDashboard = () => {
                     <CardAppointment
                       {...appt}
                       onSelect={() => setSelectedAppointment(appt)}
+                      onCancel={() => handlePrepareCancel(appt)}
                     />
                   </Col>
                 ))}
               </Row>
             </Col>
+
             <Col md={5}>
               {selectedAppointment ? (
                 <AppointmentDetails
                   name={user.name}
-                  age={
-                    user.age !== null ? user.age + " años" : " No disponible"
-                  }
+                  age={user.age !== null ? user.age + " años" : "No disponible"}
                   gender={user.gender}
                   date={selectedAppointment.fullDateTime.split(" - ")[0]}
                   time={selectedAppointment.fullDateTime.split(" - ")[1]}
@@ -200,6 +233,7 @@ const PatientDashboard = () => {
                   isTeleconsultation={selectedAppointment.isTeleconsultation}
                   assignedTo={selectedAppointment.doctor}
                   role="patient"
+                  onClose={() => setSelectedAppointment(null)}
                 />
               ) : (
                 <p>Selecciona una cita para ver los detalles</p>
@@ -214,6 +248,32 @@ const PatientDashboard = () => {
               description={notification.description}
             />
           )}
+
+          {/* Modal de confirmación de cancelación */}
+          <Modal
+            show={!!appointmentToCancel}
+            onHide={() => setAppointmentToCancel(null)}
+            centered
+          >
+            <Modal.Header closeButton>
+              <Modal.Title>Cancelar cita</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              ¿Estás segura/o de que deseas cancelar la cita con{" "}
+              {appointmentToCancel?.doctor} el {appointmentToCancel?.dateTime}?
+            </Modal.Body>
+            <Modal.Footer>
+              <Button
+                variant="secondary"
+                onClick={() => setAppointmentToCancel(null)}
+              >
+                No
+              </Button>
+              <Button variant="danger" onClick={handleConfirmCancel}>
+                Sí, cancelar
+              </Button>
+            </Modal.Footer>
+          </Modal>
         </Container>
       </div>
     </div>

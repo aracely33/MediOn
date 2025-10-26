@@ -10,10 +10,16 @@ function AppointmentDetails({
   assignedTo,
   isTeleconsultation,
   role, // 'doctor' o 'patient'
+  onClose,
 }) {
   return (
     <div className="appointment-card">
-      <h3 className="appointment-title">Detalles de la Cita</h3>
+      <div className="appointment-header">
+        <h3 className="appointment-title">Detalles de la Cita</h3>
+        <button className="close-btn" onClick={onClose}>
+          ❌
+        </button>
+      </div>
 
       <div className="appointment-user">
         <img

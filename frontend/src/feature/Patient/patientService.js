@@ -24,6 +24,20 @@ export const getPatientById = async (id) => {
   }
 };
 
+// Traer citas de un paciente
 export const getAppointmentsByPatientId = async (patientId) => {
   return await api.get(`/api/appointments/patient/${patientId}`);
+};
+
+// Cancelar cita
+export const cancelAppointment = async (appointmentId) => {
+  try {
+    const response = await api.patch(
+      `/api/appointments/${appointmentId}/cancel`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error cancelando la cita:", error);
+    throw error;
+  }
 };

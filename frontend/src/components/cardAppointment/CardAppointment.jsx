@@ -7,6 +7,7 @@ const CardAppointment = ({
   specialty,
   license,
   onSelect,
+  onCancel,
 }) => (
   <Card
     className="card-appointment"
@@ -20,10 +21,20 @@ const CardAppointment = ({
         {"Licencia médica: " + license}
       </Card.Text>
       <div className="d-flex justify-content-end gap-2">
-        <Button variant="secondary" size="sm" className="btn-cancel">
+        <Button
+          variant="secondary"
+          size="sm"
+          className="btn-cancel"
+          onClick={onCancel}
+        >
           Cancelar
         </Button>
-        <Button variant="primary" size="sm" className="btn-reschedule">
+        <Button
+          variant="primary"
+          size="sm"
+          className="btn-reschedule"
+          onClick={(e) => e.stopPropagation()}
+        >
           Reprogramar
         </Button>
       </div>
