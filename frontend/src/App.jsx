@@ -10,6 +10,7 @@ import PatientDashboard from "./feature/Patient/PatientDashboard";
 import DoctorDashboard from "./feature/Doctor/DoctorDashboard";
 import AppointmentBook from "./feature/Patient/appointmentBook/AppointmentBook";
 import ForgotPasswordPage from "./feature/auth/ForgotPasswordPage";
+import ConfigurationProfile from "./feature/auth/ConfigurationProfile";
 import { DoctorProvider } from "./context/DoctorContext";
 
 function App() {
@@ -33,6 +34,10 @@ function App() {
 
               {/* Dashboards */}
               <Route path="/patient-home" element={<PatientDashboard />} />
+              <Route
+                path="/patient-config"
+                element={<ConfigurationProfile />}
+              />
             </Route>
           </Routes>
         </DoctorProvider>

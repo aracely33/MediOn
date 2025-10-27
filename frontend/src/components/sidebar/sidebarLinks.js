@@ -38,13 +38,25 @@ export const sidebarLinks = {
   patient: [
     {
       label: "Panel de Control",
-      href: "#",
+      href: "/patient-home",
       icon: "dashboard",
       active: true,
     },
-    { label: "Agendar Citas", href: "#", icon: "calendar_month" },
-    { label: "Historial Médico", href: "#", icon: "medical_information" },
-    { label: "Mensajes y Alertas", href: "#", icon: "notifications" },
-    { label: "Configuración", href: "#", icon: "settings" },
+    {
+      label: "Agendar Citas",
+      href: "/patient-appointments",
+      icon: "calendar_month",
+    },
+    {
+      label: "Historial Médico",
+      href: "/patient-history",
+      icon: "medical_information",
+    },
+    {
+      label: "Mensajes y Alertas",
+      href: "/patient-messages",
+      icon: "notifications",
+    },
+    { label: "Configuración", href: "/patient-config", icon: "settings" },
   ],
 };

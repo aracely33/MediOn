@@ -4,12 +4,14 @@ import FeaturesSection from "../../components/featureSection/FeatureSection";
 import BenefitsSection from "../../components/benefitSection/BenefitsSection";
 import TestimonialsSection from "../../components/testimonialSection/TestimonialsSection";
 import Footer from "../../components/footer/Footer";
+import "./LandingPage.css";
 import logo from "../../assets/logoMed.svg";
 
 const LandingPage = () => {
   return (
     <>
       <Header
+        className="hide-title-mobile"
         title="Plataforma Médica"
         logoUrl={logo}
         buttons={[
