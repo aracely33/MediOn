@@ -10,21 +10,27 @@ function AppointmentDetails({
   assignedTo,
   isTeleconsultation,
   role, // 'doctor' o 'patient'
+  onClose,
 }) {
   return (
     <div className="appointment-card">
-      <h3 className="appointment-title">Detalles de la Cita</h3>
+      <div className="appointment-header">
+        <h3 className="appointment-title">Detalles de la Cita</h3>
+        <button className="close-btn" onClick={onClose}>
+          ❌
+        </button>
+      </div>
 
       <div className="appointment-user">
         <img
-          src="/assets/avatar-placeholder.png"
+          src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
           alt="Paciente"
           className="appointment-avatar"
         />
         <div>
           <p className="appointment-name">{name}</p>
           <p className="appointment-info">
-            {age} años, {gender}
+            {"Edad: " + age}, {gender}
           </p>
         </div>
       </div>
@@ -45,6 +51,7 @@ function AppointmentDetails({
       <div className="appointment-actions">
         <button
           variant="primary"
+          className="header-btn"
           disabled={!isTeleconsultation}
           onClick={() => {
             // Aquí iría la lógica para iniciar la videollamada
