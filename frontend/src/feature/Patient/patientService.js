@@ -41,3 +41,16 @@ export const cancelAppointment = async (appointmentId) => {
     throw error;
   }
 };
+
+// Modificar datos personales de un paciente existente
+export const updatePatient = async (id, updatedData) => {
+  try {
+    const response = await api.patch(`/patients/${id}`, updatedData, {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error en updatePatient:", error);
+    throw error;
+  }
+};
