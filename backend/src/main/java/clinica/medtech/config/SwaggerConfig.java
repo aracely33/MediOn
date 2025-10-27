@@ -35,7 +35,7 @@ import org.springframework.http.HttpHeaders;
                 ),
                 @Server(
                         description = "Producción",
-                        url = "http://medtech.us-east-1.elasticbeanstalk.com"
+                        url = "http://medtech2.us-east-1.elasticbeanstalk.com"
                 )
         },
         security = @SecurityRequirement(
