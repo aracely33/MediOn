@@ -42,7 +42,11 @@ export const sidebarLinks = {
       icon: "dashboard",
       active: true,
     },
-    { label: "Agendar Citas", href: "#", icon: "calendar_month" },
+    {
+      label: "Agendar Citas",
+      href: "#",
+      icon: "calendar_month",
+    },
     { label: "Historial Médico", href: "#", icon: "medical_information" },
     { label: "Mensajes y Alertas", href: "#", icon: "notifications" },
     { label: "Configuración", href: "#", icon: "settings" },
