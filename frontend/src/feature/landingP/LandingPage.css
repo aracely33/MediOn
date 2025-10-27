@@ -1,0 +1,5 @@
+@media (max-width: 768px) {
+  .hide-title-mobile .header-title {
+    display: none;
+  }
+}
