@@ -3,12 +3,12 @@ package clinica.medtech.appointments.entity;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
 import clinica.medtech.appointments.enums.AppointmentStatus;
 import clinica.medtech.appointments.enums.AppointmentType;
+import clinica.medtech.users.entities.PatientModel;
+import clinica.medtech.users.entities.ProfessionalModel;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,33 +29,32 @@ public class Appointment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Long doctorId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "doctor_id", nullable = false)
+    private ProfessionalModel doctor;
 
-    @Column(nullable = false)
-    private Long patientId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "patient_id", nullable = false)
+    private PatientModel patient;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AppointmentType type;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
+    @Column(nullable = false, length = 20)
     private AppointmentStatus status;
 
-    @Column(name = "appointment_date", nullable = false)
+    @Column(nullable = false)
     private LocalDate appointmentDate;
 
-    @Column(name = "appointment_time", nullable = false)
+    @Column(nullable = false)
     private LocalTime appointmentTime;
 
-    @Column(name = "duration", nullable = false)
-    private Integer duration;
-
-    @Column(name = "reason", nullable = false, length = 500)
+    @Column(nullable = false, length = 500)
     private String reason;
 
-    @Column(name = "notes", columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String notes;
 
     @CreationTimestamp
@@ -71,6 +70,6 @@ public class Appointment {
 
     @Transient
     public LocalDateTime getAppointmentEndDateTime() {
-        return getAppointmentStartDateTime().plusMinutes(duration != null ? duration : 30);
+        return getAppointmentStartDateTime().plusMinutes(30);
     }
 }

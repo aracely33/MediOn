@@ -1,15 +1,13 @@
 package clinica.medtech.appointments.service.impl;
 
-
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import clinica.medtech.appointments.dto.request.AppointmentCreateRequest;
 import clinica.medtech.appointments.dto.request.AppointmentUpdateRequest;
-
 import clinica.medtech.appointments.dto.response.AppointmentResponse;
 import clinica.medtech.appointments.entity.Appointment;
 import clinica.medtech.appointments.enums.AppointmentStatus;
@@ -18,8 +16,14 @@ import clinica.medtech.appointments.exception.AppointmentNotFoundException;
 import clinica.medtech.appointments.mapper.AppointmentMapper;
 import clinica.medtech.appointments.repository.AppointmentRepository;
 import clinica.medtech.appointments.service.AppointmentService;
+import clinica.medtech.doctoravailability.service.DoctorAvailabilityService;
+import clinica.medtech.exceptions.PatientNotFoundException;
+import clinica.medtech.exceptions.ProfessionalNotFoundException;
+import clinica.medtech.users.entities.PatientModel;
+import clinica.medtech.users.entities.ProfessionalModel;
+import clinica.medtech.users.repository.PatientRepository;
+import clinica.medtech.users.repository.ProfessionalRepository;
 import lombok.RequiredArgsConstructor;
-
 
 
 @Service
@@ -29,158 +33,148 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
     private final AppointmentMapper appointmentMapper;
+    private final PatientRepository patientRepository;
+    private final ProfessionalRepository professionalRepository;
+    private final DoctorAvailabilityService availabilityService;
 
-    // Estados de cita que bloquean disponibilidad
-    private static final List<AppointmentStatus> CONFLICTING_STATUSES =
-            List.of(AppointmentStatus.PENDIENTE, AppointmentStatus.CONFIRMADA, AppointmentStatus.EN_CURSO);
-
-    // 🔹 1. Agendar una nueva cita
     @Override
     public AppointmentResponse scheduleAppointment(AppointmentCreateRequest dto) {
-        Appointment entity = appointmentMapper.toEntity(dto);
 
-        // Validación de duración
-        if (entity.getDuration() == null || entity.getDuration() < 15 || entity.getDuration() > 120) {
-            throw new IllegalArgumentException("La duración debe estar entre 15 y 120 minutos.");
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        PatientModel patient = patientRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new PatientNotFoundException("No se encontró el paciente autenticado."));
+
+        ProfessionalModel doctor = professionalRepository.findById(dto.getDoctorId())
+                .orElseThrow(() -> new ProfessionalNotFoundException("No se encontró el doctor especificado."));
+
+        LocalDate today = LocalDate.now();
+        if (dto.getAppointmentDate().isBefore(today)) {
+            throw new AppointmentConflictException("No se puede agendar una cita en una fecha pasada.");
         }
 
-        LocalDateTime start = LocalDateTime.of(entity.getAppointmentDate(), entity.getAppointmentTime());
-        LocalDateTime end = start.plusMinutes(entity.getDuration());
-
-        boolean conflict = appointmentRepository.existsOverlapByDoctorAndTime(
-                entity.getDoctorId(),
-                entity.getAppointmentDate(),
-                entity.getAppointmentTime(),
-                end.toLocalDate(),
-                end.toLocalTime(),
-                CONFLICTING_STATUSES
-        );
-
-        if (conflict) {
-            throw new AppointmentConflictException("El doctor ya tiene otra cita en ese horario.");
+        if (dto.getAppointmentDate().isEqual(today) && dto.getAppointmentTime().isBefore(LocalTime.now())) {
+            throw new AppointmentConflictException("No se puede agendar una cita en una hora pasada.");
         }
 
-        entity.setStatus(AppointmentStatus.PENDIENTE);
-        Appointment saved = appointmentRepository.save(entity);
-        return appointmentMapper.toResponse(saved);
+        List<LocalTime> availableSlots =
+                availabilityService.getAvailableSlots(doctor.getId(), dto.getAppointmentDate());
+
+        if (!availableSlots.contains(dto.getAppointmentTime())) {
+            throw new AppointmentConflictException("El horario seleccionado no está disponible para este doctor.");
+        }
+
+        Appointment appointment = appointmentMapper.toEntity(dto, patient, doctor);
+        appointment.setStatus(AppointmentStatus.PENDIENTE);
+
+        return appointmentMapper.toResponse(appointmentRepository.save(appointment));
     }
 
-    // 🔹 2. Actualizar una cita existente
     @Override
     public boolean updateAppointment(Long id, AppointmentUpdateRequest dto) {
+
         Appointment existing = appointmentRepository.findById(id)
                 .orElseThrow(() -> new AppointmentNotFoundException(id));
 
-        appointmentMapper.updateFromDto(dto, existing);
+        ProfessionalModel doctor = existing.getDoctor();
 
-        if (existing.getAppointmentDate() == null || existing.getAppointmentTime() == null) {
-            appointmentRepository.save(existing);
-            return true;
+        if (dto.getDoctorId() != null && !dto.getDoctorId().equals(doctor.getId())) {
+            doctor = professionalRepository.findById(dto.getDoctorId())
+                    .orElseThrow(() -> new ProfessionalNotFoundException("No se encontró el doctor especificado."));
         }
 
-        if (existing.getDuration() == null) {
-            existing.setDuration(30);
+        appointmentMapper.updateFromDto(dto, existing, doctor);
+
+        LocalDate today = LocalDate.now();
+        if (existing.getAppointmentDate().isBefore(today) ||
+            (existing.getAppointmentDate().isEqual(today) && existing.getAppointmentTime().isBefore(LocalTime.now()))) {
+            throw new AppointmentConflictException("No se puede reprogramar una cita a una fecha u hora pasada.");
         }
 
-        LocalDateTime newStart = LocalDateTime.of(existing.getAppointmentDate(), existing.getAppointmentTime());
-        LocalDateTime newEnd = newStart.plusMinutes(existing.getDuration());
+        if (dto.getAppointmentDate() != null || dto.getAppointmentTime() != null) {
+        List<LocalTime> availableSlots =
+                availabilityService.getAvailableSlotsExcluding(doctor.getId(), existing.getAppointmentDate(), existing.getId());
 
-        boolean conflict = appointmentRepository.existsOverlapByDoctorAndTimeExcludingId(
-                existing.getDoctorId(),
-                existing.getAppointmentDate(),
-                existing.getAppointmentTime(),
-                newEnd.toLocalDate(),
-                newEnd.toLocalTime(),
-                CONFLICTING_STATUSES,
-                existing.getId()
-        );
-
-        if (conflict) {
-            throw new AppointmentConflictException("La nueva hora entra en conflicto con otra cita existente.");
+        if (!availableSlots.contains(existing.getAppointmentTime())) {
+            throw new AppointmentConflictException("El nuevo horario no está disponible para este doctor.");
         }
-
+    }
         appointmentRepository.save(existing);
         return true;
     }
 
-    // 🔹 3. Cancelar una cita
     @Override
     public boolean cancelAppointment(Long id, String reason) {
+
         Appointment existing = appointmentRepository.findById(id)
                 .orElseThrow(() -> new AppointmentNotFoundException(id));
 
         if (existing.getStatus() == AppointmentStatus.CANCELADA) {
-            throw new AppointmentConflictException("La cita ya se encuentra cancelada.");
+            throw new AppointmentConflictException("La cita ya está cancelada.");
         }
 
         existing.setStatus(AppointmentStatus.CANCELADA);
-
-        if (reason != null && !reason.isBlank()) {
-            existing.setReason(reason);
-        }
+        if (reason != null && !reason.isBlank()) existing.setReason(reason);
 
         appointmentRepository.save(existing);
         return true;
     }
 
-    // 🔹 4. Confirmar una cita
     @Override
     public boolean confirmAppointment(Long id, String notes) {
+
         Appointment existing = appointmentRepository.findById(id)
                 .orElseThrow(() -> new AppointmentNotFoundException(id));
 
-        LocalDateTime start = LocalDateTime.of(existing.getAppointmentDate(), existing.getAppointmentTime());
-        LocalDateTime end = start.plusMinutes(existing.getDuration() != null ? existing.getDuration() : 30);
+        if (existing.getStatus() == AppointmentStatus.CANCELADA) {
+            throw new AppointmentConflictException("No se puede confirmar una cita cancelada.");
+        }
+
+        LocalDate today = LocalDate.now();
+        LocalTime now = LocalTime.now();
+        if (existing.getAppointmentDate().isBefore(today) ||
+           (existing.getAppointmentDate().isEqual(today) && existing.getAppointmentTime().isBefore(now))) {
+            throw new AppointmentConflictException("No se puede confirmar una cita en una fecha u hora pasada.");
+        }
 
         boolean conflict = appointmentRepository.existsOverlapByDoctorAndTimeExcludingId(
-                existing.getDoctorId(),
+                existing.getDoctor().getId(),
                 existing.getAppointmentDate(),
                 existing.getAppointmentTime(),
-                end.toLocalDate(),
-                end.toLocalTime(),
-                CONFLICTING_STATUSES,
-                existing.getId()
+                existing.getId(),
+                List.of(AppointmentStatus.CONFIRMADA, AppointmentStatus.EN_CURSO)
         );
 
         if (conflict) {
-            throw new AppointmentConflictException("No se puede confirmar la cita debido a un conflicto de horario.");
+            throw new AppointmentConflictException("No se puede confirmar porque el horario ya está ocupado.");
         }
 
         existing.setStatus(AppointmentStatus.CONFIRMADA);
-
-        if (notes != null && !notes.isBlank()) {
-            existing.setNotes(notes);
-        }
+        if (notes != null && !notes.isBlank()) existing.setNotes(notes);
 
         appointmentRepository.save(existing);
         return true;
     }
 
-    // 🔹 5. Obtener la disponibilidad del doctor
-    @Override
-    public List<LocalDateTime> getDoctorAvailability(Long doctorId) {
-        List<Appointment> activeAppointments = appointmentRepository.findActiveAppointmentsByDoctor(
-                doctorId,
-                CONFLICTING_STATUSES
-        );
 
-        return activeAppointments.stream()
-                .map(a -> LocalDateTime.of(a.getAppointmentDate(), a.getAppointmentTime()))
-                .collect(Collectors.toList());
-    }
-
-    // 🔹 6. Buscar citas por ID del paciente
     @Override
     @Transactional(readOnly = true)
     public List<AppointmentResponse> getAppointmentsByPatientId(Long patientId) {
-        List<Appointment> appointments = appointmentRepository.findAppointmentsByPatientId(patientId);
+        return appointmentRepository.findActiveAppointmentsByPatientId(patientId)
+                .stream().map(appointmentMapper::toResponse).toList();
+    }
 
-        if (appointments.isEmpty()) {
-            throw new AppointmentNotFoundException(patientId);
-        }
+    @Override
+    @Transactional(readOnly = true)
+    public List<AppointmentResponse> getAppointmentsOfAuthenticatedPatient() {
 
-        return appointments.stream()
-                .map(appointmentMapper::toResponse)
-                .collect(Collectors.toList());
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        PatientModel patient = patientRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new PatientNotFoundException("No se encontró el paciente autenticado."));
+
+        return appointmentRepository.findActiveAppointmentsByPatientId(patient.getId())
+                .stream().map(appointmentMapper::toResponse).toList();
     }
 }
+
