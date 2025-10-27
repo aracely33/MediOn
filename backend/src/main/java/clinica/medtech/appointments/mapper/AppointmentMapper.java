@@ -22,7 +22,6 @@ public class AppointmentMapper {
                 .type(request.getType())
                 .appointmentDate(request.getAppointmentDate())
                 .appointmentTime(request.getAppointmentTime())
-                .duration(request.getDuration() != null ? request.getDuration() : 30)
                 .reason(request.getReason())
                 .notes(request.getNotes())
                 .status(AppointmentStatus.PENDIENTE)
@@ -36,12 +35,12 @@ public class AppointmentMapper {
         LocalDateTime endDateTime = null;
         if (appointment.getAppointmentDate() != null
                 && appointment.getAppointmentTime() != null
-                && appointment.getDuration() != null) {
+               ) {
 
             endDateTime = LocalDateTime.of(
                     appointment.getAppointmentDate(),
                     appointment.getAppointmentTime()
-            ).plusMinutes(appointment.getDuration());
+            );
 
         }
 
@@ -54,7 +53,6 @@ public class AppointmentMapper {
                 .appointmentDate(appointment.getAppointmentDate())
                 .appointmentTime(appointment.getAppointmentTime())
                 .appointmentEndDateTime(endDateTime)
-                .duration(appointment.getDuration())
                 .reason(appointment.getReason())
                 .notes(appointment.getNotes())
                 .createdAt(appointment.getCreatedAt())
@@ -89,9 +87,6 @@ public class AppointmentMapper {
             appointment.setAppointmentTime(request.getAppointmentTime());
         }
 
-        if (request.getDuration() != null) {
-            appointment.setDuration(request.getDuration());
-        }
 
         if (request.getNotes() != null) {
             appointment.setNotes(request.getNotes());

@@ -39,13 +39,9 @@ public class AppointmentServiceImpl implements AppointmentService {
     public AppointmentResponse scheduleAppointment(AppointmentCreateRequest dto) {
         Appointment entity = appointmentMapper.toEntity(dto);
 
-        // Validación de duración
-        if (entity.getDuration() == null || entity.getDuration() < 15 || entity.getDuration() > 120) {
-            throw new IllegalArgumentException("La duración debe estar entre 15 y 120 minutos.");
-        }
 
         LocalDateTime start = LocalDateTime.of(entity.getAppointmentDate(), entity.getAppointmentTime());
-        LocalDateTime end = start.plusMinutes(entity.getDuration());
+        LocalDateTime end = start.plusMinutes(0);
 
         boolean conflict = appointmentRepository.existsOverlapByDoctorAndTime(
                 entity.getDoctorId(),
@@ -78,12 +74,9 @@ public class AppointmentServiceImpl implements AppointmentService {
             return true;
         }
 
-        if (existing.getDuration() == null) {
-            existing.setDuration(30);
-        }
 
         LocalDateTime newStart = LocalDateTime.of(existing.getAppointmentDate(), existing.getAppointmentTime());
-        LocalDateTime newEnd = newStart.plusMinutes(existing.getDuration());
+        LocalDateTime newEnd = newStart.plusMinutes(0);
 
         boolean conflict = appointmentRepository.existsOverlapByDoctorAndTimeExcludingId(
                 existing.getDoctorId(),
@@ -130,7 +123,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .orElseThrow(() -> new AppointmentNotFoundException(id));
 
         LocalDateTime start = LocalDateTime.of(existing.getAppointmentDate(), existing.getAppointmentTime());
-        LocalDateTime end = start.plusMinutes(existing.getDuration() != null ? existing.getDuration() : 30);
+        LocalDateTime end = start.plusMinutes(30);
 
         boolean conflict = appointmentRepository.existsOverlapByDoctorAndTimeExcludingId(
                 existing.getDoctorId(),

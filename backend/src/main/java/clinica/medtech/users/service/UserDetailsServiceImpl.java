@@ -27,6 +27,10 @@ import clinica.medtech.users.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -41,6 +45,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -57,6 +63,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private final PatientRepository patientRepository;
     private final EmailVerificationService emailVerificationService;
     private final EmailService emailService;
+    private final FhirPatientService fhirPatientService;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -165,6 +172,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         log.info("Registrando nuevo paciente con correo: {}", email);
         PatientModel patientCreated = patientRepository.save(patientEntity);
 
+        try {
+            String fhirResponse = fhirPatientService.createPatientOnFhir(patientCreated);
+            log.info("Paciente también registrado en HAPI FHIR con respuesta: {}", fhirResponse);
+        } catch (Exception e) {
+            log.warn("No se pudo registrar el paciente en FHIR: {}", e.getMessage());
+        }
+
         // Enviar email de bienvenida y código de verificación
         try {
             emailService.sendWelcomeEmail(patientCreated.getEmail(), patientCreated.getName());
@@ -182,7 +196,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 false
         );
     }
-
 
 
 

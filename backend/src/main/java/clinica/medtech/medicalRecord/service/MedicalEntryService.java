@@ -17,6 +17,8 @@ import clinica.medtech.medicalRecord.repository.DiagnosisRepository;
 import clinica.medtech.medicalRecord.repository.MedicalEntryRepository;
 import clinica.medtech.medicalRecord.repository.MedicalRecordRepository;
 import clinica.medtech.medicalRecord.repository.TreatmentRepository;
+import clinica.medtech.users.entities.ProfessionalModel;
+import clinica.medtech.users.repository.ProfessionalRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +36,7 @@ public class MedicalEntryService {
     private final DiagnosisMapper diagnosisMapper;
     private final TreatmentMapper treatmentMapper;
     private final MedicalEntryMapper medicalEntryMapper;
+    private final ProfessionalRepository professionalRepository;
 
     /**
      * Agrega un diagnóstico a una entrada médica.
@@ -65,8 +68,12 @@ public class MedicalEntryService {
         MedicalRecordModel medicalRecord = medicalRecordRepository.findById(dto.getMedicalRecordId())
                 .orElseThrow(() -> new IllegalArgumentException("Historia clínica no encontrada"));
 
+        ProfessionalModel professional = professionalRepository.findById(dto.getProfessionalId())
+                .orElseThrow(() -> new IllegalArgumentException("Profesional no encontrado"));
+
         MedicalEntryModel entry = medicalEntryMapper.toEntity(dto);
         entry.setMedicalRecord(medicalRecord);
+        entry.setProfessional(professional);
 
         MedicalEntryModel saved = medicalEntryRepository.save(entry);
 
