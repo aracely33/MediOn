@@ -9,7 +9,11 @@ export const signupValidation = Yup.object({
     .required("Los apellidos son obligatorios"),
   email: Yup.string()
     .email("Debe ser un correo válido")
-    .required("El correo es obligatorio"),
+    .required("El correo es obligatorio")
+    .matches(
+      /^(?=.*[A-Za-z])[A-Za-z0-9@._-]+$/,
+      "El correo debe contener al menos una letra y puede incluir números"
+    ),
   password: Yup.string()
     .min(8, "Debe tener al menos 8 caracteres")
     .matches(/[A-Z]/, "Debe contener al menos una mayúscula")
