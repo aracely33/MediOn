@@ -1,5 +1,6 @@
 package clinica.medtech.users.repository;
 
+import clinica.medtech.users.Enum.EnumRole;
 import clinica.medtech.users.entities.ProfessionalModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

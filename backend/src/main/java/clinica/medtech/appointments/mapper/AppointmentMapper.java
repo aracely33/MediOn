@@ -10,6 +10,7 @@ import clinica.medtech.appointments.enums.AppointmentStatus;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -60,6 +61,12 @@ public class AppointmentMapper {
                 .build();
 
         return response;
+    }
+
+    public List<AppointmentResponse> toAppointmentListDto(List<Appointment> appointments) {
+        return appointments.stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     public void updateFromDto(AppointmentUpdateRequest request, Appointment appointment) {
