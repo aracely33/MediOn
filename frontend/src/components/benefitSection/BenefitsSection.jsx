@@ -6,8 +6,8 @@ import "./BenefitsSection.css";
 const BenefitsSection = () => (
   <section id="beneficios" className="py-5">
     <Container>
-      <Row>
-        <Col md={6}>
+      <Row className="justify-content-center text-center">
+        <Col md={5} mb-4 mb-md-0>
           <h3 className="fw-bold mb-3 text-center">Beneficios para Clínicas</h3>
           <ul className="text-center">
             <li>
@@ -22,7 +22,7 @@ const BenefitsSection = () => (
             </li>
           </ul>
         </Col>
-        <Col md={6}>
+        <Col md={5} mb-4 mb-md-0>
           <h3 className="fw-bold mb-3 text-center">
             Beneficios para Pacientes
           </h3>

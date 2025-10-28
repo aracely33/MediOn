@@ -2,12 +2,22 @@ import { Navbar, Container, Button, Image, Nav } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./Header.css";
 
-const Header = ({ title, avatarUrl, logoUrl, buttons = [] }) => (
-  <Navbar bg="light" expand="lg" className="header-container px-4 py-2">
+const Header = ({
+  title,
+  avatarUrl,
+  logoUrl,
+  buttons = [],
+  className = "",
+}) => (
+  <Navbar
+    bg="light"
+    expand="lg"
+    className={`header-container px-4 py-2 ${className}`}
+  >
     <Container fluid>
       <Navbar.Brand className="header-brand d-flex align-items-center gap-2">
         {logoUrl && (
-          <Image src={logoUrl} width={100} className="me-2 header-logo" />
+          <Image src={logoUrl} className="me-2 header-logo rounded" />
         )}
         <span className="header-title fw-bold">{title}</span>
       </Navbar.Brand>

@@ -1,10 +1,20 @@
 import { Nav, Offcanvas } from "react-bootstrap";
 import { QuestionCircle } from "react-bootstrap-icons";
 import { sidebarLinks, iconMap } from "./sidebarLinks";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./Sidebar.css";
 
 const Sidebar = ({ user, role, show, onHide }) => {
+  const navigate = useNavigate();
   const links = sidebarLinks[role];
+  const location = useLocation();
+
+  const handleClick = (href) => {
+    if (href) {
+      navigate(href);
+      onHide(); // cerrar en móvil
+    }
+  };
 
   return (
     <Offcanvas
@@ -39,9 +49,9 @@ const Sidebar = ({ user, role, show, onHide }) => {
               return (
                 <Nav.Link
                   key={link.label}
-                  href={link.href}
+                  onClick={() => handleClick(link.href)}
                   className={`sidebar-link ${
-                    link.active ? "active-link" : ""
+                    location.pathname === link.href ? "active-link" : ""
                   } d-flex align-items-center`}
                 >
                   {Icon && <Icon className="me-2 icon" />}
