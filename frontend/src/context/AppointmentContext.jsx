@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from "react";
-import { createAppointmentBook } from "../feature/patient/appointmentBook/services/appointmentBooksService";
+import { createAppointmentBook } from "../feature/Patient/appointmentBook/services/appointmentBooksService";
 
 export const AppointmentContext = createContext();
 
