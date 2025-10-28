@@ -1,26 +1,19 @@
 import { Row, Col } from "react-bootstrap";
 
 export const ProgressSteps = ({ currentStep, typeAppointment }) => {
-  let steps = [
-    "Tipo",
-    "Especialidad",
-    "Médico",
-    "Fecha y Hora",
-    "Motivo y Nota",
-    "Confirmar",
-  ];
+  let steps = ["Tipo", "Médico", "Fecha y Hora", "Motivo y Nota", "Confirmar"];
 
-  if (typeAppointment === "virtual") {
-    steps = [
-      "Tipo",
-      "Especialidad",
-      "Médico",
-      "Fecha y Hora",
-      "Motivo y Nota",
-      "Videollamada",
-      "Confirmar",
-    ];
-  }
+  // if (typeAppointment === "virtual") {
+  //   steps = [
+  //     "Tipo",
+  //     "Especialidad",
+  //     "Médico",
+  //     "Fecha y Hora",
+  //     "Motivo y Nota",
+  //     "Videollamada",
+  //     "Confirmar",
+  //   ];
+  // }
 
   return (
     <Row className="justify-content-center mb-4">
