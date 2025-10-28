@@ -9,10 +9,10 @@ import NotificationCard from "../../components/notificationCard/NotificationCard
 import { useNavigate } from "react-router-dom";
 import { usePatient } from "../../context/PatientContext";
 import {
-  getMe,
   getAppointmentsByPatientId,
   cancelAppointment,
 } from "./patientService";
+import { getMe } from "../auth/services/authService";
 import { getProfessionalById } from "../Doctor/doctorService";
 import { calculateAge, formatDateTime } from "../auth/utils/birthday";
 import "./PatientDashboard.css";

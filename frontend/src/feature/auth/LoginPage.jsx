@@ -8,8 +8,11 @@ import Col from "react-bootstrap/Col";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import "./LoginPage.css";
+import { loginUser, getMe } from "./services/authService";
 import { usePatient } from "../../context/PatientContext";
+import { useDoctor } from "../../context/DoctorContext";
 import { useNavigate, Link } from "react-router-dom";
+
 import logo from "../../assets/logoMed.svg";
 
 export const validationSchema = Yup.object({
@@ -25,6 +28,8 @@ export const validationSchema = Yup.object({
 
 function LoginPage() {
   const { signIn: signInPatient } = usePatient();
+  const { signIn: signInDoctor } = useDoctor();
+
   const [userType, setUserType] = useState("PATIENT");
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -68,16 +73,34 @@ function LoginPage() {
                   validationSchema={validationSchema}
                   // Aquí iría la solicitud a la api
                   onSubmit={async (values) => {
-                    console.log("Datos todavía no enviados");
-                    console.log("Datos enviados:", values);
                     try {
-                      if (userType === "PATIENT") {
-                        console.log("Se ingresa a PATIENT para signIn");
-                        await signInPatient(values);
+                      const response = await loginUser(values);
+                      const { token } = response.data;
+
+                      if (!token) {
+                        console.error("No se recibió token del backend");
+                        return;
+                      }
+
+                      // Guarda el token genérico (para getMe)
+                      localStorage.setItem("auth_token", token);
+
+                      // Obtener datos del usuario autenticado
+                      const userData = await getMe();
+                      console.log("Usuario autenticado:", userData);
+
+                      // Detectar el rol automáticamente
+                      if (userData.roles.includes("PATIENT")) {
+                        await signInPatient(values); // usa tu contexto
                         navigate("/patient-home");
+                      } else if (userData.roles.includes("PROFESSIONAL")) {
+                        await signInDoctor(values);
+                        navigate("/doctor-home");
+                      } else {
+                        console.warn("Rol desconocido:", userData.roles);
                       }
                     } catch (error) {
-                      console.log("Error to do login: ", error);
+                      console.error("⚠️ Error al iniciar sesión:", error);
                     }
                   }}
                 >
