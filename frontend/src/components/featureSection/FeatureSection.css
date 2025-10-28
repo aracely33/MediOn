@@ -1,0 +1,11 @@
+#caracteristicas {
+  background-color: rgb(7, 90, 145);
+}
+
+#caracteristicas .card {
+  transition: transform 0.3s ease;
+}
+
+#caracteristicas .card:hover {
+  transform: scale(1.05);
+}

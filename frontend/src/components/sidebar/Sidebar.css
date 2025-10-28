@@ -1,0 +1,67 @@
+/* --- Contenedor principal --- */
+.sidebar-container {
+  background-color: #f7fbfa;
+  border-right: 2px solid #eaf4fb;
+  box-shadow: 2px 0 8px rgba(0, 140, 220, 0.05);
+  min-width: 240px;
+  height: 100vh;
+  font-family: "Inter", sans-serif; /* misma fuente que el header */
+}
+
+/* --- Usuario --- */
+.sidebar-user .user-avatar {
+  border: 2px solid #0cb1e0;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(0, 175, 255, 0.15);
+}
+
+.user-name {
+  font-weight: 600;
+  color: #0d6efd;
+}
+
+.user-id {
+  font-size: 0.8rem;
+}
+
+/* --- Links --- */
+.sidebar-links .sidebar-link {
+  color: #495057;
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 8px 10px;
+  transition: all 0.25s ease;
+}
+
+.sidebar-links .sidebar-link:hover {
+  background-color: #e9f5ff;
+  color: #0d6efd;
+}
+
+.sidebar-links .active-link {
+  background: linear-gradient(90deg, #0cb1e0, #52e0c4);
+  color: #fff !important;
+  box-shadow: 0 2px 6px rgba(0, 175, 255, 0.2);
+}
+
+.sidebar-links .active-link .icon {
+  color: #fff !important;
+}
+
+/* --- Iconos --- */
+.sidebar-link .icon {
+  font-size: 1.1rem;
+  color: #0cb1e0;
+  transition: color 0.3s ease;
+}
+
+/* --- Sección de ayuda --- */
+.sidebar-help {
+  border-top: 1px solid #eaf4fb;
+  padding-top: 12px;
+  margin-top: 16px;
+}
+
+.sidebar-help .sidebar-link:hover .icon {
+  color: #0994c4;
+}

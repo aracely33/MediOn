@@ -51,25 +51,15 @@ public class AuthController {
     @ApiResponse(responseCode = "401", description = "Credenciales incorrectas")
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDto> login(
-            @RequestBody @Valid AuthLoginRequestDto authDto,
-            HttpServletResponse servletResponse) {
+            @RequestBody @Valid AuthLoginRequestDto authDto) {
 
+        // Lógica de autenticación
         AuthResponseDto response = this.userDetailsService.loginUser(authDto);
 
-        ResponseCookie cookie = ResponseCookie.from("jwt_token", response.getToken())
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(jwtUtils.getExpirationTime())
-                .sameSite("None")
-                .build();
-
-        servletResponse.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-
-        return ResponseEntity.ok()
-                .header("user-id", response.getId().toString())
-                .body(response);
+        // Simplemente devolvemos el token y demás info en el cuerpo
+        return ResponseEntity.ok(response);
     }
+
 
     /**
      * Registra un nuevo profesional y obtiene un token de autenticación.
@@ -127,25 +117,18 @@ public class AuthController {
     /**
      * Cierra la sesión del usuario actual.
      *
-     * @param servletResponse la respuesta HTTP
      * @return un ResponseEntity que indica que la sesión se ha cerrado correctamente
      */
     @Operation(summary = "Cerrar sesión", description = """
-            Cierra la sesión del usuario actual.
-            """)
+        Cierra la sesión del usuario actual.
+        """)
     @PostMapping("/logout")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> logout(HttpServletResponse servletResponse) {
-        ResponseCookie cookie = ResponseCookie.from("jwt_token", "")
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(0)
-                .sameSite("None")
-                .build();
-        servletResponse.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-        return ResponseEntity.ok().build();
+    public ResponseEntity<?> logout() {
+        // Aquí podrías invalidar el token si usas un sistema de tokens almacenados (opcional)
+        return ResponseEntity.ok("Sesión cerrada correctamente");
     }
+
 
     @Operation(summary = "Suspender un usuario", description = """
             Suspende a un usuario por una duración y unidad de tiempo especificadas. Solo el ADMIN puede suspender un usuario. Ten en cuenta que la unidad 
