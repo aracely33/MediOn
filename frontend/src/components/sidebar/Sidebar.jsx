@@ -51,7 +51,7 @@ const Sidebar = ({ user, role, show, onHide }) => {
                   key={link.label}
                   onClick={() => handleClick(link.href)}
                   className={`sidebar-link ${
-                    location.pathname === link.href ? "active-link" : ""
+                    location.pathname.startsWith(link.href) ? "active-link" : ""
                   } d-flex align-items-center`}
                 >
                   {Icon && <Icon className="me-2 icon" />}
