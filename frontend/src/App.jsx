@@ -12,36 +12,41 @@ import AppointmentBook from "./feature/Patient/appointmentBook/AppointmentBook";
 import ForgotPasswordPage from "./feature/auth/ForgotPasswordPage";
 import ConfigurationProfile from "./feature/auth/ConfigurationProfile";
 import { DoctorProvider } from "./context/DoctorContext";
+import { AppointmentProvider } from "./context/AppointmentContext";
 
 function App() {
   return (
     <BrowserRouter>
-      <PatientProvider>
-        <DoctorProvider>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
-            <Route path="/confirm-email" element={<ConfirmEmailPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/appointment-book" element={<AppointmentBook />} />
+      <AppointmentProvider>
+        <PatientProvider>
+          <DoctorProvider>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignupPage />} />
+              <Route path="/confirm-email" element={<ConfirmEmailPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-            {/*Lo pongo aquí provisionalmente para probar la vista*/}
-            <Route path="/doctor-home" element={<DoctorDashboard />} />
+              {/*Lo pongo aquí provisionalmente para probar la vista*/}
+              <Route path="/doctor-home" element={<DoctorDashboard />} />
 
-            <Route element={<ProtectedRoutePatient />}>
-              {/*Se agregan las rutas que solo puede acceder el paciente*/}
-
-              {/* Dashboards */}
-              <Route path="/patient-home" element={<PatientDashboard />} />
-              <Route
-                path="/patient-config"
-                element={<ConfigurationProfile />}
-              />
-            </Route>
-          </Routes>
-        </DoctorProvider>
-      </PatientProvider>
+              <Route element={<ProtectedRoutePatient />}>
+                {/*Se agregan las rutas que solo puede acceder el paciente*/}
+                {/* Dashboards */}
+                <Route path="/patient-home" element={<PatientDashboard />} />
+                <Route
+                  path="/patient-home/patient-appointments"
+                  element={<AppointmentBook />}
+                />
+                <Route
+                  path="/patient-home/patient-config"
+                  element={<ConfigurationProfile />}
+                />
+              </Route>
+            </Routes>
+          </DoctorProvider>
+        </PatientProvider>
+      </AppointmentProvider>
     </BrowserRouter>
   );
 }

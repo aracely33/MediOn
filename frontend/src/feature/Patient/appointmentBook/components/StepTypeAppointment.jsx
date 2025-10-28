@@ -1,17 +1,8 @@
 import { Card, Row, Col, Button } from "react-bootstrap";
-import { useState } from "react";
 
-export const StepTypeAppointment = ({
-  setTypeAppointment,
-  onNext,
-  currentStep,
-  prev,
-}) => {
-  const [selection, setSelection] = useState(null);
-
+export const StepTypeAppointment = ({ formik, onNext, currentStep, prev }) => {
   const handleSelection = (tipo) => {
-    setSelection(tipo);
-    setTypeAppointment(tipo);
+    formik.setFieldValue("type", tipo);
   };
 
   return (
@@ -21,9 +12,11 @@ export const StepTypeAppointment = ({
         <Col md={6}>
           <Card
             className={`text-center p-4 ${
-              selection === "presencial" ? "border-primary border-3" : ""
+              formik.values.type === "PRESENCIAL"
+                ? "border-primary border-3"
+                : ""
             }`}
-            onClick={() => handleSelection("presencial")}
+            onClick={() => handleSelection("PRESENCIAL")}
             style={{ cursor: "pointer" }}
           >
             <span className="material-symbols-outlined fs-1 text-info">
@@ -36,9 +29,9 @@ export const StepTypeAppointment = ({
         <Col md={6}>
           <Card
             className={`text-center p-4 ${
-              selection === "virtual" ? "border-primary border-3" : ""
+              formik.values.type === "VIRTUAL" ? "border-primary border-3" : ""
             }`}
-            onClick={() => handleSelection("virtual")}
+            onClick={() => handleSelection("VIRTUAL")}
             style={{ cursor: "pointer" }}
           >
             <span className="material-symbols-outlined fs-1 text-info">
@@ -61,7 +54,11 @@ export const StepTypeAppointment = ({
         </div>
 
         <div className="text-end mt-3">
-          <Button variant="success" disabled={!selection} onClick={onNext}>
+          <Button
+            variant="success"
+            disabled={!formik.values.type}
+            onClick={onNext}
+          >
             Continuar
           </Button>
         </div>
