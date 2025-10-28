@@ -44,19 +44,23 @@ export const sidebarLinks = {
     },
     {
       label: "Agendar Citas",
-      href: "/patient-appointments",
+      href: "/patient-home/patient-appointments",
       icon: "calendar_month",
     },
     {
       label: "Historial Médico",
-      href: "/patient-history",
+      href: "/patient-home/patient-history",
       icon: "medical_information",
     },
     {
       label: "Mensajes y Alertas",
-      href: "/patient-messages",
+      href: "/patient-home/patient-messages",
       icon: "notifications",
     },
-    { label: "Configuración", href: "/patient-config", icon: "settings" },
+    {
+      label: "Configuración",
+      href: "/patient-home/patient-config",
+      icon: "settings",
+    },
   ],
 };
