@@ -13,6 +13,7 @@ import ForgotPasswordPage from "./feature/auth/ForgotPasswordPage";
 import ConfigurationProfile from "./feature/auth/ConfigurationProfile";
 import { DoctorProvider } from "./context/DoctorContext";
 import { AppointmentProvider } from "./context/AppointmentContext";
+import MedicalHistory from "./feature/Patient/EHR/MedicalHistory";
 
 function App() {
   return (
@@ -34,6 +35,8 @@ function App() {
                 {/*Se agregan las rutas que solo puede acceder el paciente*/}
                 {/* Dashboards */}
                 <Route path="/patient-home" element={<PatientDashboard />} />
+                <Route path="/patient-history" element={<MedicalHistory />} />
+
                 <Route
                   path="/patient-home/patient-appointments"
                   element={<AppointmentBook />}
