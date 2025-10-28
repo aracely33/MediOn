@@ -199,7 +199,7 @@ const PatientDashboard = () => {
               ? "a"
               : user.gender === "Masculino"
               ? "o"
-              : user.name?.trim().slice(-1).toLowerCase() === "a" || "y"
+              : ["a", "y"].includes(user.name?.trim().slice(-1).toLowerCase())
               ? "a"
               : "o"}
             , {user.name}!
