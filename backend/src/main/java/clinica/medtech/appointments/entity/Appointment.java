@@ -49,9 +49,6 @@ public class Appointment {
     @Column(name = "appointment_time", nullable = false)
     private LocalTime appointmentTime;
 
-    @Column(name = "duration", nullable = false)
-    private Integer duration;
-
     @Column(name = "reason", nullable = false, length = 500)
     private String reason;
 
@@ -69,8 +66,4 @@ public class Appointment {
         return LocalDateTime.of(appointmentDate, appointmentTime);
     }
 
-    @Transient
-    public LocalDateTime getAppointmentEndDateTime() {
-        return getAppointmentStartDateTime().plusMinutes(duration != null ? duration : 30);
-    }
 }

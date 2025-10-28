@@ -31,11 +31,11 @@ import org.springframework.http.HttpHeaders;
         servers = {
                 @Server(
                         description = "Entorno Local",
-                        url = "http://localhost:8080"
+                        url = "http://localhost:5000"
                 ),
                 @Server(
                         description = "Producción",
-                        url = "http://medtech.us-east-1.elasticbeanstalk.com"
+                        url = "http://medtech2.us-east-1.elasticbeanstalk.com"
                 )
         },
         security = @SecurityRequirement(

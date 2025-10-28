@@ -38,9 +38,8 @@ public class UserModel {
     @Column(nullable = false)
     private String password;
 
-    @Builder.Default
     @Column(nullable = false)
-    private Boolean emailVerified = false;
+    private Boolean emailVerified;
 
     @Column
     private LocalDateTime emailVerifiedAt;

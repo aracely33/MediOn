@@ -4,6 +4,7 @@ import clinica.medtech.common.dto.PaginatedResponse;
 import clinica.medtech.users.dtoRequest.PatientUpdateRequestDto;
 import clinica.medtech.users.dtoResponse.PatientMeResponseDto;
 import clinica.medtech.users.entities.PatientModel;
+import clinica.medtech.users.service.FhirPatientService;
 import clinica.medtech.users.service.PatientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -24,6 +25,7 @@ import java.util.List;
 public class PatientController {
 
     private final PatientService patientService;
+    private final FhirPatientService fhirPatientService;
 
     /**
      * Actualiza los datos de un paciente.
@@ -42,6 +44,17 @@ public class PatientController {
             @Parameter(description = "ID del paciente a actualizar") @PathVariable Long id,
             @RequestBody @Valid PatientUpdateRequestDto updateRequest) {
         return ResponseEntity.ok(patientService.updatePatientUser(id, updateRequest));
+    }
+
+    @GetMapping("/fhir/search")
+    public ResponseEntity<String> getPatientByEmail(@RequestParam String email) {
+        try {
+            String response = fhirPatientService.getPatientByEmail(email);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body("{\"error\": \"No se pudo obtener el paciente desde FHIR\"}");
+        }
     }
 
 
