@@ -31,7 +31,7 @@ import org.springframework.http.HttpHeaders;
         servers = {
                 @Server(
                         description = "Entorno Local",
-                        url = "http://localhost:8080"
+                        url = "http://localhost:5000"
                 ),
                 @Server(
                         description = "Producción",
