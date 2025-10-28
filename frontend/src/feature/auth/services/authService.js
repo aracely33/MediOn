@@ -6,6 +6,23 @@ export const registerPatient = async (patient) => {
   return await api.post("/auth/patient/register", patient);
 };
 
+// Obtener usuario autenticado
+export const getMe = async () => {
+  try {
+    const token = localStorage.getItem("auth_token");
+    if (!token) throw new Error("No hay token disponible");
+
+    const response = await api.get("/auth/me", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error en getMe:", error);
+    throw error;
+  }
+};
+
 // Endpoint para iniciar sesión un paciente
 export const loginUser = async (user) => {
   return await api.post("/auth/login", user);
