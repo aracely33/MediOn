@@ -1,0 +1,12 @@
+/* ---------- FONDO ---------- */
+.signup-bg {
+  background: linear-gradient(135deg, #4f46e5, #06b6d4);
+}
+
+/* Quita el ícono rojo del campo de contraseña */
+.password-input-no-icon.is-invalid {
+  background-image: none !important;
+  padding-right: 2.5rem; /* deja espacio para el icono del ojo */
+}
+
+

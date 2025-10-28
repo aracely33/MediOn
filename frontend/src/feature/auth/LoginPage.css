@@ -1,0 +1,65 @@
+/* ---------- FONDO ---------- */
+.login-bg {
+  background: linear-gradient(135deg, #4f46e5, #06b6d4);
+}
+
+/* ---------- TÍTULO ---------- */
+.brand-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: white;
+}
+
+/* ---------- BOTÓN ---------- */
+.login-btn {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  background: linear-gradient(90deg, #4f46e5, #06b6d4);
+  border: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.login-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(79, 70, 229, 0.3);
+}
+
+/* ---------- ENLACES ---------- */
+.card-link {
+  font-size: 0.9rem;
+  color: #4f46e5;
+  text-decoration: none;
+}
+
+.card-link:hover {
+  color: #06b6d4;
+  text-decoration: underline;
+}
+
+/* ---------- REGISTRO Y FOOTER ---------- */
+.register-text {
+  color: #475569;
+}
+
+footer a {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+footer a:hover {
+  color: #e0f2fe;
+}
+
+/* ---------- RESPONSIVIDAD ---------- */
+@media (max-width: 576px) {
+  .brand-title {
+    font-size: 1.5rem;
+  }
+
+  .login-btn {
+    font-size: 0.95rem;
+  }
+}
