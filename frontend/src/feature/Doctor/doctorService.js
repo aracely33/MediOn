@@ -2,7 +2,7 @@ import { api } from "../../services/api";
 
 // Obtener todos los profesionales
 export const getAllProfessionals = async () => {
-  const response = await api.get("/professionals");
+  const response = await api.get("/professional");
   return response.data;
 };
 
