@@ -1,24 +1,28 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./AppointmentBook.css";
 import Header from "../../../components/header/Header";
 import { Container } from "react-bootstrap";
-import { ProgressSteps } from "./components/ProgressSteps";
-import { StepTypeAppointment } from "./components/StepTypeAppointment";
+import { ProgressSteps } from "./components/createAppointment/ProgressSteps";
+import { StepTypeAppointment } from "./components/createAppointment/StepTypeAppointment";
 import { useSteps } from "../../../utils/useSteps";
 // import { StepSpeciality } from "./components/StepSpeciality";
-import { StepDoctor } from "./components/StepDoctor";
-import { StepDateAndTime } from "./components/StepDateAndTime";
+import { StepDoctor } from "./components/createAppointment/StepDoctor";
+import { StepDateAndTime } from "./components/createAppointment/StepDateAndTime";
 // import { StepGenerateLink } from "./components/StepGenerateLink";
-import { StepConfirm } from "./components/StepConfirm";
-import { StepReasonNote } from "./components/StepReasonNote";
+import { StepConfirm } from "./components/createAppointment/StepConfirm";
+import { StepReasonNote } from "./components/createAppointment/StepReasonNote";
 import { useFormik } from "formik";
 import { appointmentValidation } from "../../../utils/validationSchemas";
 import { convertTo24Hour } from "../../../utils/formatters";
 import { usePatient } from "../../../context/PatientContext";
 import { useAppointment } from "../../../context/AppointmentContext";
+import Sidebar from "../../../components/sidebar/Sidebar";
+// import { getMe } from "../../auth/services/authService";
 
-function AppointmentBook() {
+function CreateAppointmentBook() {
   const { patient } = usePatient();
+  const [user, setUser] = useState(null);
+  const [showSidebar, setShowSidebar] = useState(false);
   const { addAppointment } = useAppointment();
   const [selectedMedico, setSelectedMedico] = useState(null);
 
@@ -33,8 +37,7 @@ function AppointmentBook() {
       notes: "",
     },
     validationSchema: appointmentValidation,
-    onSubmit: async (values) => {
-      console.log("onSubmit invoked con values:", values);
+    onSubmit: async (values, { setSubmitting }) => {
       try {
         const dateFormatted = values.appointmentDate
           .toISOString()
@@ -56,6 +59,8 @@ function AppointmentBook() {
         console.log("Valores del formulario", values);
       } catch (error) {
         console.error("Error al crear la cita:", error);
+        setSubmitting(false);
+        throw error;
       }
     },
   });
@@ -65,10 +70,51 @@ function AppointmentBook() {
     formik.values.type === "VIRTUAL" ? 6 : 7
   );
 
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/login");
+  };
+
+  // useEffect(() => {
+  //   const fetchUser = async () => {
+  //     try {
+  //       const data = await getMe();
+  //       console.log("Datos del usuario obtenido:", data);
+  //       setUser(data);
+  //     } catch (error) {
+  //       console.error("Error al obtener usuario:", error);
+  //     }
+  //   };
+  //   fetchUser();
+  // }, []);
+
   return (
-    <div className="app bg-light min-vh-100 d-flex flex-column">
-      <Header />
-      <Container className="flex-grow-1 py-4">
+    <div className="d-flex patient-dashboard">
+      <Sidebar
+        user={{
+          id: patient.id,
+          name: patient.name,
+          lastName: patient.lastName,
+          avatar: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
+        }}
+        role="patient"
+        show={showSidebar}
+        onHide={() => setShowSidebar(false)}
+      />
+
+      <Container className="flex-grow-1">
+        <Header
+          className="mb-4"
+          title="MedTech: Tu portal de salud"
+          avatarUrl={patient.avatar}
+          buttons={[
+            {
+              label: "Cerrar sesión",
+              onClick: handleLogout,
+              className: "header-btn",
+            },
+          ]}
+        />
         <ProgressSteps currentStep={currentStep} type={formik.values.type} />
 
         {currentStep === 1 && (
@@ -127,4 +173,4 @@ function AppointmentBook() {
   );
 }
 
-export default AppointmentBook;
+export default CreateAppointmentBook;

@@ -22,12 +22,14 @@ export const AppointmentProvider = ({ children }) => {
       const response = await createAppointmentBook(appointmentData);
       console.log("Appointment created:", response.data);
       setAppointments([...appointments, response.data]);
+      return response.data;
     } catch (error) {
       console.error("Error creating appointment:", error);
       console.error(
         "Error details:",
         error.response?.data.details || error.message
       );
+      throw error;
     }
   };
 
