@@ -9,7 +9,8 @@ import CalendarView from "../../components/calendarView/calendarView";
 import AppointmentDetails from "../../components/appointmentDetail/AppointmentDetails";
 import { useNavigate } from "react-router-dom";
 import { getMe } from "../auth/services/authService";
-import { getDoctorAvailability } from "./doctorService";
+import { getDoctorAppointments } from "./doctorService";
+import { getPatientById } from "../Patient/patientService";
 import "./DoctorDashboard.css";
 import { useDoctor } from "../../context/DoctorContext";
 
@@ -18,12 +19,12 @@ const DoctorDashboard = () => {
   const navigate = useNavigate();
   const [doctor, setDoctor] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [appointments, setAppointments] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [showCalendar, setShowCalendar] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
-  const [occupiedSlots, setOccupiedSlots] = useState([]);
 
-  // Traer info del doctor
+  // 🔹 Traer información del doctor
   useEffect(() => {
     const fetchDoctor = async () => {
       try {
@@ -50,56 +51,70 @@ const DoctorDashboard = () => {
     fetchDoctor();
   }, []);
 
-  // Traer horarios ocupados
+  // 🔹 Traer citas del doctor y asociar datos del paciente
   useEffect(() => {
-    const fetchAvailability = async () => {
+    const fetchAppointments = async () => {
+      if (!doctor?.id) return;
+
       try {
-        const slots = await getDoctorAvailability(doctor.id);
-        setOccupiedSlots(slots);
+        const data = await getDoctorAppointments(doctor.id);
+
+        const formatted = await Promise.all(
+          data.map(async (appt) => {
+            let patientName = `Paciente ${appt.patientId}`;
+            let patientData = null;
+
+            try {
+              const patient = await getPatientById(appt.patientId);
+              patientName = `${patient.name} ${patient.lastName}`;
+              patientData = patient;
+            } catch (err) {
+              console.warn("No se pudo traer paciente:", appt.patientId);
+            }
+
+            return {
+              id: appt.id,
+              time: new Date(
+                appt.appointmentDate + "T" + appt.appointmentTime
+              ).toLocaleTimeString("es-MX", {
+                hour: "2-digit",
+                minute: "2-digit",
+              }),
+              patient: patientName,
+              age: patientData?.age || "-",
+              gender: patientData?.gender || "-",
+              specialty: doctor?.specialty || "",
+              status: appt.status === "PENDIENTE" ? "Pendiente" : "Confirmada",
+              dateTime: appt.appointmentEndDateTime,
+              motive: appt.reason,
+              notes: appt.notes,
+              isTeleconsultation: appt.type,
+              doctor: doctor?.name,
+            };
+          })
+        );
+
+        setAppointments(formatted);
       } catch (error) {
-        console.error("Error al obtener disponibilidad:", error);
+        console.error("Error al obtener citas:", error);
       }
     };
-    if (doctor?.id) fetchAvailability();
+
+    fetchAppointments();
   }, [doctor]);
 
-  // Mapear citas
-  const mapSlotToAppointment = (slot) => {
-    const slotDate = new Date(slot);
-    return {
-      time: slotDate.toLocaleTimeString("es-MX", {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-      patient: "Ocupado",
-      age: "-",
-      gender: "-",
-      specialty: doctor?.specialty || "",
-      status: "Confirmada",
-      dateTime: slot,
-      motive: "Cita agendada",
-      isTeleconsultation: false,
-      doctor: doctor?.name,
-    };
-  };
-
-  // Agenda diaria: solo citas de hoy
+  // 🔹 Filtrar citas de hoy
   const today = new Date();
-  const todaySchedule = occupiedSlots
-    .map(mapSlotToAppointment)
-    .filter((item) => {
-      const slotDate = new Date(item.dateTime);
-      return (
-        slotDate.getFullYear() === today.getFullYear() &&
-        slotDate.getMonth() === today.getMonth() &&
-        slotDate.getDate() === today.getDate()
-      );
-    });
+  const todaySchedule = appointments.filter((appt) => {
+    const slotDate = new Date(appt.dateTime);
+    return (
+      slotDate.getFullYear() === today.getFullYear() &&
+      slotDate.getMonth() === today.getMonth() &&
+      slotDate.getDate() === today.getDate()
+    );
+  });
 
-  // Calendario: todas las citas
-  const calendarAppointments = occupiedSlots.map((slot) => ({
-    ...mapSlotToAppointment(slot),
-  }));
+  const calendarAppointments = appointments;
 
   const notifications = [
     {
@@ -204,11 +219,19 @@ const DoctorDashboard = () => {
               <Col md={5}>
                 {selectedAppointment && (
                   <AppointmentDetails
-                    {...selectedAppointment}
+                    name={selectedAppointment.patient}
+                    age={selectedAppointment.age}
+                    gender={selectedAppointment.gender}
                     date={new Date(selectedAppointment.dateTime).toLocaleString(
                       "es-MX",
-                      { dateStyle: "long", timeStyle: "short" }
+                      {
+                        dateStyle: "long",
+                        timeStyle: "short",
+                      }
                     )}
+                    motive={selectedAppointment.motive}
+                    assignedTo={selectedAppointment.doctor}
+                    isTeleconsultation={selectedAppointment.isTeleconsultation}
                     role="doctor"
                     onClose={() => setSelectedAppointment(null)}
                   />
