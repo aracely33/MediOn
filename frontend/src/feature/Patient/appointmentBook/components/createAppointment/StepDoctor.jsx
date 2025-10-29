@@ -1,7 +1,7 @@
 import { Card, Row, Col, Button, Spinner, Alert } from "react-bootstrap";
 import { SearchBar } from "./SearchBar";
 import { useEffect, useState } from "react";
-import { getAllProfessionals } from "../../../Doctor/doctorService";
+import { getAllProfessionals } from "../../../../Doctor/doctorService";
 
 export const StepDoctor = ({
   onNext,
