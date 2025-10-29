@@ -51,12 +51,26 @@ public class AuthController {
     @ApiResponse(responseCode = "401", description = "Credenciales incorrectas")
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDto> login(
-            @RequestBody @Valid AuthLoginRequestDto authDto) {
+            @RequestBody @Valid AuthLoginRequestDto authDto,
+            HttpServletResponse servletResponse) {
 
         // Lógica de autenticación
         AuthResponseDto response = this.userDetailsService.loginUser(authDto);
 
-        // Simplemente devolvemos el token y demás info en el cuerpo
+        // Set JWT token as cookie for automatic authentication
+        if (response.getToken() != null) {
+            ResponseCookie jwtCookie = ResponseCookie.from("jwt_token", response.getToken())
+                    .httpOnly(true)
+                    .secure(false) // Set to true in production with HTTPS
+                    .path("/")
+                    .maxAge(24 * 60 * 60) // 24 hours
+                    .sameSite("Lax")
+                    .build();
+            
+            servletResponse.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
+        }
+
+        // Also return the token in the response body for manual use
         return ResponseEntity.ok(response);
     }
 

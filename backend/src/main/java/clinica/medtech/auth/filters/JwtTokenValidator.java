@@ -6,6 +6,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
+import org.springframework.http.HttpHeaders;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.lang.NonNull;
@@ -33,7 +34,16 @@ public class JwtTokenValidator extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
-        String jwtToken = extractTokenFromCookies(request);
+        // First try to read token from Authorization header (Bearer <token>)
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String jwtToken = null;
+
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            jwtToken = authHeader.substring(7);
+        } else {
+            // Fallback: try cookies (existing behavior)
+            jwtToken = extractTokenFromCookies(request);
+        }
 
         if (jwtToken != null) {
             try {
