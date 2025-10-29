@@ -33,7 +33,7 @@ public class JwtTokenValidator extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
-        String jwtToken = extractTokenFromCookies(request);
+        String jwtToken = extractTokenFromHeader(request);
 
         if (jwtToken != null) {
             try {
@@ -53,17 +53,14 @@ public class JwtTokenValidator extends OncePerRequestFilter {
      * @param request la solicitud HTTP que contiene las cookies
      * @return el valor del token JWT si se encuentra, o null si no existe
      */
-    private String extractTokenFromCookies(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("jwt_token".equalsIgnoreCase(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
+    private String extractTokenFromHeader(HttpServletRequest request) {
+        String headerAuth = request.getHeader("Authorization");
+        if (headerAuth != null && headerAuth.startsWith("Bearer ")) {
+            return headerAuth.substring(7);
         }
         return null;
     }
+
 
     /**
      * Procesa el token JWT extraído de las cookies.
