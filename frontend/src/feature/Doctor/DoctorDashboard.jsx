@@ -8,7 +8,9 @@ import NotificationCard from "../../components/notificationCard/NotificationCard
 import CalendarView from "../../components/calendarView/calendarView";
 import AppointmentDetails from "../../components/appointmentDetail/AppointmentDetails";
 import { useNavigate } from "react-router-dom";
-import { getProfessionalById } from "./doctorService";
+import { getMe } from "../auth/services/authService";
+import { getDoctorAppointments } from "./doctorService";
+import { getPatientById } from "../Patient/patientService";
 import "./DoctorDashboard.css";
 import { useDoctor } from "../../context/DoctorContext";
 
@@ -17,64 +19,113 @@ const DoctorDashboard = () => {
   const navigate = useNavigate();
   const [doctor, setDoctor] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [appointments, setAppointments] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [showCalendar, setShowCalendar] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
 
-  // Simulación temporal del ID del médico
-  const doctorId = 6;
-
+  // 🔹 Traer información del doctor
   useEffect(() => {
-    const fetchDoctorData = async () => {
+    const fetchDoctor = async () => {
       try {
-        const data = await getProfessionalById(doctorId);
-        setDoctor(data);
+        const me = await getMe();
+        setDoctor({
+          id: me.id,
+          name: me.name,
+          lastName: me.lastName,
+          email: me.email,
+          specialty: me.specialty,
+          medicalLicense: me.medicalLicense,
+          biography: me.biography,
+          consultationFee: me.consultationFee,
+          avatar:
+            me.avatar ||
+            "https://cdn-icons-png.flaticon.com/512/149/149071.png",
+        });
       } catch (error) {
-        console.error("Error al obtener los datos del doctor:", error);
+        console.error("Error al obtener info del doctor:", error);
       } finally {
         setLoading(false);
       }
     };
-
-    fetchDoctorData();
+    fetchDoctor();
   }, []);
 
-  // Datos temporales de citas y notificaciones
-  const schedule = [
-    {
-      time: "10:00 AM",
-      patient: "Sofía Sánchez",
-      age: 25,
-      gender: "Femenino",
-      specialty: "Cardiología",
-      status: "Confirmada",
-      dateTime: "2025-10-14T15:00:00",
-      motive: "Chequeo de presión arterial",
-      isTeleconsultation: false,
-      doctor: doctor?.name,
-    },
-    {
-      time: "11:30 AM",
-      patient: "Luis Martínez",
-      age: 45,
-      gender: "Masculino",
-      specialty: "Dermatología",
-      status: "Pendiente",
-      dateTime: "2025-10-14T17:30:00",
-      motive: "Revisión de lunares",
-      isTeleconsultation: true,
-      doctor: doctor?.name,
-    },
-  ];
+  // 🔹 Traer citas del doctor y asociar datos del paciente
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      if (!doctor?.id) return;
+
+      try {
+        const data = await getDoctorAppointments(doctor.id);
+
+        const formatted = await Promise.all(
+          data.map(async (appt) => {
+            let patientName = `Paciente ${appt.patientId}`;
+            let patientData = null;
+
+            try {
+              const patient = await getPatientById(appt.patientId);
+              patientName = `${patient.name} ${patient.lastName}`;
+              patientData = patient;
+            } catch (err) {
+              console.warn("No se pudo traer paciente:", appt.patientId);
+            }
+
+            return {
+              id: appt.id,
+              time: new Date(
+                appt.appointmentDate + "T" + appt.appointmentTime
+              ).toLocaleTimeString("es-MX", {
+                hour: "2-digit",
+                minute: "2-digit",
+              }),
+              patient: patientName,
+              age: patientData?.age || "-",
+              gender: patientData?.gender || "-",
+              specialty: doctor?.specialty || "",
+              status: appt.status === "PENDIENTE" ? "Pendiente" : "Confirmada",
+              dateTime: appt.appointmentEndDateTime,
+              motive: appt.reason,
+              notes: appt.notes,
+              isTeleconsultation: appt.type,
+              doctor: doctor?.name,
+            };
+          })
+        );
+
+        setAppointments(formatted);
+      } catch (error) {
+        console.error("Error al obtener citas:", error);
+      }
+    };
+
+    fetchAppointments();
+  }, [doctor]);
+
+  // 🔹 Filtrar citas de hoy
+  const today = new Date();
+  const todaySchedule = appointments.filter((appt) => {
+    const slotDate = new Date(appt.dateTime);
+    return (
+      slotDate.getFullYear() === today.getFullYear() &&
+      slotDate.getMonth() === today.getMonth() &&
+      slotDate.getDate() === today.getDate()
+    );
+  });
+
+  const calendarAppointments = appointments;
 
   const notifications = [
     {
-      title: "Nueva cita agendada",
-      description: "Carlos Rivas ha reservado una cita a las 15:00 PM.",
+      title: "Recordatorio de perfil",
+      description:
+        "Actualiza tu información personal y fotografía para mantener tu perfil completo en servicio técnico.",
     },
     {
-      title: "Paciente canceló cita",
-      description: "María Fernández canceló su cita de mañana.",
+      title: "Mantenimiento de la plataforma",
+      description:
+        "La plataforma estará en mantenimiento este viernes de 22:00 a 23:00.",
     },
   ];
 
@@ -88,13 +139,13 @@ const DoctorDashboard = () => {
 
   return (
     <div className="d-flex doctor-dashboard">
-      {/* Sidebar retráctil */}
+      {/* Sidebar */}
       <Sidebar
         user={{
           name: doctor.name,
-          avatar:
-            doctor.avatarUrl ||
-            "https://cdn-icons-png.flaticon.com/512/387/387561.png",
+          specialty: doctor.specialty,
+          id: doctor.id,
+          avatar: doctor.avatar,
         }}
         role="doctor"
         show={showSidebar}
@@ -104,10 +155,7 @@ const DoctorDashboard = () => {
       <div className="flex-grow-1">
         <Header
           title="MedTech: Portal Médico"
-          avatarUrl={
-            doctor.avatarUrl ||
-            "https://cdn-icons-png.flaticon.com/512/387/387561.png"
-          }
+          avatarUrl={doctor.avatar}
           buttons={[
             {
               label: "Cerrar sesión",
@@ -117,7 +165,7 @@ const DoctorDashboard = () => {
           ]}
         />
 
-        {/* Botón hamburguesa visible solo en móviles */}
+        {/* Botón hamburguesa móvil */}
         <div className="d-lg-none p-2">
           <Button
             variant="outline-primary"
@@ -143,16 +191,20 @@ const DoctorDashboard = () => {
           {!showCalendar ? (
             <Row className="mt-3">
               <Col md={7}>
-                <Row>
-                  {schedule.map((item, idx) => (
-                    <Col md={12} key={idx} className="mb-3">
-                      <DoctorScheduleCard
-                        {...item}
-                        onSelect={() => setSelectedAppointment(item)}
-                      />
-                    </Col>
-                  ))}
-                </Row>
+                {todaySchedule.length > 0 ? (
+                  <Row>
+                    {todaySchedule.map((item, idx) => (
+                      <Col md={12} key={idx} className="mb-3">
+                        <DoctorScheduleCard
+                          {...item}
+                          onSelect={() => setSelectedAppointment(item)}
+                        />
+                      </Col>
+                    ))}
+                  </Row>
+                ) : (
+                  <p className="mt-3">Sin citas para hoy</p>
+                )}
 
                 <h4 className="mt-5">Notificaciones</h4>
                 <Row>
@@ -165,28 +217,30 @@ const DoctorDashboard = () => {
               </Col>
 
               <Col md={5}>
-                {selectedAppointment ? (
+                {selectedAppointment && (
                   <AppointmentDetails
                     name={selectedAppointment.patient}
                     age={selectedAppointment.age}
                     gender={selectedAppointment.gender}
                     date={new Date(selectedAppointment.dateTime).toLocaleString(
                       "es-MX",
-                      { dateStyle: "long", timeStyle: "short" }
+                      {
+                        dateStyle: "long",
+                        timeStyle: "short",
+                      }
                     )}
                     motive={selectedAppointment.motive}
-                    isTeleconsultation={selectedAppointment.isTeleconsultation}
                     assignedTo={selectedAppointment.doctor}
+                    isTeleconsultation={selectedAppointment.isTeleconsultation}
                     role="doctor"
+                    onClose={() => setSelectedAppointment(null)}
                   />
-                ) : (
-                  <p>Selecciona una cita para ver los detalles</p>
                 )}
               </Col>
             </Row>
           ) : (
             <CalendarView
-              appointments={schedule}
+              appointments={calendarAppointments}
               onSelectEvent={(appt) => setSelectedAppointment(appt)}
             />
           )}

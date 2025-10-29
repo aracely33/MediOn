@@ -9,10 +9,10 @@ import NotificationCard from "../../components/notificationCard/NotificationCard
 import { useNavigate } from "react-router-dom";
 import { usePatient } from "../../context/PatientContext";
 import {
-  getMe,
   getAppointmentsByPatientId,
   cancelAppointment,
 } from "./patientService";
+import { getMe } from "../auth/services/authService";
 import { getProfessionalById } from "../Doctor/doctorService";
 import { calculateAge, formatDateTime } from "../auth/utils/birthday";
 import "./PatientDashboard.css";
@@ -81,7 +81,7 @@ const PatientDashboard = () => {
                 specialty: doctor?.specialty || "Sin especialidad",
                 license: doctor?.medicalLicense || "No disponible",
                 motive: appt.reason,
-                isTeleconsultation: appt.type,
+                isTeleconsultation: appt.type, // === "VIRTUAL", true solo si es virtual
                 status: appt.status,
                 id: appt.id,
               };
