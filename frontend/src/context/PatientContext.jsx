@@ -33,13 +33,9 @@ export const PatientProvider = ({ children }) => {
         password: patientData.password,
         confirmPassword: patientData.confirmPassword,
       });
-
       console.log("✅ Registro exitoso:", response.data);
 
-      // Guardamos email para reenviar código o recordar usuario
       localStorage.setItem("patient_email", patientData.email);
-
-      // Guardamos email en el contexto temporalmente
       setPatient({ email: patientData.email });
 
       return response.data;
@@ -48,30 +44,92 @@ export const PatientProvider = ({ children }) => {
       throw error;
     }
   };
-  // 🟢 Login
+
+  // 🟢 Crear historia clínica tras el primer login
+  const createMedicalRecord = async (patientId, token) => {
+    try {
+      const number = `HC-${patientId.toString().padStart(6, "0")}`;
+      const creationDate = new Date().toISOString().split("T")[0];
+      console.log("🩺 Creando historia clínica con número:", number);
+
+      const response = await api.post(
+        "/medical-records",
+        {
+          number,
+          creationDate,
+          observations: "Historial clínico inicial.",
+          patientId,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.data?.id) {
+        console.log("✅ Historia clínica creada con ID:", response.data.id);
+        return response.data.id;
+      } else {
+        console.warn("⚠️ No se devolvió ID del historial clínico");
+        return null;
+      }
+    } catch (error) {
+      console.error(
+        "🚨 Error al crear historial clínico:",
+        error.response?.data || error
+      );
+      return null;
+    }
+  };
+
+  // 🟢 Login del paciente
   const signIn = async (patientData) => {
     try {
+      console.log("🚀 Iniciando sesión del paciente...");
       const response = await loginUser(patientData);
-      console.log("Respuesta en PatientContext: ", response);
-      const { token } = response.data;
-      console.log("🔑 Token obtenido en login:", token);
+      console.log("Respuesta en PatientContext:", response.data);
+
+      const { token, id } = response.data;
+      console.log("🔑 Token obtenido:", token);
 
       if (token) {
         localStorage.setItem("patient_token", token);
       }
 
+      // ✅ Consultar datos del paciente
       const meResponse = await api.get("/auth/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      console.log("👤 Datos del paciente después del login:", meResponse.data);
+      console.log("👤 Datos del paciente:", meResponse.data);
 
       setPatient(meResponse.data);
       setIsAuthenticatedPatient(true);
 
+      // 🩺 Crear historia clínica si aún no existe
+      if (id) {
+        console.log("🧩 Verificando si tiene historia clínica...");
+        try {
+          const fullDetails = await api.get(
+            `/medical-records/${id}/full-details`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+          if (fullDetails.data) {
+            console.log("🩵 Ya existe historia clínica, no se crea nueva.");
+          }
+        } catch (err) {
+          console.log(
+            "⚠️ No se encontró historia clínica, creando una nueva..."
+          );
+          await createMedicalRecord(id, token);
+        }
+      }
+
       //await reviewLogin(token);
     } catch (error) {
-      console.log("⚠️ Error al iniciar sesión:", error);
+      console.log("⚠️ Error al iniciar sesión:", error.response?.data || error);
+      throw error;
     }
   };
 
@@ -85,7 +143,7 @@ export const PatientProvider = ({ children }) => {
       localStorage.removeItem("patient_token");
       setPatient(null);
       setIsAuthenticatedPatient(false);
-      setLoadingPatient(false); // 👋esto es nuevo
+      setLoadingPatient(false);
     }
   };
 

@@ -39,6 +39,9 @@ const Sidebar = ({ user, role, show, onHide }) => {
             />
             <div>
               <h6 className="user-name mb-0">{user.name}</h6>
+              {role === "doctor" && user.specialty && (
+                <div className="user-specialty ">{user.specialty}</div>
+              )}
               <small className="user-id text-muted">ID: {user.id}</small>
             </div>
           </div>
