@@ -8,11 +8,12 @@ import SignupPage from "./feature/auth/SignupPage";
 import ConfirmEmailPage from "./feature/auth/ConfirmEmailPage";
 import PatientDashboard from "./feature/Patient/PatientDashboard";
 import DoctorDashboard from "./feature/Doctor/DoctorDashboard";
-import AppointmentBook from "./feature/Patient/appointmentBook/AppointmentBook";
+import CreateAppointmentBook from "./feature/Patient/appointmentBook/CreateAppointmentBook";
 import ForgotPasswordPage from "./feature/auth/ForgotPasswordPage";
 import ConfigurationProfile from "./feature/auth/ConfigurationProfile";
 import { DoctorProvider } from "./context/DoctorContext";
 import { AppointmentProvider } from "./context/AppointmentContext";
+import UpdateAppointmentBook from "./feature/Patient/appointmentBook/UpdateAppointmentBook";
 import MedicalHistory from "./feature/Patient/EHR/MedicalHistory";
 import MessagesAndAlerts from "./feature/Patient/Messages/MessagesAndAlerts";
 
@@ -44,7 +45,11 @@ function App() {
 
                 <Route
                   path="/patient-home/patient-appointments"
-                  element={<AppointmentBook />}
+                  element={<CreateAppointmentBook />}
+                />
+                <Route
+                  path="/patient-home/update-appointment/:id"
+                  element={<UpdateAppointmentBook />}
                 />
                 <Route
                   path="/patient-home/patient-config"

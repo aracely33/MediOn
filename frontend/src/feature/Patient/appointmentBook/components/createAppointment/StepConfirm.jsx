@@ -1,18 +1,21 @@
 import { useState } from "react";
-import { dateFormatter } from "../../../../utils/formatters";
+import {
+  convertTo24Hour,
+  dateFormatter,
+} from "../../../../../utils/formatters";
 import { Card, Button, Alert } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { useAppointment } from "../../../../../context/AppointmentContext";
 
 export const StepConfirm = ({ formik, currentStep, prev, doctor }) => {
   const [confirmed, setConfirmed] = useState(false);
   const [apiError, setApiError] = useState("");
+  const { addAppointment } = useAppointment();
 
   const confirmAppointment = async () => {
     setApiError("");
-    const errors = await formik.validateForm();
 
+    const errors = await formik.validateForm();
     if (Object.keys(errors).length > 0) {
-      console.log("Errores de validación:", errors);
       formik.setTouched(
         Object.keys(formik.values).reduce(
           (acc, key) => ({ ...acc, [key]: true }),
@@ -22,19 +25,33 @@ export const StepConfirm = ({ formik, currentStep, prev, doctor }) => {
       return;
     }
 
-    if (window.confirm("¿Estás seguro de confirmar la cita?")) {
-      try {
-        await formik.handleSubmit();
-        console.log("Cita confirmada");
-        setConfirmed(true);
-      } catch (error) {
-        console.error("Error al confirmar la cita:", error);
-        const detail =
-          error?.response?.data?.details?.[0] ||
-          error?.response?.data?.message ||
-          "Error al confirmar la cita";
-        setApiError(detail);
-      }
+    const userConfirmed = window.confirm("¿Estás seguro de confirmar la cita?");
+    if (!userConfirmed) return;
+
+    try {
+      await addAppointment({
+        type: formik.values.type,
+        doctorId: formik.values.doctorId,
+        patientId: formik.values.patientId,
+        appointmentDate: formik.values.appointmentDate
+          .toISOString()
+          .split("T")[0],
+        appointmentTime: convertTo24Hour(formik.values.appointmentTime),
+        reason: formik.values.reason,
+        notes: formik.values.notes || "",
+      });
+
+      setConfirmed(true);
+    } catch (error) {
+      console.error("Error al crear la cita:", error);
+
+      const apiMessage =
+        error?.response?.data?.details?.[0] ||
+        error?.response?.data?.message ||
+        "Error al programar la cita";
+
+      setApiError(apiMessage);
+      setConfirmed(false);
     }
   };
 
@@ -50,14 +67,11 @@ export const StepConfirm = ({ formik, currentStep, prev, doctor }) => {
 
       {confirmed ? (
         <Alert variant="success" className="mt-3 text-center">
-          🎉 ¡Tu cita ha sido agendada con éxito!
+          🎉 ¡Tu cita ha sido agendada con éxito! También se agendó en tu Google
+          Calendar.
           <br />
-          También se agendó en tu Google Calendar. Recibirás un correo con los
-          detalles.
+          Por favor dirígete a tu Panel de Control para ver las citas agendadas.
           <br />
-          <Link to="/patient-home">
-            <Button variant="primary">Ir al inicio</Button>
-          </Link>
         </Alert>
       ) : (
         <>
