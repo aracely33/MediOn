@@ -17,7 +17,7 @@ import { convertTo24Hour } from "../../../utils/formatters";
 import { usePatient } from "../../../context/PatientContext";
 import { useAppointment } from "../../../context/AppointmentContext";
 import Sidebar from "../../../components/sidebar/Sidebar";
-import { getMe } from "../../auth/services/authService";
+// import { getMe } from "../../auth/services/authService";
 
 function CreateAppointmentBook() {
   const { patient } = usePatient();
@@ -75,18 +75,18 @@ function CreateAppointmentBook() {
     navigate("/login");
   };
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const data = await getMe();
-        console.log("Datos del usuario obtenido:", data);
-        setUser(data);
-      } catch (error) {
-        console.error("Error al obtener usuario:", error);
-      }
-    };
-    fetchUser();
-  }, []);
+  // useEffect(() => {
+  //   const fetchUser = async () => {
+  //     try {
+  //       const data = await getMe();
+  //       console.log("Datos del usuario obtenido:", data);
+  //       setUser(data);
+  //     } catch (error) {
+  //       console.error("Error al obtener usuario:", error);
+  //     }
+  //   };
+  //   fetchUser();
+  // }, []);
 
   return (
     <div className="d-flex patient-dashboard">
