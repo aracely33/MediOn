@@ -20,7 +20,6 @@ function AppointmentDetails({
           ❌
         </button>
       </div>
-
       <div className="appointment-user">
         <img
           src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
@@ -34,25 +33,27 @@ function AppointmentDetails({
           </p>
         </div>
       </div>
-
       <p className="appointment-item">
         <strong>Fecha y Hora:</strong> {date}, {time}
       </p>
-
       <p className="appointment-item">
-        <strong>Motivo:</strong> {motive}{" "}
-        {isTeleconsultation && <span>(Teleconsulta)</span>}
+        <strong>Motivo:</strong> {motive}
+      </p>
+      <p className="appointment-item">
+        <strong>Tipo:</strong>{" "}
+        {isTeleconsultation === "PRESENCIAL"
+          ? "Presencial"
+          : "Virtual (Teleconsulta)"}
       </p>
 
       <p className="appointment-item">
         <strong>Asignado a:</strong> {assignedTo}
       </p>
-
       <div className="appointment-actions">
         <button
           variant="primary"
           className="header-btn"
-          disabled={!isTeleconsultation}
+          disabled={isTeleconsultation === "PRESENCIAL"}
           onClick={() => {
             // Aquí iría la lógica para iniciar la videollamada
             alert("Iniciando teleconsulta...");
@@ -61,7 +62,6 @@ function AppointmentDetails({
           Iniciar Teleconsulta
         </button>
       </div>
-
       {role === "doctor" && (
         <div className="appointment-notes">
           <label>Notas del personal:</label>

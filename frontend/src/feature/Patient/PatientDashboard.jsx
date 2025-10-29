@@ -81,7 +81,7 @@ const PatientDashboard = () => {
                 specialty: doctor?.specialty || "Sin especialidad",
                 license: doctor?.medicalLicense || "No disponible",
                 motive: appt.reason,
-                isTeleconsultation: appt.type,
+                isTeleconsultation: appt.type, // === "VIRTUAL", true solo si es virtual
                 status: appt.status,
                 id: appt.id,
               };
