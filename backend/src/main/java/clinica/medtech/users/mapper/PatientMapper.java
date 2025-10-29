@@ -24,6 +24,7 @@ public class PatientMapper {
         dto.setCity(patient.getCity());
         dto.setCountry(patient.getCountry());
         dto.setZip(patient.getZip());
+        dto.setFhirId(patient.getFhirId());
         return dto;
     }
 
