@@ -17,11 +17,17 @@
 
 .user-name {
   font-weight: 600;
-  color: #0d6efd;
+  color: rgb(8, 143, 177);
 }
 
 .user-id {
   font-size: 0.8rem;
+}
+
+.user-specialty {
+  font-size: 1 rem;
+  color: rgb(8, 143, 177);
+  font-weight: bold;
 }
 
 /* --- Links --- */

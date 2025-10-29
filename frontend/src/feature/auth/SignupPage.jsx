@@ -69,7 +69,7 @@ const SignupPage = () => {
                       // await signUp(values);
 
                       // Simulación de delay para que veas el overlay
-                      await new Promise((resolve) => setTimeout(resolve, 1000));
+                      //await new Promise((resolve) => setTimeout(resolve, 1000));
 
                       // 2️⃣ Mostrar toast al registrar correctamente
                       showToast(
