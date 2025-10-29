@@ -14,7 +14,8 @@ import Header from "../../components/header/Header";
 import Sidebar from "../../components/sidebar/Sidebar";
 import { useNavigate } from "react-router-dom";
 import { usePatient } from "../../context/PatientContext";
-import { getMe, updatePatient } from "../Patient/patientService";
+import { updatePatient } from "../Patient/patientService";
+import { getMe } from "./services/authService";
 import "./ConfigurationProfile.css";
 
 const ConfigurationProfile = () => {

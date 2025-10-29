@@ -44,7 +44,7 @@ export const sidebarLinks = {
     },
     {
       label: "Agendar Citas",
-      href: "/patient-appointments",
+      href: "/patient-home/patient-appointments",
       icon: "calendar_month",
     },
     {
@@ -57,6 +57,10 @@ export const sidebarLinks = {
       href: "/patient-messages",
       icon: "notifications",
     },
-    { label: "Configuración", href: "/patient-config", icon: "settings" },
+    {
+      label: "Configuración",
+      href: "/patient-home/patient-config",
+      icon: "settings",
+    },
   ],
 };

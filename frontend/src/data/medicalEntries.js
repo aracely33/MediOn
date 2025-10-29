@@ -1,0 +1,55 @@
+// src/data/medicalEntries.js
+export const medicalEntries = [
+  {
+    id: 1,
+    title: "Análisis de Sangre Completo",
+    date: "2024-07-22",
+    desc: "Glucosa: 98 mg/dL, Colesterol Total: 190 mg/dL.",
+    type: "Resultados",
+    severity: "normal",
+    details:
+      "Examen general de sangre. Todos los valores dentro del rango normal.",
+    icon: "🧬",
+  },
+  {
+    id: 2,
+    title: "Prescripción de Lisinopril",
+    date: "2024-06-15",
+    desc: "Lisinopril 10mg. Dosis: 1 tableta diaria.",
+    type: "Medicamentos",
+    severity: "normal",
+    details: "Tratamiento para control de presión arterial alta.",
+    icon: "💊",
+  },
+  {
+    id: 3,
+    title: "Consulta General",
+    date: "2024-06-15",
+    desc: "Chequeo anual y seguimiento de presión arterial.",
+    type: "Consultas",
+    severity: "normal",
+    details: "Paciente con presión controlada, sin síntomas.",
+    icon: "🩺",
+  },
+  {
+    id: 4,
+    title: "Vacunación Gripe Anual",
+    date: "2024-05-10",
+    desc: "Vacuna Antigripal aplicada sin reacciones.",
+    type: "Tratamientos",
+    severity: "normal",
+    details: "Vacuna preventiva anual aplicada correctamente.",
+    icon: "💉",
+  },
+  {
+    id: 5,
+    title: "Visita a Urgencias",
+    date: "2024-04-01",
+    desc: "Dolor abdominal agudo. Diagnóstico: Gastroenteritis.",
+    type: "Diagnósticos",
+    severity: "high",
+    details:
+      "Paciente ingresó con dolor abdominal severo, se diagnosticó gastroenteritis. Tratamiento con líquidos y reposo.",
+    icon: "🚑",
+  },
+];
