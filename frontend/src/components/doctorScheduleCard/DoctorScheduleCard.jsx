@@ -1,7 +1,15 @@
 import { Card, Badge } from "react-bootstrap";
 import "./DoctorScheduleCard.css";
 
-const DoctorScheduleCard = ({ time, patient, specialty, status, onSelect }) => {
+const DoctorScheduleCard = ({
+  time,
+  patient,
+  specialty,
+  status,
+  motive,
+  isTeleconsultation,
+  onSelect,
+}) => {
   const statusColor = status === "Confirmada" ? "success" : "warning";
 
   return (
@@ -14,7 +22,8 @@ const DoctorScheduleCard = ({ time, patient, specialty, status, onSelect }) => {
         <Card.Title>{time}</Card.Title>
         <Card.Text>
           <strong>Paciente:</strong> {patient} <br />
-          <strong>Especialidad:</strong> {specialty}
+          <strong>Tipo:</strong>{" "}
+          {isTeleconsultation === "VIRTUAL" ? "Virtual" : "Presencial"}
         </Card.Text>
         <Badge bg={statusColor}>{status}</Badge>
       </Card.Body>
