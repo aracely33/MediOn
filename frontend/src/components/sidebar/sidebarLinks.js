@@ -49,12 +49,12 @@ export const sidebarLinks = {
     },
     {
       label: "Historial Médico",
-      href: "/patient-home/patient-history",
+      href: "/patient-history",
       icon: "medical_information",
     },
     {
       label: "Mensajes y Alertas",
-      href: "/patient-home/patient-messages",
+      href: "/patient-messages",
       icon: "notifications",
     },
     {
