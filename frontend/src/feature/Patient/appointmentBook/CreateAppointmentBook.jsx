@@ -17,7 +17,7 @@ import { convertTo24Hour } from "../../../utils/formatters";
 import { usePatient } from "../../../context/PatientContext";
 import { useAppointment } from "../../../context/AppointmentContext";
 import Sidebar from "../../../components/sidebar/Sidebar";
-import { getMe } from "../patientService";
+import { getMe } from "../patientService.js";
 
 function CreateAppointmentBook() {
   const { patient } = usePatient();
