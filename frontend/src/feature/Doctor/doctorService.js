@@ -25,3 +25,16 @@ export const getDoctorAvailability = async (doctorId) => {
     throw error;
   }
 };
+
+// Información de las citas de los pacientes de un profesional en específico
+export const getDoctorAppointments = async (doctorId) => {
+  try {
+    const response = await api.get(
+      `/professional/appointmentPatients/${doctorId}`
+    );
+    return response.data; // array de citas
+  } catch (error) {
+    console.error("Error al obtener citas del doctor:", error);
+    return [];
+  }
+};
