@@ -57,6 +57,71 @@ public class PatientController {
         }
     }
 
+    @Operation(summary = "Buscar paciente por ID FHIR",
+            description = "Obtiene un paciente del servidor FHIR utilizando su ID FHIR único.")
+    @ApiResponse(responseCode = "200", description = "Paciente encontrado exitosamente")
+    @ApiResponse(responseCode = "404", description = "Paciente no encontrado en el servidor FHIR")
+    @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    @GetMapping("/fhir/{fhirId}")
+    public ResponseEntity<String> getPatientByFhirId(
+            @Parameter(description = "ID FHIR del paciente") @PathVariable String fhirId) {
+        try {
+            String response = fhirPatientService.getPatientByIDFhir(fhirId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body("{\"error\": \"No se pudo obtener el paciente desde FHIR con ID: " + fhirId + "\"}");
+        }
+    }
+
+    @Operation(summary = "Crear paciente en FHIR",
+            description = "Crea un nuevo paciente en el servidor FHIR utilizando los datos del paciente local. " +
+                    "El paciente debe existir previamente en la base de datos local.")
+    @ApiResponse(responseCode = "201", description = "Paciente creado exitosamente en FHIR")
+    @ApiResponse(responseCode = "404", description = "Paciente no encontrado en la base de datos local")
+    @ApiResponse(responseCode = "500", description = "Error al crear el paciente en FHIR")
+    @PostMapping("/{patientId}/fhir")
+    public ResponseEntity<String> createPatientInFhir(
+            @Parameter(description = "ID del paciente local") @PathVariable Long patientId) {
+        try {
+            // Obtener la entidad PatientModel de la base de datos local
+            PatientModel patient = patientService.getPatientEntity(patientId);
+            
+            // Crear el paciente en FHIR usando el método básico
+            String response = fhirPatientService.createPatientOnFhir(patient);
+            
+            return ResponseEntity.status(201).body(response);
+                    
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body("{\"error\": \"Error al crear el paciente en FHIR: " + e.getMessage() + "\"}");
+        }
+    }
+
+    @Operation(summary = "Crear paciente completo en FHIR",
+            description = "Crea un paciente en FHIR usando el mapper completo con todos los campos disponibles. " +
+                    "Utiliza la estructura FHIR estándar con todos los datos del paciente.")
+    @ApiResponse(responseCode = "201", description = "Paciente creado exitosamente con estructura completa")
+    @ApiResponse(responseCode = "404", description = "Paciente no encontrado")
+    @ApiResponse(responseCode = "500", description = "Error al crear el paciente en FHIR")
+    @PostMapping("/{patientId}/fhir/complete")
+    public ResponseEntity<String> createCompletePatientInFhir(
+            @Parameter(description = "ID del paciente local") @PathVariable Long patientId) {
+        try {
+            // Obtener la entidad PatientModel de la base de datos local
+            PatientModel patient = patientService.getPatientEntity(patientId);
+            
+            // Crear el paciente en FHIR usando el método completo
+            String response = fhirPatientService.createCompleteFhirPatient(patient);
+            
+            return ResponseEntity.status(201).body(response);
+                    
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body("{\"error\": \"Error al crear el paciente completo en FHIR: " + e.getMessage() + "\"}");
+        }
+    }
+
 
     @Operation(summary = "Listar todos los pacientes",
             description = "Obtiene una lista paginada de todos los pacientes registrados.")

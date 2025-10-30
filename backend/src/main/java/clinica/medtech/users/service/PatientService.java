@@ -101,6 +101,14 @@ public class PatientService {
     }
 
     /**
+     * Obtener entidad PatientModel por ID para uso interno y servicios FHIR.
+     */
+    public PatientModel getPatientEntity(Long id) {
+        return patientRepository.findById(id)
+                .orElseThrow(() -> new PatientNotFoundException("Paciente con id " + id + " no encontrado"));
+    }
+
+    /**
      * Obtener paciente por email.
      */
     public PatientMeResponseDto getByEmail(String email) {
