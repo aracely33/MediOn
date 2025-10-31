@@ -34,7 +34,6 @@ function App() {
               <Route element={<ProtectedRouteDoctor />}>
                 {/*Se agregan las rutas que solo puede acceder el doctor*/}
                 <Route path="/doctor-home" element={<DoctorDashboard />} />
-                <Route path="/patient-history" element={<MedicalHistory />} />
               </Route>
 
               <Route element={<ProtectedRoutePatient />}>
@@ -44,7 +43,7 @@ function App() {
                   path="/patient-messages"
                   element={<MessagesAndAlerts />}
                 />
-
+                <Route path="/patient-history" element={<MedicalHistory />} />
                 <Route
                   path="/patient-home/patient-appointments"
                   element={<CreateAppointmentBook />}
