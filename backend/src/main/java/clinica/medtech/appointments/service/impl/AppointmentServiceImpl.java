@@ -3,6 +3,9 @@ package clinica.medtech.appointments.service.impl;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -176,5 +179,21 @@ public class AppointmentServiceImpl implements AppointmentService {
         return appointmentRepository.findActiveAppointmentsByPatientId(patient.getId())
                 .stream().map(appointmentMapper::toResponse).toList();
     }
-}
 
+    @Override
+    @Transactional(readOnly = true)
+    public AppointmentResponse getAppointmentById(Long id) {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new AppointmentNotFoundException(id));
+                
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        PatientModel authenticatedPatient = patientRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new PatientNotFoundException("No se encontró el paciente autenticado."));
+                
+        if (!appointment.getPatient().getId().equals(authenticatedPatient.getId())) {
+            throw new AccessDeniedException("No tiene permiso para ver esta cita");
+        }
+        
+        return appointmentMapper.toResponse(appointment);
+    }
+}

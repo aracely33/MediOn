@@ -129,4 +129,22 @@ public class AppointmentController {
     public ResponseEntity<List<AppointmentResponse>> getMyAppointments() {
         return ResponseEntity.ok(appointmentService.getAppointmentsOfAuthenticatedPatient());
     }
+
+    @Operation(
+        summary = "Obtener cita por ID",
+        description = "Obtiene los detalles de una cita específica del paciente autenticado."
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Cita encontrada correctamente"),
+        @ApiResponse(responseCode = "401", description = "No autorizado (token inválido o ausente)"),
+        @ApiResponse(responseCode = "403", description = "Prohibido - La cita pertenece a otro paciente"),
+        @ApiResponse(responseCode = "404", description = "Cita no encontrada"),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    @GetMapping("/{id}")
+    public ResponseEntity<AppointmentResponse> getAppointmentById(
+            @Parameter(description = "ID de la cita a buscar", example = "1") 
+            @PathVariable Long id) {
+        return ResponseEntity.ok(appointmentService.getAppointmentById(id));
+    }
 }

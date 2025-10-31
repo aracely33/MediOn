@@ -1,5 +1,7 @@
 package clinica.medtech.appointments.mapper;
 
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 import clinica.medtech.appointments.dto.request.AppointmentCreateRequest;
 import clinica.medtech.appointments.dto.request.AppointmentUpdateRequest;
@@ -70,5 +72,11 @@ public class AppointmentMapper {
         if (request.getNotes() != null) {
             appointment.setNotes(request.getNotes());
         }
+    }
+
+    public List<AppointmentResponse> toAppointmentListDto(List<Appointment> appointments) {
+        return appointments.stream()
+                .map(this::toResponse)
+                .toList();
     }
 }

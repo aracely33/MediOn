@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Google API credentials
+src/main/resources/google-credentials/

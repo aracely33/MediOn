@@ -1,5 +1,6 @@
 package clinica.medtech.users.controller;
 
+import clinica.medtech.appointments.dto.response.AppointmentResponse;
 import clinica.medtech.common.dto.PaginatedResponse;
 import clinica.medtech.users.dtoResponse.ProfessionalResponseDto;
 import clinica.medtech.users.service.ProfessionalService;
@@ -7,6 +8,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -73,5 +76,16 @@ public class ProfessionalController {
             @Parameter(description = "Tamaño de página") @RequestParam(defaultValue = "10") int size
     ) {
         return professionalService.getBySpecialty(specialty, page, size);
+    }
+
+    @GetMapping("/appointmentPatients/{id}")
+    @Operation(summary = "Listar citas de los pacientes por id del profesional",
+            description = "Devuelve una lista con información de las citas de los pacientes de un profesional en específico")
+    public ResponseEntity<List<AppointmentResponse>> listAppointmentsOfPatientsByProfessionalId(
+            @Parameter(description = "Id del profesional que se quiere conocer sus citas agendadas") @PathVariable Long id
+    ) {
+        List<AppointmentResponse> appointmentResponses = professionalService.listAppointmentsPatientsByProfessionalId(id);
+
+        return ResponseEntity.status(HttpStatus.OK).body(appointmentResponses);
     }
 }

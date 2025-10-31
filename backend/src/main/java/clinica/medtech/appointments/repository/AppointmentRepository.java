@@ -52,4 +52,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             @Param("excludeId") Long excludeId,
             @Param("statuses") List<AppointmentStatus> statuses
     );
+
+    List<Appointment> findByDoctorId(Long doctorId);
 }

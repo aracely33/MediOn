@@ -1,0 +1,21 @@
+.patient-dashboard {
+  background-color: #f4f6f8;
+}
+
+/* Título principal: ¡Bienvenida! */
+.patient-dashboard h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  letter-spacing: 0.5px;
+}
+
+/* Subtítulo: Próximas Citas */
+.patient-dashboard h4 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #34495e;
+  border-left: 4px solid #0d6efd; /* azul Bootstrap */
+  padding-left: 10px;
+}

@@ -21,4 +21,6 @@ public interface AppointmentService {
     List<AppointmentResponse> getAppointmentsByPatientId(Long patientId);
 
     List<AppointmentResponse> getAppointmentsOfAuthenticatedPatient();
+
+    AppointmentResponse getAppointmentById(Long id);
 }

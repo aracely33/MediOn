@@ -4,6 +4,7 @@ import clinica.medtech.auth.jwt.JwtUtils;
 import clinica.medtech.exceptions.AccountNotVerifiedException;
 import clinica.medtech.exceptions.EmailAlreadyExistsException;
 import clinica.medtech.exceptions.PatientNotFoundException;
+import clinica.medtech.exceptions.ProfessionalNotFoundException;
 import clinica.medtech.notifications.service.EmailService;
 import clinica.medtech.notifications.service.Impl.EmailVerificationService;
 import clinica.medtech.users.Enum.EnumRole;
@@ -19,14 +20,20 @@ import clinica.medtech.users.dtoResponse.PatientMeResponseDto;
 import clinica.medtech.users.dtoResponse.UserMeResponseDto;
 import clinica.medtech.users.dtoResponse.UserResponseDto;
 import clinica.medtech.users.entities.PatientModel;
+import clinica.medtech.users.entities.ProfessionalModel;
 import clinica.medtech.users.entities.RoleModel;
 import clinica.medtech.users.entities.UserModel;
 import clinica.medtech.users.repository.PatientRepository;
+import clinica.medtech.users.repository.ProfessionalRepository;
 import clinica.medtech.users.repository.RoleRepository;
 import clinica.medtech.users.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -41,6 +48,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -57,6 +66,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private final PatientRepository patientRepository;
     private final EmailVerificationService emailVerificationService;
     private final EmailService emailService;
+    private final FhirPatientService fhirPatientService;
+    private final ProfessionalRepository professionalRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -165,6 +176,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         log.info("Registrando nuevo paciente con correo: {}", email);
         PatientModel patientCreated = patientRepository.save(patientEntity);
 
+        try {
+            String fhirResponse = fhirPatientService.createPatientOnFhir(patientCreated);
+            log.info("Paciente también registrado en HAPI FHIR con respuesta: {}", fhirResponse);
+        } catch (Exception e) {
+            log.warn("No se pudo registrar el paciente en FHIR: {}", e.getMessage());
+        }
+
         // Enviar email de bienvenida y código de verificación
         try {
             emailService.sendWelcomeEmail(patientCreated.getEmail(), patientCreated.getName());
@@ -182,7 +200,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 false
         );
     }
-
 
 
 
@@ -226,27 +243,45 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserMeResponseDto getCurrentUser(String email) {
         UserModel user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario con el email " + email + " no encontrado"));
-        PatientModel patient = patientRepository.findByEmailIgnoreCase(email)
-                .orElseThrow(() -> new PatientNotFoundException("Paciente con email " + email + " no encontrado"));
 
-        return UserMeResponseDto.builder()
+        // Detectar tipo de usuario según sus roles
+        boolean isPatient = user.getRoles().stream()
+                .anyMatch(role -> role.getEnumRole() == EnumRole.PATIENT);
+        boolean isProfessional = user.getRoles().stream()
+                .anyMatch(role -> role.getEnumRole() == EnumRole.PROFESSIONAL);
+
+        UserMeResponseDto.UserMeResponseDtoBuilder builder = UserMeResponseDto.builder()
                 .id(user.getId())
                 .email(user.getEmail())
                 .name(user.getName())
                 .lastName(user.getLastName())
-                .birthDate(patient.getBirthDate())
-                .gender(patient.getGender())
-                .phone(patient.getPhone())
-                .address(patient.getAddress())
-                .bloodType(patient.getBloodType())
-                .city(patient.getCity())
-                .country(patient.getCountry())
-                .zip(patient.getZip())
                 .roles(user.getRoles().stream()
                         .map(role -> role.getEnumRole().name())
-                        .toList())
-                .build();
+                        .toList());
+
+        if (isPatient) {
+            patientRepository.findByEmailIgnoreCase(email).ifPresent(patient -> {
+                builder.birthDate(patient.getBirthDate())
+                        .gender(patient.getGender())
+                        .phone(patient.getPhone())
+                        .address(patient.getAddress())
+                        .bloodType(patient.getBloodType())
+                        .city(patient.getCity())
+                        .country(patient.getCountry())
+                        .zip(patient.getZip());
+            });
+        } else if (isProfessional) {
+            professionalRepository.findByEmailIgnoreCase(email).ifPresent(prof -> {
+                builder.specialty(prof.getSpecialty())
+                        .medicalLicense(prof.getMedicalLicense())
+                        .biography(prof.getBiography())
+                        .consultationFee(prof.getConsultationFee());
+            });
+        }
+
+        return builder.build();
     }
+
 
 //    @Transactional
 //    public UserMeResponseDto updateCurrentUser(Long id, UserMeRequestDto userMeRequest) {
