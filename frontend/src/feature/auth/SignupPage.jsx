@@ -60,31 +60,27 @@ const SignupPage = () => {
                 </Card.Subtitle>
 
                 <SignupForm
-                  onSuccess={async () => {
-                    // 1️⃣ Mostrar overlay inmediatamente
-                    setShowOverlay(true);
+                  onSuccess={(status) => {
+                    if (status === "loading") {
+                      setShowOverlay(true); // 🔹 aparece de inmediato
+                      return;
+                    }
 
-                    try {
-                      // Aquí podrías poner la llamada real a signUp
-                      // await signUp(values);
-
-                      // Simulación de delay para que veas el overlay
-                      //await new Promise((resolve) => setTimeout(resolve, 1000));
-
-                      // 2️⃣ Mostrar toast al registrar correctamente
+                    if (status === "success") {
                       showToast(
                         "success",
                         "Registro exitoso 🎉",
                         "¡Tu cuenta ha sido creada correctamente!"
                       );
 
-                      // 3️⃣ Redirigir después de un par de segundos
                       setTimeout(() => {
-                        setShowOverlay(false); // ocultar overlay
+                        setShowOverlay(false);
                         navigate("/confirm-email");
-                      }, 2000);
-                    } catch (error) {
-                      setShowOverlay(false); // ocultar overlay en caso de error
+                      }, 1000); // 🔹 deja ver el toast antes de redirigir
+                    }
+
+                    if (status === "error") {
+                      setShowOverlay(false);
                       showToast(
                         "error",
                         "Error 😕",
