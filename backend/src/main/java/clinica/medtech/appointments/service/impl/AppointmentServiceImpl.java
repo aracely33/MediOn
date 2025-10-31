@@ -4,6 +4,8 @@ package clinica.medtech.appointments.service.impl;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import clinica.medtech.calendar.service.GoogleCalendarService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +31,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
     private final AppointmentMapper appointmentMapper;
+    private final GoogleCalendarService googleCalendarService;
 
     // Estados de cita que bloquean disponibilidad
     private static final List<AppointmentStatus> CONFLICTING_STATUSES =
@@ -57,6 +60,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
 
         entity.setStatus(AppointmentStatus.PENDIENTE);
+        googleCalendarService.createEventWithAppointment(entity, dto.getAppointmentDate(), dto.getAppointmentTime());
         Appointment saved = appointmentRepository.save(entity);
         return appointmentMapper.toResponse(saved);
     }
