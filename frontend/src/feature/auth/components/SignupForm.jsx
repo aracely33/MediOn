@@ -33,6 +33,7 @@ const SignupForm = ({ onSuccess, onShowTerms, onShowPrivacy }) => {
           return;
         }
         try {
+          onSuccess("loading"); // 👈 pasa un estado especial al SignupPage
           console.log("Intentando registro...", values);
           const patient = await signUp({
             name: values.firstName,
@@ -48,10 +49,7 @@ const SignupForm = ({ onSuccess, onShowTerms, onShowPrivacy }) => {
           // Limpia el formulario
           resetForm();
           // Activa el toast de éxito
-          onSuccess(); // 👈 aquí se dispara el CustomToast
-
-          // 🚀 Redirige a la verificación de email
-          setTimeout(() => navigate("/confirm-email"), 2000);
+          onSuccess("success");
         } catch (error) {
           console.error("Error al registrar:", error.response?.data);
           setErrors({
@@ -59,6 +57,9 @@ const SignupForm = ({ onSuccess, onShowTerms, onShowPrivacy }) => {
               error.response?.data?.message ||
               "Hubo un problema al registrarte",
           });
+
+          // 🔹 Si falla, notificar error también
+          onSuccess("error");
         } finally {
           setSubmitting(false);
         }

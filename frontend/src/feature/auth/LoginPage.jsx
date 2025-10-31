@@ -1,3 +1,4 @@
+// src/features/auth/LoginPage.jsx
 import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
@@ -12,8 +13,8 @@ import { loginUser, getMe } from "./services/authService";
 import { usePatient } from "../../context/PatientContext";
 import { useDoctor } from "../../context/DoctorContext";
 import { useNavigate, Link } from "react-router-dom";
-
 import logo from "../../assets/logoMed.svg";
+import CustomToast from "./components/CustomToast";
 
 export const validationSchema = Yup.object({
   email: Yup.string()
@@ -30,10 +31,22 @@ function LoginPage() {
   const { signIn: signInPatient } = usePatient();
   const { signIn: signInDoctor } = useDoctor();
 
-  const [userType, setUserType] = useState("PATIENT");
-  const navigate = useNavigate();
+  const [showOverlay, setShowOverlay] = useState(false);
+  const [toast, setToast] = useState({
+    show: false,
+    type: "success",
+    title: "",
+    message: "",
+  });
+  const [loginError, setLoginError] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const navigate = useNavigate();
   const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
+
+  const showToast = (type, title, message) => {
+    setToast({ show: true, type, title, message });
+  };
 
   return (
     <div className="login-bg">
@@ -71,36 +84,39 @@ function LoginPage() {
                 <Formik
                   initialValues={{ email: "", password: "" }}
                   validationSchema={validationSchema}
-                  // Aquí iría la solicitud a la api
                   onSubmit={async (values) => {
                     try {
+                      setLoginError(false);
+                      setShowOverlay(true);
                       const response = await loginUser(values);
                       const { token } = response.data;
 
-                      if (!token) {
-                        console.error("No se recibió token del backend");
-                        return;
-                      }
+                      if (!token)
+                        throw new Error("No se recibió token del backend");
 
-                      // Guarda el token genérico (para getMe)
                       localStorage.setItem("auth_token", token);
-
-                      // Obtener datos del usuario autenticado
                       const userData = await getMe();
-                      console.log("Usuario autenticado:", userData);
 
-                      // Detectar el rol automáticamente
-                      if (userData.roles.includes("PATIENT")) {
-                        await signInPatient(values); // usa tu contexto
-                        navigate("/patient-home");
-                      } else if (userData.roles.includes("PROFESSIONAL")) {
-                        await signInDoctor(values);
-                        navigate("/doctor-home");
-                      } else {
-                        console.warn("Rol desconocido:", userData.roles);
-                      }
+                      showToast(
+                        "success",
+                        "Inicio de sesión exitoso 🎉",
+                        "¡Bienvenido de nuevo!"
+                      );
+
+                      setTimeout(async () => {
+                        if (userData.roles.includes("PATIENT")) {
+                          await signInPatient(values);
+                          navigate("/patient-home");
+                        } else if (userData.roles.includes("PROFESSIONAL")) {
+                          await signInDoctor(values);
+                          navigate("/doctor-home");
+                        }
+                        setShowOverlay(false);
+                      }, 1200);
                     } catch (error) {
                       console.error("⚠️ Error al iniciar sesión:", error);
+                      setShowOverlay(false);
+                      setLoginError(true);
                     }
                   }}
                 >
@@ -113,6 +129,7 @@ function LoginPage() {
                     handleBlur,
                   }) => (
                     <Form noValidate onSubmit={handleSubmit}>
+                      {/* Email */}
                       <Form.Group className="mb-3" controlId="formBasicEmail">
                         <Form.Label className="fw-bold">
                           Correo electrónico
@@ -124,13 +141,17 @@ function LoginPage() {
                           value={values.email}
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          isInvalid={touched.email && !!errors.email}
+                          isInvalid={
+                            (touched.email && !!errors.email) || loginError
+                          }
                         />
                         <Form.Control.Feedback type="invalid">
-                          {errors.email}
+                          {errors.email ||
+                            (loginError && "Verifica tus credenciales")}
                         </Form.Control.Feedback>
                       </Form.Group>
 
+                      {/* Password */}
                       <Form.Group
                         className="mb-3"
                         controlId="formBasicPassword"
@@ -141,8 +162,8 @@ function LoginPage() {
                           name="password"
                           placeholder="Ingresa tu contraseña"
                           value={values.password}
-                          onBlur={handleBlur}
                           onChange={handleChange}
+                          onBlur={handleBlur}
                           isInvalid={touched.password && !!errors.password}
                         />
                         <Form.Control.Feedback type="invalid">
@@ -185,7 +206,7 @@ function LoginPage() {
                         Iniciar Sesión
                       </Button>
 
-                      <p className="register-text mt-3">
+                      <p className="register-text mt-3 text-center">
                         ¿No tienes una cuenta?
                         <Card.Link href="/signup"> Regístrate aquí</Card.Link>
                       </p>
@@ -202,6 +223,48 @@ function LoginPage() {
           </Col>
         </Row>
       </Container>
+
+      {/* Overlay de carga */}
+      {showOverlay && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0, 0, 0, 0.6)",
+            zIndex: 2000,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "column",
+            color: "white",
+            backdropFilter: "blur(2px)",
+          }}
+        >
+          <div className="spinner-border text-light mb-3" role="status" />
+          <p>🔐 Iniciando sesión...</p>
+        </div>
+      )}
+
+      {/* Toast flotante */}
+      <div
+        style={{
+          position: "fixed",
+          bottom: "2rem",
+          right: "2rem",
+          zIndex: 3000,
+        }}
+      >
+        <CustomToast
+          show={toast.show}
+          onClose={() => setToast({ ...toast, show: false })}
+          type={toast.type}
+          title={toast.title}
+          message={toast.message}
+        />
+      </div>
     </div>
   );
 }

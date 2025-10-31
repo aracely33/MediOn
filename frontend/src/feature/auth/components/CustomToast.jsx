@@ -13,7 +13,7 @@ const CustomToast = ({ show, onClose, type = "success", title, message }) => {
     <Toast
       show={show}
       onClose={onClose}
-      delay={3000}
+      delay={2000}
       autohide
       className={`position-fixed top-0 end-0 m-3 text-white ${bgColor}`}
     >

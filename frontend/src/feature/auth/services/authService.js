@@ -24,8 +24,27 @@ export const getMe = async () => {
 };
 
 // Endpoint para iniciar sesión un paciente
+// Endpoint para iniciar sesión un paciente (mejorado)
+// Endpoint para iniciar sesión un paciente (versión segura)
 export const loginUser = async (user) => {
-  return await api.post("/auth/login", user);
+  try {
+    console.log("➡️ loginUser - request:", user);
+    const response = await api.post("/auth/login", user);
+    console.log("✅ loginUser - response:", response);
+    return response;
+  } catch (error) {
+    console.error("❌ Error en loginUser:", error);
+
+    // ⚠️ Si Axios lanza error sin respuesta, maneja eso también
+    const message =
+      error.response?.data?.message ||
+      error.response?.statusText ||
+      error.message ||
+      "Error desconocido en login";
+
+    // Lanzamos de nuevo un error controlado
+    throw new Error(message);
+  }
 };
 
 export const logoutUser = async () => {
