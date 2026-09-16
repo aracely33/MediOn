@@ -1,0 +1,51 @@
+package clinica.medtech.users.entities;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import clinica.medtech.medicalRecord.entities.MedicalRecordModel;
+
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@DiscriminatorValue("PATIENT")
+@SuperBuilder
+@Table(name = "patients")
+public class PatientModel extends UserModel {
+
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
+
+    private String gender;
+    private String address;
+    private String phone;
+    @Column(name = "fhir_id", unique = true)
+    private String fhirId;
+
+    @Column(name = "blood_type")
+    private String bloodType;
+
+    @Column(name = "city")
+    private String city;
+
+    @Column(name = "country")
+    private String country;
+
+    @Column(name = "zip")
+    private String zip;
+
+    @OneToOne(mappedBy = "patient", cascade = CascadeType.ALL)
+    private MedicalRecordModel medicalRecord;
+}
