@@ -1,0 +1,334 @@
+package clinica.medtech.users.service;
+
+import clinica.medtech.auth.jwt.JwtUtils;
+import clinica.medtech.exceptions.AccountNotVerifiedException;
+import clinica.medtech.exceptions.EmailAlreadyExistsException;
+import clinica.medtech.exceptions.PatientNotFoundException;
+import clinica.medtech.exceptions.ProfessionalNotFoundException;
+import clinica.medtech.notifications.service.EmailService;
+import clinica.medtech.notifications.service.Impl.EmailVerificationService;
+import clinica.medtech.users.Enum.EnumRole;
+import clinica.medtech.users.dtoRequest.AuthLoginRequestDto;
+import clinica.medtech.users.dtoRequest.PatientRequestDto;
+import clinica.medtech.users.dtoRequest.PatientUpdateRequestDto;
+import clinica.medtech.users.dtoRequest.SuspendRequestDto;
+import clinica.medtech.users.dtoRequest.UserMeRequestDto;
+import clinica.medtech.users.dtoResponse.AuthResponseDto;
+import clinica.medtech.users.dtoResponse.AuthResponseRegisterDto;
+import clinica.medtech.users.dtoResponse.PatientMeResponseDto;
+import clinica.medtech.users.dtoResponse.PatientMeResponseDto;
+import clinica.medtech.users.dtoResponse.UserMeResponseDto;
+import clinica.medtech.users.dtoResponse.UserResponseDto;
+import clinica.medtech.users.entities.PatientModel;
+import clinica.medtech.users.entities.ProfessionalModel;
+import clinica.medtech.users.entities.RoleModel;
+import clinica.medtech.users.entities.UserModel;
+import clinica.medtech.users.repository.PatientRepository;
+import clinica.medtech.users.repository.ProfessionalRepository;
+import clinica.medtech.users.repository.RoleRepository;
+import clinica.medtech.users.repository.UserRepository;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import java.time.LocalDateTime;
+import java.util.*;
+
+@Service
+@RequiredArgsConstructor
+@Validated
+@Slf4j
+public class UserDetailsServiceImpl implements UserDetailsService {
+    private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final JwtUtils jwtUtils;
+    private final RoleRepository roleRepository;
+    private final PatientRepository patientRepository;
+    private final EmailVerificationService emailVerificationService;
+    private final EmailService emailService;
+    private final FhirPatientService fhirPatientService;
+    private final ProfessionalRepository professionalRepository;
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        UserModel userEntity = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(
+                "El usuario con el email " + email + "no existe"));
+
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+
+        userEntity.getRoles().forEach(role -> {
+            authorities.add(new SimpleGrantedAuthority("ROLE_".concat(role.getEnumRole().name())));
+        });
+
+        userEntity.getRoles().stream()
+                .flatMap(role -> role.getPermissions().stream())
+                .forEach(permission -> authorities.add(new SimpleGrantedAuthority(permission.getName())));
+
+        return new User(userEntity.getEmail(),
+                userEntity.getPassword(),
+                userEntity.isEnabled(),
+                true,
+                true,
+                true,
+                authorities);
+    }
+
+    public AuthResponseDto loginUser(@Valid AuthLoginRequestDto authDto) {
+        String email = authDto.getEmail().trim().toLowerCase();
+        String password = authDto.getPassword();
+
+        // Buscar usuario
+        UserModel user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException(
+                        "El usuario con el correo " + email + " no existe."));
+
+        // Verificar si el correo fue validado
+        if (!user.isEmailVerified()) {
+            log.warn("Intento de login sin verificar: {}", email);
+            throw new AccountNotVerifiedException("Por favor, verifica tu correo antes de iniciar sesión.");
+        }
+
+        try {
+            // Autenticar usuario con Spring Security
+            Authentication authentication = this.authenticate(email, password);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            // Generar token JWT
+            String token = jwtUtils.generateJwtToken(authentication);
+
+            log.info("Usuario autenticado correctamente: {}", email);
+
+            return new AuthResponseDto(
+                    user.getId(),
+                    user.getName(),  // o user.getEmail() si prefieres
+                    "Inicio de sesión exitoso",
+                    token,
+                    true
+            );
+
+        } catch (BadCredentialsException ex) {
+            log.warn("Intento de login con credenciales inválidas: {}", email);
+            throw new BadCredentialsException("Correo o contraseña incorrectos.");
+        }
+    }
+
+
+
+
+    /**
+     * Crea un nuevo usuario paciente, asociando un usuario en la base de datos.
+     * Valida que el email no estén registrados previamente.
+     *
+     * @param authCreateUserDto DTO con la información del profesional a registrar.
+     * @return DTO de respuesta con información del registro y token JWT.
+     * @throws EmailAlreadyExistsException si el correo ya está registrado.
+     */
+    @Transactional
+    public AuthResponseRegisterDto createUser(@Valid PatientRequestDto authCreateUserDto) {
+
+        // Normalizar los datos
+        String email = authCreateUserDto.getEmail().trim().toLowerCase();
+        String name = authCreateUserDto.getName().trim();
+        String lastName = authCreateUserDto.getLastName().trim();
+        String password = authCreateUserDto.getPassword();
+
+        // Verificar si ya existe
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new EmailAlreadyExistsException("El correo " + email + " ya existe en la base de datos.");
+        }
+
+        // Buscar rol del paciente
+        RoleModel patientRole = roleRepository.findByEnumRole(EnumRole.PATIENT)
+                .orElseThrow(() -> new IllegalArgumentException("El rol de paciente no está configurado en la base de datos."));
+
+        Set<RoleModel> roleEntities = Set.of(patientRole);
+
+        // Crear entidad
+        PatientModel patientEntity = PatientModel.builder()
+                .email(email)
+                .name(name)
+                .lastName(lastName)
+                .password(passwordEncoder.encode(password))
+                .roles(roleEntities)
+                .emailVerified(false)
+                .build();
+
+        log.info("Registrando nuevo paciente con correo: {}", email);
+        PatientModel patientCreated = patientRepository.save(patientEntity);
+
+        try {
+            String fhirResponse = fhirPatientService.createPatientOnFhir(patientCreated);
+            log.info("Paciente también registrado en HAPI FHIR con respuesta: {}", fhirResponse);
+        } catch (Exception e) {
+            log.warn("No se pudo registrar el paciente en FHIR: {}", e.getMessage());
+        }
+
+        // Enviar email de bienvenida y código de verificación
+        try {
+            emailService.sendWelcomeEmail(patientCreated.getEmail(), patientCreated.getName());
+            emailVerificationService.createVerificationCode(patientCreated);
+        } catch (Exception e) {
+            log.warn("No se pudo enviar el email de bienvenida o verificación a {}", patientCreated.getEmail(), e);
+        }
+
+        // Retornar respuesta sin token (aún no verificado)
+        return new AuthResponseRegisterDto(
+                patientCreated.getId(),
+                patientCreated.getName(),
+                "Paciente registrado exitosamente. Por favor, verifica tu correo para activar tu cuenta.",
+                null,
+                false
+        );
+    }
+
+
+
+    public Authentication authenticate(String username, String password) {
+        UserDetails userDetails = loadUserByUsername(username);
+
+        UserModel userEntity = userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+
+        if (!userEntity.isEnabled()) {
+            throw new DisabledException("Usuario suspendido hasta: " + userEntity.getSuspensionEnd());
+        }
+
+
+        if (!passwordEncoder.matches(password, userDetails.getPassword())) {
+            throw new BadCredentialsException("Contraseña incorrecta");
+        }
+
+        return new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
+
+    }
+
+
+    public List<UserResponseDto> getUsersByRoleAdmin() {
+        List<UserModel> users = userRepository.findUsersByRolesEnumRole(EnumRole.ADMIN);
+        List<UserResponseDto> userResponseDtos = new ArrayList<>();
+
+        users.forEach(user -> {
+            userResponseDtos.add(new UserResponseDto(
+                    user.getName(),
+                    user.getLastName(),
+                    user.getEmail(),
+                    user.getRoles().stream().map(role -> role.getEnumRole().name()).toList()
+            ));
+        });
+
+        return userResponseDtos;
+    }
+
+
+    public UserMeResponseDto getCurrentUser(String email) {
+        UserModel user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario con el email " + email + " no encontrado"));
+
+        // Detectar tipo de usuario según sus roles
+        boolean isPatient = user.getRoles().stream()
+                .anyMatch(role -> role.getEnumRole() == EnumRole.PATIENT);
+        boolean isProfessional = user.getRoles().stream()
+                .anyMatch(role -> role.getEnumRole() == EnumRole.PROFESSIONAL);
+
+        UserMeResponseDto.UserMeResponseDtoBuilder builder = UserMeResponseDto.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .name(user.getName())
+                .lastName(user.getLastName())
+                .roles(user.getRoles().stream()
+                        .map(role -> role.getEnumRole().name())
+                        .toList());
+
+        if (isPatient) {
+            patientRepository.findByEmailIgnoreCase(email).ifPresent(patient -> {
+                builder.birthDate(patient.getBirthDate())
+                        .gender(patient.getGender())
+                        .phone(patient.getPhone())
+                        .address(patient.getAddress())
+                        .bloodType(patient.getBloodType())
+                        .city(patient.getCity())
+                        .country(patient.getCountry())
+                        .zip(patient.getZip());
+            });
+        } else if (isProfessional) {
+            professionalRepository.findByEmailIgnoreCase(email).ifPresent(prof -> {
+                builder.specialty(prof.getSpecialty())
+                        .medicalLicense(prof.getMedicalLicense())
+                        .biography(prof.getBiography())
+                        .consultationFee(prof.getConsultationFee());
+            });
+        }
+
+        return builder.build();
+    }
+
+
+//    @Transactional
+//    public UserMeResponseDto updateCurrentUser(Long id, UserMeRequestDto userMeRequest) {
+//        UserModel user = userRepository.findById(id)
+//                .orElseThrow(() -> new UsernameNotFoundException("Usuario con el id " + id + " no encontrado"));
+//
+//        if (!user.getEmail().equals(userMeRequest.getEmail())) {
+//            userRepository.findByEmail(userMeRequest.getEmail()).ifPresent(existingUser -> {
+//                throw new EmailAlreadyExistsException("El correo " + userMeRequest.getEmail() + " ya existe en la base de datos.");
+//            });
+//            user.setEmail(userMeRequest.getEmail());
+//        }
+//
+//
+//        user.setName(userMeRequest.getName());
+//        user.setLastName(userMeRequest.getLastName());
+//
+//        userRepository.save(user);
+//        return getCurrentUser(user.getEmail());
+//    }
+
+
+
+    @Transactional
+    public void suspendUser(Long userId, int duration, SuspendRequestDto.TimeUnit unit) {
+        UserModel user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+
+        LocalDateTime now = LocalDateTime.now();
+        user.setSuspensionEnd(calculateSuspensionEnd(now, duration, unit));
+        userRepository.save(user);
+    }
+
+    private LocalDateTime calculateSuspensionEnd(LocalDateTime start, int duration, SuspendRequestDto.TimeUnit unit) {
+        return switch (unit) {
+            case HOURS -> start.plusHours(duration);
+            case DAYS -> start.plusDays(duration);
+            case WEEKS -> start.plusWeeks(duration);
+            case MONTHS -> start.plusMonths(duration);
+        };
+    }
+
+    @Transactional
+    public void activateUser(Long userId) {
+        UserModel user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+        user.setSuspensionEnd(null);
+        userRepository.save(user);
+    }
+}
